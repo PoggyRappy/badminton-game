@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>羽你同在：羽球對決 | May the Shuttle Be With You</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1d2433">
+<meta name="description" content="羽球單打對決小遊戲：平抽、殺球、假動作，挑戰三關對手！">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="羽球PK">
+<title>羽球PK | Badminton PK</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -82,9 +91,9 @@
   .compact #menu .shots, .compact #help .shots { font-size: 11px; }
   .compact #help .card.split > h2 { margin-top: 26px; }
   .compact .browserTip { margin: 4px 0 0 !important; }
-  .compact .card.split { width: min(760px, 100%); display: grid; grid-template-columns: 1fr 1.35fr; column-gap: 16px; align-items: center; text-align: center; }
+  .compact .card.split { width: min(760px, 100%); display: grid; grid-template-columns: 1fr 1.35fr; grid-auto-rows: min-content; align-content: center; column-gap: 16px; align-items: center; text-align: center; }
   .compact .card.split > * { grid-column: 1; }
-  .compact .card.split > .rules { grid-column: 2; grid-row: 1 / span 6; margin: 0; align-self: center; }
+  .compact .card.split > .rules { grid-column: 2; grid-row: 1 / span 12; margin: 0; align-self: center; max-height: calc(92vh - 36px); overflow-y: auto; }
   .compact #over .card { width: min(560px, 100%); }
   .overlay { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(10,14,24,.6); backdrop-filter: blur(3px); padding: 18px; }
   .card { width: min(430px, 100%); background: #212b3d; border: 1px solid rgba(92,225,198,.35); border-radius: 22px; padding: 24px 22px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.5); max-height: 94vh; overflow-y: auto; }
@@ -153,6 +162,13 @@
     <button class="btn sec" id="stayHere" data-t="stayHere"></button>
   </div>
 </div>
+<div class="overlay hidden" id="iosInstall" style="z-index:61">
+  <div class="card">
+    <h2 data-t="iosInstallTitle"></h2>
+    <div class="rules" data-t="iosInstallSteps"></div>
+    <button class="btn pri" id="iosInstallClose" data-t="gotIt"></button>
+  </div>
+</div>
 <div class="rotate" id="rotate"><div class="phone">📱</div><b data-t="rotateB"></b><span data-t="rotateS"></span><button class="btn pri hidden" id="fsRotate" style="width:auto;padding:12px 26px" data-t="fsRotate"></button></div>
 <div class="topL"><button class="helpBtn" id="helpBtn" data-t="helpBtn"></button><button class="helpBtn hidden" id="fsBtn"></button><button class="helpBtn" id="voiceBtn" aria-label="voice"></button><button class="helpBtn" id="langTop" data-t="langTop"></button></div>
 
@@ -178,6 +194,7 @@
     <div class="rules" data-rules></div>
     <input id="nameIn" maxlength="12">
     <button class="btn pri" id="startBtn" data-t="start"></button>
+    <button class="btn sec hidden" id="installBtn" data-t="installBtn"></button>
     <p class="browserTip tc" data-t="browserTip"></p>
     <p class="fsTip hidden" id="fsTip" data-t="fsTip"></p>
     <p class="fsTip hidden" id="iosTip" data-t="iosTip"></p>
@@ -394,7 +411,10 @@
   // ---------- 語言（中文／English，用詞比照 BWF 國際賽） ----------
   const I18N = {
     zh: {
-      htmlLang: 'zh-Hant', title: '羽你同在：羽球對決', gameName: '羽你同在',
+      installBtn: '📲 安裝到手機（全螢幕玩）', gotIt: '知道了',
+      iosInstallTitle: '安裝到 iPhone 主畫面 📲',
+      iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      htmlLang: 'zh-Hant', title: '羽球PK', gameName: '羽球PK',
       sub: '跟系隊三位高手輪流過招，連贏三關你就是羽球之神！',
       placeholder: '你的名字', start: '上場！', you: '你',
       browserTip: '📱 請用 <b>Chrome</b>／<b>Safari</b> 開啟，別在 LINE、IG 等 App 裡玩',
@@ -435,8 +455,8 @@
       champTitle: '🏆 三關全破！你就是羽球之神', wonTitle: n => `贏了 ${n}！`, lostTitle: n => `輸給 ${n}…`,
       champMsg: n => `${n}，連校隊王牌都擋不住你！`, wonMsg: '下一關對手更快更會殺，記得殺完要回位。', lostMsg: '前場多放網、後場多切球，把對手前後拉開！',
       again: '從頭再打一次', next: n => `挑戰下一關：${n}`, retry: '再打一次這關',
-      shareChamp: u => `🏸 我在「羽你同在」三關全破，連校隊王牌都打贏了！你能做到嗎？\n${u}`,
-      shareMid: (st, n, sc, u) => `🏸 我在「羽你同在」打到第 ${st} 關（${n} ${sc}），換你來挑戰！\n${u}`,
+      shareChamp: u => `🏸 我在「羽球PK」三關全破，連校隊王牌都打贏了！你能做到嗎？\n${u}`,
+      shareMid: (st, n, sc, u) => `🏸 我在「羽球PK」打到第 ${st} 關（${n} ${sc}），換你來挑戰！\n${u}`,
       copied: '已複製！貼到 LINE / IG 給朋友吧', copyFail: '自動複製失敗，請手動複製下面的文字',
       banner: '系 隊 練 習 中 ・ 請 勿 走 進 場 內',
       voiceOn: '🔊', voiceOff: '🔇',
@@ -473,7 +493,10 @@
       比賽中隨時按左上角「？ 按鍵」<span class="kb">或 <kbd>H</kbd> </span>看說明（會暫停）`
     },
     en: {
-      htmlLang: 'en', title: 'May the Shuttle Be With You', gameName: 'May the Shuttle Be With You',
+      installBtn: '📲 Install on your phone (fullscreen)', gotIt: 'Got it',
+      iosInstallTitle: 'Add to your iPhone home screen 📲',
+      iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      htmlLang: 'en', title: 'Badminton PK', gameName: 'Badminton PK',
       sub: 'Beat three varsity rivals in a row to become a badminton legend!',
       placeholder: 'Your name', start: 'Let’s play!', you: 'You',
       browserTip: '📱 Open in <b>Chrome</b>/<b>Safari</b>, not inside apps like LINE or Instagram',
@@ -514,8 +537,8 @@
       champTitle: '🏆 All 3 stages cleared! Badminton legend', wonTitle: n => `You beat the ${n}!`, lostTitle: n => `Lost to the ${n}…`,
       champMsg: n => `${n}, not even the Varsity Ace could stop you!`, wonMsg: 'The next rival is faster — recover to base after every smash.', lostMsg: 'Mix net shots and slices to move your rival front and back!',
       again: 'Play again from Stage 1', next: n => `Next: ${n}`, retry: 'Retry this stage',
-      shareChamp: u => `🏸 I cleared all 3 stages of “May the Shuttle Be With You” and beat the Varsity Ace! Can you?\n${u}`,
-      shareMid: (st, n, sc, u) => `🏸 I reached Stage ${st} in “May the Shuttle Be With You” (${n} ${sc}). Your turn!\n${u}`,
+      shareChamp: u => `🏸 I cleared all 3 stages of “Badminton PK” and beat the Varsity Ace! Can you?\n${u}`,
+      shareMid: (st, n, sc, u) => `🏸 I reached Stage ${st} in “Badminton PK” (${n} ${sc}). Your turn!\n${u}`,
       copied: 'Copied! Send it to your friends', copyFail: 'Auto copy failed — copy the text below',
       banner: 'T E A M   P R A C T I C E  ·  S T A Y   O F F   T H E   C O U R T',
       voiceOn: '🔊', voiceOff: '🔇',
@@ -909,6 +932,24 @@
     try { await navigator.clipboard.writeText(GAME_URL); $('urlToast').textContent = T().urlCopied; }
     catch (e) { const b = $('urlBox'); b.value = GAME_URL; b.classList.remove('hidden'); b.select(); $('urlToast').textContent = T().urlFail; }
   });
+
+  // ---------- 安裝成 App（PWA） ----------
+  const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
+  const standalone = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let installEvt = null;
+  if (standalone) { // 從主畫面打開：不用再提示改用瀏覽器
+    $('inapp').classList.add('hidden');
+    document.querySelectorAll('.browserTip, #fsTip, #iosTip').forEach(el => el.classList.add('hidden'));
+  } else if (!inFrame) {
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('installBtn').classList.remove('hidden'); });
+    if (isIOS) $('installBtn').classList.remove('hidden');
+  }
+  $('installBtn').addEventListener('click', async () => {
+    if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').classList.add('hidden'); }
+    else $('iosInstall').classList.remove('hidden');
+  });
+  window.addEventListener('appinstalled', () => $('installBtn').classList.add('hidden'));
+  $('iosInstallClose').addEventListener('click', () => $('iosInstall').classList.add('hidden'));
 
   // ---------- 按鍵說明 ----------
   let paused = false;
@@ -1474,6 +1515,9 @@
   }
   requestAnimationFrame(loop);
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
 </body>
 </html>
