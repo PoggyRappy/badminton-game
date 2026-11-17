@@ -78,6 +78,8 @@
   .fsTip { font-size: 12px !important; opacity: .6 !important; }
   .compact .fsTip:not(.browserTip) { display: none; }
   .browserTip { font-size: 12px !important; color: #ffe066; opacity: .95 !important; }
+  .note { font-size: 12px !important; opacity: .65 !important; margin: 6px 0 !important; }
+  body:not(.inMatch) .topL, body:not(.inMatch) .ctrl, body:not(.inMatch) .zone, body:not(.inMatch) .score { visibility: hidden; }
   .compact .btn { padding: 10px; font-size: 15px; margin-top: 6px; }
   .compact .big { font-size: 34px; margin: 2px 0; }
   .compact .stats { margin: 4px 0; } .compact .stats b { font-size: 17px; }
@@ -122,6 +124,37 @@
   @keyframes cue { to { box-shadow: 0 0 0 8px rgba(255,224,102,.35); background: rgba(255,224,102,.3); } }
   .feintCue { position: fixed; top: 118px; left: 50%; transform: translateX(-50%); background: rgba(255,224,102,.92); color: #1d2433; font-weight: 900; font-size: 13px; padding: 4px 12px; border-radius: 99px; pointer-events: none; z-index: 7; white-space: nowrap; }
   .compact .feintCue { top: 86px; font-size: 12px; }
+  .linkBtn { display: block; margin: 10px auto 0; background: none; border: 0; color: rgba(255,255,255,.65); font: 13px "Noto Sans TC", sans-serif; text-decoration: underline; cursor: pointer; }
+  .appIcon { width: 76px; height: 76px; border-radius: 18px; display: block; margin: 0 auto 6px; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+  .card.home { width: min(460px, 100%); }
+  .homeHi { font-size: 16px !important; color: #ffe066; font-weight: 700; }
+  .btn.big2 { font-size: 19px; padding: 15px; }
+  .stageSel { display: flex; gap: 6px; margin-top: 8px; }
+  .stageSel button { flex: 1; padding: 8px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.07); color: #fff; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; line-height: 1.35; }
+  .stageSel button small { display: block; font-weight: 400; opacity: .7; font-size: 11px; }
+  .stageSel button.done { border-color: #5ce1c6; }
+  .stageSel button:disabled { opacity: .35; cursor: default; }
+  .homeRow { display: flex; gap: 6px; } .homeRow .btn { font-size: 14px; padding: 10px 4px; }
+  .recGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+  .recGrid div { background: rgba(255,255,255,.06); border-radius: 12px; padding: 8px; font-size: 12px; opacity: .95; }
+  .recGrid b { display: block; font-size: 22px; color: #5ce1c6; }
+  .setRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
+  .setRow .langSw { position: static !important; margin: 0; }
+  .setRow input { width: 55%; margin: 0; padding: 7px 10px; font-size: 14px; }
+  .toggle { min-width: 64px; padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .toggle.on { background: #5ce1c6; color: #1d2433; border-color: #5ce1c6; }
+  .techTitle { font-size: 12px; opacity: .7; margin-top: 4px; }
+  .techList { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 6px 0 4px; }
+  .techList span { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(92,225,198,.15); }
+  .techList span b { color: #ffe066; margin-left: 4px; }
+  .shareImg { width: min(300px, 70vw, 52vh); aspect-ratio: 1; border-radius: 12px; display: block; margin: 0 auto 8px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  a.btn { text-decoration: none; box-sizing: border-box; }
+  .compact .card.result { width: min(560px, 100%); }
+  .compact .result .big { font-size: 30px; } .compact .result h2 { font-size: 17px; margin: 0; }
+  .compact .card.home { padding: 12px 16px; } .compact .card.home h1 { margin-top: 0; }
+  .compact #shareView .card { width: min(680px, 100%); display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: center; }
+  .compact #shareView .card > * { grid-column: 2; }
+  .compact #shareView .shareImg { grid-column: 1; grid-row: 1 / span 8; width: min(300px, 78vh); margin: 0; }
   .ladder { display: flex; justify-content: center; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
   .ladder span { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.08); }
   .ladder span.done { background: rgba(92,225,198,.25); color: #5ce1c6; }
@@ -151,41 +184,37 @@
 <div class="coach hidden" id="coach"></div>
 <div class="feintCue hidden" id="feintCue"></div>
 <div class="zone hidden" id="zone"></div>
-<div class="overlay hidden" id="inapp" style="z-index:60">
+<!-- 安裝畫面：手機用瀏覽器開啟時先出現（可以略過） -->
+<div class="overlay hidden" id="gate" style="z-index:60">
   <div class="card">
-    <h2 data-t="inappTitle"></h2>
-    <p data-t="inappP"></p>
-    <div class="rules" data-t="inappSteps"></div>
-    <button class="btn pri" id="copyUrl" data-t="copyUrl"></button>
+    <img class="appIcon" src="icon-192.png" alt="" onerror="this.style.display='none'">
+    <h1 data-t="gameName"></h1>
+    <p data-t="gateP"></p>
+    <div class="rules" id="gateSteps"></div>
+    <button class="btn pri" id="gateBtn"></button>
     <textarea class="copybox hidden" id="urlBox" readonly></textarea>
     <div class="toast" id="urlToast"></div>
-    <button class="btn sec" id="stayHere" data-t="stayHere"></button>
-  </div>
-</div>
-<div class="overlay hidden" id="iosInstall" style="z-index:61">
-  <div class="card">
-    <h2 data-t="iosInstallTitle"></h2>
-    <div class="rules" data-t="iosInstallSteps"></div>
-    <button class="btn pri" id="iosInstallClose" data-t="gotIt"></button>
+    <button class="linkBtn" id="gateSkip" data-t="gateSkip"></button>
   </div>
 </div>
 <div class="rotate" id="rotate"><div class="phone">📱</div><b data-t="rotateB"></b><span data-t="rotateS"></span><button class="btn pri hidden" id="fsRotate" style="width:auto;padding:12px 26px" data-t="fsRotate"></button></div>
-<div class="topL"><button class="helpBtn" id="helpBtn" data-t="helpBtn"></button><button class="helpBtn hidden" id="fsBtn"></button><button class="helpBtn" id="voiceBtn" aria-label="voice"></button><button class="helpBtn" id="langTop" data-t="langTop"></button></div>
+<!-- 比賽中左上角：暫停、全螢幕 -->
+<div class="topL"><button class="helpBtn" id="pauseBtn" data-t="pauseBtn"></button><button class="helpBtn hidden" id="fsBtn"></button></div>
 
-<div class="overlay hidden" id="help">
+<div class="overlay hidden" id="help" style="z-index:40">
   <div class="card split">
     <div class="langSw"><button class="langBtn" data-lang="zh">中文</button><button class="langBtn" data-lang="en">English</button></div>
     <h2 data-t="helpTitle"></h2>
     <div class="rules" data-rules></div>
-    <button class="btn pri" id="helpClose" data-t="resume"></button>
+    <button class="btn pri" id="helpClose"></button>
   </div>
 </div>
-
 
 <div class="ctrl l"><button data-k="jump" class="jump" data-t="btnJump"></button><button data-k="left" class="mv">◀</button><button data-k="right" class="mv">▶</button></div>
 <div class="ctrl r"><button data-k="drop" class="soft" data-t="btnSoft"></button><button data-k="swing" class="hit" data-t="btnSwing"></button></div>
 
-<div class="overlay" id="menu">
+<!-- 第一次進來：取名字＋玩法介紹 -->
+<div class="overlay hidden" id="menu">
   <div class="card split">
     <div class="langSw"><button class="langBtn" data-lang="zh">中文</button><button class="langBtn" data-lang="en">English</button></div>
     <h1 data-t="gameName"></h1>
@@ -193,30 +222,96 @@
     <div class="ladder menuLadder"></div>
     <div class="rules" data-rules></div>
     <input id="nameIn" maxlength="12">
-    <button class="btn pri" id="startBtn" data-t="start"></button>
-    <button class="btn sec hidden" id="installBtn" data-t="installBtn"></button>
-    <p class="browserTip tc" data-t="browserTip"></p>
-    <p class="fsTip hidden" id="fsTip" data-t="fsTip"></p>
-    <p class="fsTip hidden" id="iosTip" data-t="iosTip"></p>
+    <button class="btn pri" id="startBtn" data-t="welcomeStart"></button>
   </div>
 </div>
 
-<div class="overlay hidden" id="over">
+<!-- 主頁面 -->
+<div class="overlay hidden" id="home">
+  <div class="card home">
+    <h1 data-t="gameName"></h1>
+    <p class="homeHi" id="homeHi"></p>
+    <button class="btn pri big2" id="contBtn"></button>
+    <div class="stageSel" id="stageSel"></div>
+    <div class="homeRow">
+      <button class="btn sec" id="recBtn" data-t="recordsBtn"></button>
+      <button class="btn sec" id="setBtn" data-t="settingsBtn"></button>
+      <button class="btn sec" id="homeHelpBtn" data-t="helpHome"></button>
+    </div>
+    <button class="btn sec hidden" id="homeInstall" data-t="installHome"></button>
+    <button class="linkBtn" id="exitBtn" data-t="exitGame"></button>
+  </div>
+</div>
+
+<!-- 個人紀錄 -->
+<div class="overlay hidden" id="records" style="z-index:30">
   <div class="card">
+    <h2 data-t="recordsTitle"></h2>
+    <div class="recGrid" id="recGrid"></div>
+    <button class="btn pri" id="recClose" data-t="back"></button>
+  </div>
+</div>
+
+<!-- 設定 -->
+<div class="overlay hidden" id="settings" style="z-index:30">
+  <div class="card">
+    <h2 data-t="settingsTitle"></h2>
+    <div class="setRow"><span data-t="setLang"></span><div class="langSw"><button class="langBtn" data-lang="zh">中文</button><button class="langBtn" data-lang="en">English</button></div></div>
+    <div class="setRow"><span data-t="setVoice"></span><button class="toggle" id="voiceTog"></button></div>
+    <div class="setRow"><span data-t="setSound"></span><button class="toggle" id="soundTog"></button></div>
+    <div class="setRow"><span data-t="setName"></span><input id="renameIn" maxlength="12"></div>
+    <button class="btn pri" id="setClose" data-t="saveBack"></button>
+  </div>
+</div>
+
+<!-- 暫停 -->
+<div class="overlay hidden" id="pause" style="z-index:30">
+  <div class="card">
+    <h2 data-t="pauseTitle"></h2>
+    <button class="btn pri" id="resumeBtn" data-t="resume"></button>
+    <button class="btn sec" id="pHelp" data-t="helpHome"></button>
+    <button class="btn sec" id="pSet" data-t="settingsBtn"></button>
+    <button class="btn sec" id="pRestart" data-t="restart"></button>
+    <button class="btn sec" id="pHome" data-t="toHome"></button>
+    <button class="linkBtn" id="pExit" data-t="exitGame"></button>
+  </div>
+</div>
+
+<!-- 結算 -->
+<div class="overlay hidden" id="over">
+  <div class="card result">
     <h2 id="ovTitle"></h2>
     <div class="big" id="ovScore"></div>
-    <div class="ladder" id="ovLadder"></div>
     <div class="stats">
-      <div><b id="stSmash">0</b><span data-t="statSmash"></span></div>
-      <div><b id="stRally">0</b><span data-t="statRally"></span></div>
-      <div><b id="stTotal">0</b><span data-t="statTotal"></span></div>
+      <div><b id="stLongest">0</b><span data-t="statLongest"></span></div>
+      <div><b id="stAvg">0</b><span data-t="statAvg"></span></div>
+      <div><b id="stShots">0</b><span data-t="statShots"></span></div>
     </div>
-    <p id="ovMsg"></p>
+    <div class="techTitle" data-t="techTitle"></div>
+    <div class="techList" id="techList"></div>
     <button class="btn pri" id="nextBtn"></button>
-    <button class="btn sec" id="shareBtn" data-t="share"></button>
+    <button class="btn sec" id="shareBtn" data-t="shareImg"></button>
+    <button class="linkBtn" id="ovHome" data-t="toHome"></button>
+  </div>
+</div>
+
+<!-- 成績圖預覽 -->
+<div class="overlay hidden" id="shareView" style="z-index:45">
+  <div class="card">
+    <img id="shareImg" class="shareImg" alt="">
+    <button class="btn pri hidden" id="shareNow" data-t="shareNow"></button>
+    <a class="btn sec" id="saveImg" download="badminton-pk.png" data-t="saveImg"></a>
+    <p class="note" data-t="longPress"></p>
+    <button class="btn sec" id="copyTxt" data-t="copyText"></button>
     <div class="toast" id="toast"></div>
     <textarea class="copybox hidden" id="copyBox" readonly></textarea>
+    <button class="linkBtn" id="shareClose" data-t="back"></button>
   </div>
+</div>
+
+<!-- 提示小卡（例如：關不掉時教你用手勢） -->
+<div class="overlay hidden" id="notice" style="z-index:70">
+  <div class="card"><p id="noticeTxt"></p><button class="btn pri" id="noticeOk" data-t="gotIt"></button></div>
 </div>
 
 <script>
@@ -269,6 +364,7 @@
   // ---------- 音效：用雜訊合成羽球擊球聲 ----------
   let ac = null, noiseBuf = null;
   function audio() {
+    if (typeof soundOn !== 'undefined' && !soundOn) return null;
     try {
       if (!ac) {
         ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -411,9 +507,23 @@
   // ---------- 語言（中文／English，用詞比照 BWF 國際賽） ----------
   const I18N = {
     zh: {
-      installBtn: '📲 安裝到手機（全螢幕玩）', gotIt: '知道了',
+      installBtn: '📲 安裝到手機', gotIt: '知道了',
       iosInstallTitle: '安裝到 iPhone 主畫面 📲',
       iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      gateP: '安裝到手機主畫面，全螢幕玩最順！', gateSkip: '先在瀏覽器玩',
+      gateAndroidReady: '按下面的按鈕，就會把「羽球PK」裝到主畫面。',
+      gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
+      welcomeStart: '開始第一場！', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰校隊王牌',
+      recordsBtn: '📊 紀錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
+      recordsTitle: '個人紀錄', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
+      settingsTitle: '設定', setLang: '語言', setVoice: '裁判語音報分', setSound: '擊球音效', setName: '名字', saveBack: '儲存並返回', on: '開', off: '關',
+      pauseBtn: '⏸ 暫停', pauseTitle: '暫停中', restart: '重新開始這關', toHome: '回主頁',
+      statLongest: '最長來回', statAvg: '平均來回', statShots: '總擊球', techTitle: '技術使用', feintStat: m => `假動作（騙到 ${m}）`,
+      champAgain: '再挑戰一次王牌', shareImg: '📷 分享成績圖', shareNow: '分享到 IG／FB／LINE', saveImg: '下載圖片', longPress: '手機也可以長按圖片儲存', copyText: '複製文字和連結',
+      imgChamp: '🏆 三關全破！', imgWin: '🏸 勝利！', imgLose: '💪 惜敗，再來！', imgFeint: '假動作', imgTop: '拿手球路：', imgChallenge: '來挑戰我！',
+      closeTipIOS: '網頁 App 不能自己關閉。<br>從螢幕<b>底部往上滑</b>，就能回到桌面；在 App 切換畫面把「羽球PK」往上滑就能完全關掉。',
+      closeTipAndroid: '網頁 App 不能自己關閉。<br>按手機的<b>返回鍵</b>或從底部<b>往上滑</b>回到桌面；在多工畫面把「羽球PK」滑掉就能完全關掉。',
+      closeTipPC: '關閉這個瀏覽器分頁就能離開遊戲。',
       htmlLang: 'zh-Hant', title: '羽球PK', gameName: '羽球PK',
       sub: '跟系隊三位高手輪流過招，連贏三關你就是羽球之神！',
       placeholder: '你的名字', start: '上場！', you: '你',
@@ -454,7 +564,7 @@
       },
       champTitle: '🏆 三關全破！你就是羽球之神', wonTitle: n => `贏了 ${n}！`, lostTitle: n => `輸給 ${n}…`,
       champMsg: n => `${n}，連校隊王牌都擋不住你！`, wonMsg: '下一關對手更快更會殺，記得殺完要回位。', lostMsg: '前場多放網、後場多切球，把對手前後拉開！',
-      again: '從頭再打一次', next: n => `挑戰下一關：${n}`, retry: '再打一次這關',
+      again: '再戰一局', next: n => `挑戰下一關：${n}`, retry: '再打一次這關',
       shareChamp: u => `🏸 我在「羽球PK」三關全破，連校隊王牌都打贏了！你能做到嗎？\n${u}`,
       shareMid: (st, n, sc, u) => `🏸 我在「羽球PK」打到第 ${st} 關（${n} ${sc}），換你來挑戰！\n${u}`,
       copied: '已複製！貼到 LINE / IG 給朋友吧', copyFail: '自動複製失敗，請手動複製下面的文字',
@@ -493,9 +603,23 @@
       比賽中隨時按左上角「？ 按鍵」<span class="kb">或 <kbd>H</kbd> </span>看說明（會暫停）`
     },
     en: {
-      installBtn: '📲 Install on your phone (fullscreen)', gotIt: 'Got it',
+      installBtn: '📲 Install the app', gotIt: 'Got it',
       iosInstallTitle: 'Add to your iPhone home screen 📲',
       iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      gateP: 'Install it on your home screen for the best fullscreen experience!', gateSkip: 'Play in the browser for now',
+      gateAndroidReady: 'Tap the button below to add “Badminton PK” to your home screen.',
+      gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
+      welcomeStart: 'Start your first match!', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge the Varsity Ace again',
+      recordsBtn: '📊 Records', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
+      recordsTitle: 'My records', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
+      settingsTitle: 'Settings', setLang: 'Language', setVoice: 'Umpire voice', setSound: 'Hit sounds', setName: 'Name', saveBack: 'Save & back', on: 'On', off: 'Off',
+      pauseBtn: '⏸ Pause', pauseTitle: 'Paused', restart: 'Restart this stage', toHome: 'Home',
+      statLongest: 'Longest rally', statAvg: 'Average rally', statShots: 'Total shots', techTitle: 'Shots used', feintStat: m => `Deception (fooled ${m})`,
+      champAgain: 'Challenge the Ace again', shareImg: '📷 Share result image', shareNow: 'Share to IG / FB / LINE', saveImg: 'Download image', longPress: 'On a phone you can also long-press the image to save it', copyText: 'Copy text & link',
+      imgChamp: '🏆 All 3 stages cleared!', imgWin: '🏸 Victory!', imgLose: '💪 So close — again!', imgFeint: 'Deceptions', imgTop: 'Best shots: ', imgChallenge: 'Come and beat me!',
+      closeTipIOS: 'Web apps can’t close themselves.<br><b>Swipe up from the bottom</b> to go home; swipe “Badminton PK” away in the app switcher to fully close it.',
+      closeTipAndroid: 'Web apps can’t close themselves.<br>Press <b>Back</b> or <b>swipe up</b> to go home; swipe “Badminton PK” away in recent apps to fully close it.',
+      closeTipPC: 'Close this browser tab to leave the game.',
       htmlLang: 'en', title: 'Badminton PK', gameName: 'Badminton PK',
       sub: 'Beat three varsity rivals in a row to become a badminton legend!',
       placeholder: 'Your name', start: 'Let’s play!', you: 'You',
@@ -536,7 +660,7 @@
       },
       champTitle: '🏆 All 3 stages cleared! Badminton legend', wonTitle: n => `You beat the ${n}!`, lostTitle: n => `Lost to the ${n}…`,
       champMsg: n => `${n}, not even the Varsity Ace could stop you!`, wonMsg: 'The next rival is faster — recover to base after every smash.', lostMsg: 'Mix net shots and slices to move your rival front and back!',
-      again: 'Play again from Stage 1', next: n => `Next: ${n}`, retry: 'Retry this stage',
+      again: 'Play again', next: n => `Next: ${n}`, retry: 'Retry this stage',
       shareChamp: u => `🏸 I cleared all 3 stages of “Badminton PK” and beat the Varsity Ace! Can you?\n${u}`,
       shareMid: (st, n, sc, u) => `🏸 I reached Stage ${st} in “Badminton PK” (${n} ${sc}). Your turn!\n${u}`,
       copied: 'Copied! Send it to your friends', copyFail: 'Auto copy failed — copy the text below',
@@ -591,12 +715,13 @@
     $('pName').textContent = playerName();
     if (typeof updFsBtn === 'function') updFsBtn();
     updVoiceBtn(); lastZone = '';
+    if (typeof refreshScreens === 'function') refreshScreens();
   }
   function setLang(l) { LANG = l; store.set('bd_lang', l); applyLang(); }
 
   // ---------- 裁判報分（文字＋語音） ----------
   let voiceOn = store.get('bd_voice', '1') === '1';
-  function updVoiceBtn() { const b = $('voiceBtn'); if (b) b.textContent = voiceOn ? T().voiceOn : T().voiceOff; }
+  function updVoiceBtn() { if (typeof updToggles === 'function' && $('voiceTog')) updToggles(); }
   function speak(text) {
     if (!voiceOn || !('speechSynthesis' in window)) return;
     try {
@@ -627,7 +752,7 @@
       b: null, state: 'serve', timer: 0, rally: 0,
       trail: [], aiRetarget: 0, aiDelay: 0, aiPlan: null, aiRoll: 1, aiJumped: false, aiFeintT: 0, aiFeintDir: 0, aiPend: null,
       coach: { streak: 0, counts: {}, shown: {} },
-      stats: keepTotals && prev ? prev.stats : { smash: 0, longest: 0, total: 0 }
+      stats: { smash: 0, longest: 0, total: 0, shots: {}, rallies: [], feints: 0, fooled: 0 }
     };
     $('aName').textContent = T().levels[level];
     $('lvLbl').textContent = T().stage(level + 1);
@@ -792,8 +917,8 @@
     }
     // 你的假動作：對手先往反方向跑（王牌有機會看穿）
     let fooled = false;
-    if (who === 'p' && feint) g.usedFeint = true;
-    if (who === 'p' && feint && Math.random() >= L.readP) { fooled = true; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
+    if (who === 'p') { g.stats.shots[kind] = (g.stats.shots[kind] || 0) + 1; if (feint) { g.usedFeint = true; g.stats.feints++; } }
+    if (who === 'p' && feint && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
     else if (who === 'p') g.aiFeintT = 0;
     if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.style === 'ace' && g.a.y === 0) g.a.vy = 1.5; } // 王牌：你擊球時啟動步
     const tx = who === 'p' ? t : COURT - t;
@@ -905,12 +1030,9 @@
   }
   function updFsBtn() { $('fsBtn').textContent = isFull() ? T().fsOff : T().fsOn; }
   const isIOS = /iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1 && !fsOK);
-  if (fsOK) {
-    $('fsBtn').classList.remove('hidden'); $('fsRotate').classList.remove('hidden');
-    if (isTouch) $('fsTip').classList.remove('hidden');
-  } else if (isIOS) {
-    $('iosTip').classList.remove('hidden');
-  }
+  // 已經從主畫面全螢幕打開就不用全螢幕按鈕
+  const appMode = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (fsOK && !appMode) { $('fsBtn').classList.remove('hidden'); $('fsRotate').classList.remove('hidden'); }
   $('fsBtn').addEventListener('click', e => { e.currentTarget.blur(); toggleFull(); });
   $('fsRotate').addEventListener('click', goFull);
   ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => {
@@ -921,46 +1043,167 @@
   let readyT = 0;
   function getReady() { readyT = 3.6; keys.left = keys.right = false; pendingSwing = null; if (G_ && G_.state === 'serve' && G_.ps + G_.as === 0) coachSay(T().intros[G_.level], 4500); }
 
-  // ---------- 偵測 App 內建瀏覽器（Claude App、LINE、IG、FB…） ----------
+  // ---------- 偵測環境 ----------
   const GAME_URL = 'https://poggyrappy.github.io/badminton-game/';
   const UA = navigator.userAgent;
   const inApp = isTouch && (/; wv\)/.test(UA) || /Claude|Line\/|FBAN|FBAV|Instagram|Messenger|MicroMessenger/i.test(UA) ||
     (/iPhone|iPad|iPod/.test(UA) && !/Safari\//.test(UA)));
-  if (inApp) $('inapp').classList.remove('hidden');
-  $('stayHere').addEventListener('click', () => $('inapp').classList.add('hidden'));
-  $('copyUrl').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(GAME_URL); $('urlToast').textContent = T().urlCopied; }
-    catch (e) { const b = $('urlBox'); b.value = GAME_URL; b.classList.remove('hidden'); b.select(); $('urlToast').textContent = T().urlFail; }
-  });
-
-  // ---------- 安裝成 App（PWA） ----------
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
   const standalone = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const canInstallHere = !inFrame && !standalone;
   let installEvt = null;
-  if (standalone) { // 從主畫面打開：不用再提示改用瀏覽器
-    $('inapp').classList.add('hidden');
-    document.querySelectorAll('.browserTip, #fsTip, #iosTip').forEach(el => el.classList.add('hidden'));
-  } else if (!inFrame) {
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('installBtn').classList.remove('hidden'); });
-    if (isIOS) $('installBtn').classList.remove('hidden');
-  }
-  $('installBtn').addEventListener('click', async () => {
-    if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('installBtn').classList.add('hidden'); }
-    else $('iosInstall').classList.remove('hidden');
-  });
-  window.addEventListener('appinstalled', () => $('installBtn').classList.add('hidden'));
-  $('iosInstallClose').addEventListener('click', () => $('iosInstall').classList.add('hidden'));
+  if (canInstallHere) window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; updInstallUI(); });
+  window.addEventListener('appinstalled', () => { installEvt = null; store.set('bd_installed', '1'); updInstallUI(); });
 
-  // ---------- 按鍵說明 ----------
-  let paused = false;
-  function openHelp() {
-    if (!$('menu').classList.contains('hidden')) return; // 開始畫面本來就有說明
-    paused = true; keys.left = keys.right = false; pendingSwing = null;
-    $('help').classList.remove('hidden');
+  // ---------- 畫面切換 ----------
+  const SCREENS = ['gate', 'menu', 'home', 'over'];
+  function showScreen(id) { SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id)); document.body.classList.toggle('inMatch', !id); }
+  function overlayOpen(id) { $(id).classList.remove('hidden'); }
+  function overlayClose(id) { $(id).classList.add('hidden'); }
+  function notice(text) { $('noticeTxt').innerHTML = text; overlayOpen('notice'); }
+  $('noticeOk').addEventListener('click', () => overlayClose('notice'));
+
+  // ---------- 安裝畫面 ----------
+  function gateMode() { return inApp ? 'inapp' : isIOS ? 'ios' : 'android'; }
+  function updInstallUI() {
+    const t = T(), m = gateMode();
+    $('gateSteps').innerHTML = m === 'inapp' ? t.inappSteps : m === 'ios' ? t.iosInstallSteps : (installEvt ? t.gateAndroidReady : t.gateAndroidSteps);
+    $('gateBtn').textContent = m === 'inapp' ? t.copyUrl : m === 'ios' ? t.gotIt : t.installBtn;
+    $('gateBtn').classList.toggle('hidden', m === 'android' && !installEvt);
+    $('homeInstall').classList.toggle('hidden', !(canInstallHere && isTouch && store.get('bd_installed', '') !== '1'));
   }
-  function closeHelp() { paused = false; $('help').classList.add('hidden'); last = performance.now(); }
-  $('helpBtn').addEventListener('click', e => { e.currentTarget.blur(); paused ? closeHelp() : openHelp(); });
+  $('gateBtn').addEventListener('click', async () => {
+    const m = gateMode();
+    if (m === 'inapp') {
+      try { await navigator.clipboard.writeText(GAME_URL); $('urlToast').textContent = T().urlCopied; }
+      catch (e) { const b = $('urlBox'); b.value = GAME_URL; b.classList.remove('hidden'); b.select(); $('urlToast').textContent = T().urlFail; }
+    } else if (m === 'ios') afterGate();
+    else if (installEvt) { installEvt.prompt(); try { const r = await installEvt.userChoice; if (r && r.outcome === 'accepted') store.set('bd_installed', '1'); } catch (e) {} installEvt = null; updInstallUI(); }
+  });
+  $('gateSkip').addEventListener('click', () => { try { sessionStorage.setItem('bd_skip', '1'); } catch (e) {} afterGate(); });
+  $('homeInstall').addEventListener('click', () => {
+    if (installEvt) $('gateBtn').click();
+    else { updInstallUI(); $('gateSkip').classList.add('hidden'); showScreen('gate'); $('gateSkip').classList.remove('hidden'); }
+  });
+
+  // ---------- 開場流程：安裝畫面 → 第一次取名 → 主頁 ----------
+  function boot() {
+    let skipped = false; try { skipped = sessionStorage.getItem('bd_skip') === '1'; } catch (e) {}
+    if (isTouch && canInstallHere && !skipped) { updInstallUI(); showScreen('gate'); }
+    else afterGate();
+  }
+  function afterGate() {
+    if (!store.get('bd_name', '')) { $('nameIn').value = ''; showScreen('menu'); }
+    else showHome();
+  }
+
+  // ---------- 進度與紀錄（存在這支手機／電腦） ----------
+  const REC0 = { matches: 0, wins: 0, cleared: 0, smash: 0, longest: 0, points: 0, shots: {} };
+  function getRec() { try { return Object.assign({}, REC0, JSON.parse(store.get('bd_rec', '{}'))); } catch (e) { return Object.assign({}, REC0); } }
+  function setRec(r) { store.set('bd_rec', JSON.stringify(r)); }
+  function nextStage() { return Math.min(getRec().cleared, LEVELS.length - 1); }
+
+  // ---------- 主頁 ----------
+  function showHome() {
+    const t = T(), r = getRec(), ns = nextStage();
+    G_ = null; paused = false; clearHud();
+    $('homeHi').textContent = t.homeHi(playerName());
+    $('contBtn').textContent = r.cleared >= LEVELS.length ? t.contChamp : t.cont(ns + 1, t.levels[ns]);
+    $('stageSel').innerHTML = LEVELS.map((L, i) => {
+      const open = i <= r.cleared, done = i < r.cleared;
+      return `<button data-st="${i}" class="${done ? 'done' : ''}" ${open ? '' : 'disabled'}>${open ? (done ? '✓ ' : '') : '🔒 '}${t.stage(i + 1)}<small>${t.levels[i]}</small></button>`;
+    }).join('');
+    $('stageSel').querySelectorAll('button').forEach(b => b.addEventListener('click', () => playStage(+b.dataset.st)));
+    updInstallUI();
+    showScreen('home');
+  }
+  function clearHud() {
+    ['msg', 'hint'].forEach(id => $(id).textContent = '');
+    ['coach', 'feintCue', 'zone'].forEach(id => $(id).classList.add('hidden'));
+    lastZone = '';
+  }
+  function playStage(lv) {
+    audio(); unlockSpeech(); if (isTouch) goFull();
+    $('pName').textContent = playerName();
+    showScreen(null); newMatch(lv, false); getReady();
+    try { history.pushState({ m: 1 }, ''); } catch (e) {}
+  }
+  $('contBtn').addEventListener('click', () => playStage(nextStage()));
+  $('recBtn').addEventListener('click', () => { renderRecords(); overlayOpen('records'); });
+  $('recClose').addEventListener('click', () => overlayClose('records'));
+  $('setBtn').addEventListener('click', openSettings);
+  $('homeHelpBtn').addEventListener('click', () => openHelp());
+  $('exitBtn').addEventListener('click', exitGame);
+
+  function renderRecords() {
+    const t = T(), r = getRec();
+    const fav = Object.entries(r.shots).filter(([k]) => t.shots[k]).sort((a, b) => b[1] - a[1])[0];
+    const cells = [
+      [r.matches, t.recMatches], [r.wins, t.recWins], [r.matches ? Math.round(r.wins / r.matches * 100) + '%' : '–', t.recRate],
+      [r.cleared >= 3 ? '🏆' : `${Math.min(r.cleared + 1, 3)} / 3`, t.recBest], [r.smash, t.recSmash], [r.longest, t.recLongest],
+      [r.points, t.recPoints], [fav ? t.shots[fav[0]].replace(/[！!]/, '') : '–', t.recFav]
+    ];
+    $('recGrid').innerHTML = cells.map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
+  }
+
+  // ---------- 設定 ----------
+  let soundOn = store.get('bd_sound', '1') === '1';
+  function updToggles() {
+    const t = T();
+    $('voiceTog').textContent = voiceOn ? t.on : t.off; $('voiceTog').classList.toggle('on', voiceOn);
+    $('soundTog').textContent = soundOn ? t.on : t.off; $('soundTog').classList.toggle('on', soundOn);
+  }
+  function openSettings() { $('renameIn').value = store.get('bd_name', ''); updToggles(); overlayOpen('settings'); }
+  $('voiceTog').addEventListener('click', () => { voiceOn = !voiceOn; store.set('bd_voice', voiceOn ? '1' : '0'); if (!voiceOn) { try { speechSynthesis.cancel(); } catch (e) {} } else unlockSpeech(); updToggles(); });
+  $('soundTog').addEventListener('click', () => { soundOn = !soundOn; store.set('bd_sound', soundOn ? '1' : '0'); updToggles(); });
+  $('setClose').addEventListener('click', () => {
+    const n = $('renameIn').value.trim(); if (n) { store.set('bd_name', n); $('nameIn').value = n; }
+    $('pName').textContent = playerName(); overlayClose('settings');
+    if (!$('home').classList.contains('hidden')) showHome();
+  });
+
+  // ---------- 暫停 ----------
+  let paused = false;
+  const inMatch = () => !!(G_ && !G_.over && $('home').classList.contains('hidden'));
+  function openPause() {
+    if (!inMatch()) return;
+    paused = true; keys.left = keys.right = false; pendingSwing = null;
+    try { speechSynthesis.cancel(); } catch (e) {}
+    overlayOpen('pause');
+  }
+  function closePause() { overlayClose('pause'); paused = false; last = performance.now(); }
+  $('pauseBtn').addEventListener('click', e => { e.currentTarget.blur(); openPause(); });
+  $('resumeBtn').addEventListener('click', closePause);
+  $('pHelp').addEventListener('click', () => openHelp());
+  $('pSet').addEventListener('click', openSettings);
+  $('pRestart').addEventListener('click', () => { overlayClose('pause'); paused = false; newMatch(G_.level, false); getReady(); });
+  $('pHome').addEventListener('click', () => { overlayClose('pause'); showHome(); });
+  $('pExit').addEventListener('click', () => { overlayClose('pause'); exitGame(); });
+  // Android 返回手勢：比賽中先打開暫停，不會直接跳出 App
+  window.addEventListener('popstate', () => {
+    if (inMatch() && !paused) { openPause(); try { history.pushState({ m: 1 }, ''); } catch (e) {} }
+  });
+
+  // ---------- 按鍵說明（主頁、暫停都能開） ----------
+  function openHelp() {
+    $('helpClose').textContent = inMatch() ? T().resume : T().back;
+    if (inMatch()) { paused = true; keys.left = keys.right = false; pendingSwing = null; }
+    overlayOpen('help');
+  }
+  function closeHelp() {
+    overlayClose('help');
+    if (inMatch() && $('pause').classList.contains('hidden')) { paused = false; last = performance.now(); }
+  }
   $('helpClose').addEventListener('click', closeHelp);
+
+  // ---------- 離開遊戲 ----------
+  function exitGame() {
+    try { speechSynthesis.cancel(); } catch (e) {}
+    showHome();
+    try { window.close(); } catch (e) {}
+    // 網頁 App 大多不能自己關掉；還在的話就教玩家用手勢關
+    setTimeout(() => { if (!document.hidden) notice(isIOS ? T().closeTipIOS : isTouch ? T().closeTipAndroid : T().closeTipPC); }, 300);
+  }
 
   // 已經提早按了一顆、還沒擊球 → 另一顆亮起來＝現在改按就是假動作
   function updFeintCue() {
@@ -1072,7 +1315,7 @@
     g.state = 'point'; g.timer = 0;
     if (w === 'p') { g.ps++; g.stats.total++; if ((bb.type === 'smash' || bb.type === 'kill') && bb.last === 'p') g.stats.smash++; }
     else g.as++;
-    g.stats.longest = Math.max(g.stats.longest, g.rally);
+    g.stats.longest = Math.max(g.stats.longest, g.rally); if (g.rally > 0) g.stats.rallies.push(g.rally);
     const serviceOver = g.server !== w;
     g.server = w;
     // 裁判報分：發球方分數先報
@@ -1099,62 +1342,132 @@
     clearTimeout(msgTimer); msgTimer = setTimeout(() => m.style.opacity = 0, ms || 1000);
   }
   function updScore() { $('pScore').textContent = G_.ps; $('aScore').textContent = G_.as; }
-  function ladderHTML(cur, cleared) {
-    return LEVELS.map((L, i) => `<span class="${i < cleared ? 'done' : i === cur ? 'cur' : ''}">${i < cleared ? '✓ ' : ''}${L.name}</span>`).join('');
-  }
-  function playerName() { return ($('nameIn').value || '').trim() || T().you; }
+  function playerName() { return store.get('bd_name', '') || ($('nameIn').value || '').trim() || T().you; }
 
+  // ---------- 結算：比分、來回、技術數據 ----------
+  const TECH_ORDER = ['smash', 'kill', 'drive', 'block', 'clear', 'flatClear', 'slice', 'push', 'lift', 'net', 'netUnder', 'defClear', 'dropUnder'];
   let lastResult = null;
   function endMatch(won) {
-    const g = G_; g.over = true;
-    const lv = g.level, champ = won && lv === LEVELS.length - 1;
-    const cleared = won ? lv + 1 : lv;
-    const bestLv = Math.max(parseInt(store.get('bd_best', '0')) || 0, cleared);
-    store.set('bd_best', String(bestLv));
-    $('ovTitle').textContent = champ ? T().champTitle : won ? T().wonTitle(T().levels[lv]) : T().lostTitle(T().levels[lv]);
+    const g = G_, t = T(); g.over = true;
+    const lv = g.level, champ = won && lv === LEVELS.length - 1, st = g.stats;
+    const rallies = st.rallies.length ? st.rallies : [0];
+    const avg = rallies.reduce((a, b) => a + b, 0) / rallies.length;
+    const shotsTotal = Object.values(st.shots).reduce((a, b) => a + b, 0);
+    // 存紀錄與進度
+    const r = getRec();
+    r.matches++; if (won) r.wins++;
+    if (won) r.cleared = Math.max(r.cleared, lv + 1);
+    r.smash += st.smash; r.longest = Math.max(r.longest, st.longest); r.points += st.total;
+    for (const [k, v] of Object.entries(st.shots)) r.shots[k] = (r.shots[k] || 0) + v;
+    setRec(r);
+    // 畫面
+    $('ovTitle').textContent = champ ? t.champTitle : won ? t.wonTitle(t.levels[lv]) : t.lostTitle(t.levels[lv]);
     $('ovScore').textContent = `${g.ps} : ${g.as}`;
-    $('ovLadder').innerHTML = ladderHTML(won ? lv + 1 : lv, cleared);
-    $('stSmash').textContent = g.stats.smash; $('stRally').textContent = g.stats.longest; $('stTotal').textContent = g.stats.total;
-    $('ovMsg').textContent = champ ? T().champMsg(playerName()) : won ? T().wonMsg : T().lostMsg;
-    const nb = $('nextBtn');
-    nb.textContent = champ ? T().again : won ? T().next(T().levels[lv + 1]) : T().retry;
-    nb.onclick = () => { $('over').classList.add('hidden'); newMatch(champ ? 0 : won ? lv + 1 : lv, won && !champ); getReady(); };
-    lastResult = { cleared, champ, score: `${g.ps}:${g.as}`, lv };
-    $('toast').textContent = ''; $('copyBox').classList.add('hidden');
-    setTimeout(() => $('over').classList.remove('hidden'), 600);
+    $('stLongest').textContent = st.longest; $('stAvg').textContent = avg.toFixed(1); $('stShots').textContent = shotsTotal;
+    const chips = TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 7)
+      .map(k => `<span>${t.shots[k].replace(/[！!]/, '')}<b>×${st.shots[k]}</b></span>`);
+    if (st.smash) chips.unshift(`<span>${t.statSmash}<b>${st.smash}</b></span>`);
+    if (st.feints) chips.push(`<span>${t.feintStat(st.fooled)}<b>×${st.feints}</b></span>`);
+    $('techList').innerHTML = chips.join('') || `<span>–</span>`;
+    const nextLv = champ ? lv : won ? lv + 1 : lv;
+    $('nextBtn').textContent = champ ? t.champAgain : won ? t.next(t.levels[lv + 1]) : t.again;
+    $('nextBtn').onclick = () => { showScreen(null); newMatch(nextLv, false); getReady(); };
+    lastResult = { won, champ, lv, ps: g.ps, as: g.as, longest: st.longest, avg, shotsTotal, smash: st.smash, feints: st.feints, top: TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 3) };
+    shareFile = null; makeShareImage();
+    setTimeout(() => { if (G_ === g) showScreen('over'); }, 900);
   }
+  $('ovHome').addEventListener('click', showHome);
 
-  $('shareBtn').addEventListener('click', async () => {
-    const r = lastResult; if (!r) return;
-    const txt = r.champ
-      ? T().shareChamp(GAME_URL)
-      : T().shareMid(Math.min(r.cleared + 1, 3), T().levels[r.lv], r.score, GAME_URL);
+  // ---------- 分享成績圖（1:1，可以直接分享到 IG／FB／LINE） ----------
+  let shareFile = null, shareURL = null, iconImg = null;
+  try { iconImg = new Image(); iconImg.src = 'icon-512.png'; } catch (e) {}
+  function shareText() {
+    const r = lastResult, t = T();
+    return r.champ ? t.shareChamp(GAME_URL) : t.shareMid(r.won ? Math.min(r.lv + 2, 3) : r.lv + 1, t.levels[r.lv], `${r.ps}:${r.as}`, GAME_URL);
+  }
+  function makeShareImage() {
+    const r = lastResult, t = T(), N = 1080, c = document.createElement('canvas'); c.width = c.height = N;
+    const x = c.getContext('2d'), F = '"Noto Sans TC", sans-serif';
+    const bg = x.createLinearGradient(0, 0, N, N); bg.addColorStop(0, '#2b3a5c'); bg.addColorStop(1, '#141a28');
+    x.fillStyle = bg; x.fillRect(0, 0, N, N);
+    // 球場裝飾
+    x.save(); x.globalAlpha = .1; x.fillStyle = '#36ad7a'; x.beginPath(); x.moveTo(120, 1080); x.lineTo(960, 1080); x.lineTo(780, 720); x.lineTo(300, 720); x.fill(); x.restore();
+    x.textAlign = 'center';
+    if (iconImg && iconImg.complete && iconImg.naturalWidth) { x.save(); x.beginPath(); x.roundRect ? x.roundRect(80, 70, 150, 150, 34) : x.rect(80, 70, 150, 150); x.clip(); x.drawImage(iconImg, 80, 70, 150, 150); x.restore(); }
+    x.fillStyle = '#5ce1c6'; x.font = `900 76px ${F}`; x.textAlign = 'left'; x.fillText(t.gameName, 260, 150);
+    x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `700 38px ${F}`; x.fillText(`${t.stage(r.lv + 1)} · ${t.levels[r.lv]}`, 262, 205);
+    x.textAlign = 'center';
+    // 勝敗
+    const badge = r.champ ? t.imgChamp : r.won ? t.imgWin : t.imgLose;
+    x.fillStyle = r.won ? '#ffe066' : '#ff9f9f'; x.font = `900 64px ${F}`; x.fillText(badge, N / 2, 330);
+    // 比分
+    x.fillStyle = '#fff'; x.font = `900 210px ${F}`; x.fillText(`${r.ps} : ${r.as}`, N / 2, 540);
+    x.font = `700 40px ${F}`; x.fillStyle = '#5ce1c6'; x.fillText(playerName(), N / 2 - 230, 600); x.fillStyle = '#ffa45c'; x.fillText(t.levels[r.lv], N / 2 + 230, 600);
+    // 數據
+    const boxes = [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.smash, t.statSmash], [r.feints, t.imgFeint]];
+    boxes.forEach(([v, l], i) => {
+      const bx = 90 + i * 232, by = 650;
+      x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.roundRect ? x.roundRect(bx, by, 212, 170, 22) : x.rect(bx, by, 212, 170); x.fill();
+      x.fillStyle = '#ffe066'; x.font = `900 72px ${F}`; x.fillText(String(v), bx + 106, by + 92);
+      x.fillStyle = 'rgba(255,255,255,.8)'; x.font = `500 30px ${F}`; x.fillText(l, bx + 106, by + 142);
+    });
+    if (r.top.length) { x.fillStyle = 'rgba(255,255,255,.85)'; x.font = `700 36px ${F}`; x.fillText(t.imgTop + r.top.map(k => t.shots[k].replace(/[！!]/, '')).join('・'), N / 2, 890); }
+    // 網址
+    x.fillStyle = '#5ce1c6'; x.font = `900 44px ${F}`; x.fillText(t.imgChallenge, N / 2, 980);
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `500 30px ${F}`; x.fillText(GAME_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''), N / 2, 1030);
+    c.toBlob(b => {
+      if (!b) return;
+      shareFile = new File([b], 'badminton-pk.png', { type: 'image/png' });
+      if (shareURL) URL.revokeObjectURL(shareURL);
+      shareURL = URL.createObjectURL(b);
+      $('shareImg').src = shareURL; $('saveImg').href = shareURL;
+    }, 'image/png');
+  }
+  $('shareBtn').addEventListener('click', () => {
+    const can = !!(shareFile && navigator.canShare && navigator.canShare({ files: [shareFile] }));
+    $('shareNow').classList.toggle('hidden', !can);
+    $('toast').textContent = ''; $('copyBox').classList.add('hidden');
+    overlayOpen('shareView');
+  });
+  $('shareNow').addEventListener('click', async () => {
+    try { await navigator.share({ files: [shareFile], title: T().gameName, text: shareText() }); } catch (e) {}
+  });
+  $('copyTxt').addEventListener('click', async () => {
+    const txt = shareText();
     try { await navigator.clipboard.writeText(txt); $('toast').textContent = T().copied; }
     catch (e) { const b = $('copyBox'); b.value = txt; b.classList.remove('hidden'); b.select(); $('toast').textContent = T().copyFail; }
   });
+  $('shareClose').addEventListener('click', () => overlayClose('shareView'));
 
+  // ---------- 第一次：取名字 ----------
   $('nameIn').value = store.get('bd_name', '');
   function start() {
-    store.set('bd_name', ($('nameIn').value || '').trim());
-    $('pName').textContent = playerName();
-    $('menu').classList.add('hidden');
-    newMatch(0, false);
+    const n = ($('nameIn').value || '').trim() || T().you;
+    store.set('bd_name', n);
+    playStage(0); // 第一次取完名字直接開打第一關
   }
-  $('startBtn').addEventListener('click', () => { audio(); unlockSpeech(); if (isTouch) goFull(); start(); getReady(); });
+  $('startBtn').addEventListener('click', start);
   document.querySelectorAll('.langBtn').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
-  $('voiceBtn').addEventListener('click', e => {
-    e.currentTarget.blur(); voiceOn = !voiceOn; store.set('bd_voice', voiceOn ? '1' : '0'); updVoiceBtn();
-    if (!voiceOn) { try { speechSynthesis.cancel(); } catch (err) {} } else unlockSpeech();
-  });
-  $('langTop').addEventListener('click', e => { e.currentTarget.blur(); setLang(LANG === 'zh' ? 'en' : 'zh'); });
+  function refreshScreens() {
+    if (!$('home').classList.contains('hidden')) showHome();
+    if (!$('gate').classList.contains('hidden')) updInstallUI();
+    if (!$('records').classList.contains('hidden')) renderRecords();
+    if (!$('settings').classList.contains('hidden')) updToggles();
+    if (!$('help').classList.contains('hidden')) $('helpClose').textContent = inMatch() ? T().resume : T().back;
+    if (lastResult && !$('over').classList.contains('hidden')) makeShareImage();
+  }
   applyLang();
+  boot();
 
   // ---------- 輸入 ----------
   window.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') { audio(); unlockSpeech(); start(); getReady(); } return; }
+    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter' && e.target.id === 'nameIn') start(); return; }
     const c = e.code;
-    if (c === 'KeyH' || (c === 'Escape' && paused)) { paused ? closeHelp() : openHelp(); return; }
-    if (paused) { if (c === 'Space' || c === 'Enter') { closeHelp(); e.preventDefault(); } return; }
+    if (!$('help').classList.contains('hidden')) { if (c === 'Escape' || c === 'KeyH' || c === 'Enter') closeHelp(); return; }
+    if (!$('pause').classList.contains('hidden')) { if (c === 'Escape' || c === 'KeyP') closePause(); return; }
+    if (inMatch() && (c === 'Escape' || c === 'KeyP')) { openPause(); return; }
+    if (inMatch() && c === 'KeyH') { openHelp(); return; }
+    if (paused) return;
     if (c === 'ArrowLeft' || c === 'KeyA') keys.left = true;
     if (c === 'ArrowRight' || c === 'KeyD') keys.right = true;
     if ((c === 'ArrowUp' || c === 'KeyW') && !e.repeat) playerJump();
