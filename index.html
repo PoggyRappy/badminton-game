@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2433; font-family: "Noto Sans TC", system-ui, sans-serif; color: #fff; user-select: none; -webkit-user-select: none; touch-action: none; }
+  html, body { overscroll-behavior: none; margin: 0; height: 100%; overflow: hidden; background: #1d2433; font-family: "Noto Sans TC", system-ui, sans-serif; color: #fff; user-select: none; -webkit-user-select: none; touch-action: none; }
   canvas { display: block; width: 100vw; height: 100vh; }
   .score { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; background: rgba(10,16,28,.72); padding: 8px 18px; border-radius: 16px; pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
   .score .side { text-align: center; min-width: 74px; }
@@ -31,7 +31,7 @@
   .ctrl button { position: absolute; border-radius: 50%; border: 2px solid rgba(255,255,255,.55); background: rgba(20,30,48,.42); color: #fff; font: 900 16px "Noto Sans TC", sans-serif; backdrop-filter: blur(3px); touch-action: none; -webkit-user-select: none; padding: 0; }
   .ctrl button.on { background: rgba(255,255,255,.28); }
   /* 左手：◀ ▶ 在下，跳在正中間上方 */
-  .ctrl.l { left: calc(26px + env(safe-area-inset-left)); width: 190px; height: 142px; }
+  .ctrl.l { left: calc(44px + env(safe-area-inset-left)); width: 190px; height: 142px; }
   .ctrl.l .mv { width: 78px; height: 78px; bottom: 0; font-size: 22px; }
   .ctrl.l [data-k="left"] { left: 0; } .ctrl.l [data-k="right"] { right: 0; }
   .ctrl.l .jump { width: 68px; height: 68px; top: 0; left: 50%; margin-left: -34px; border-color: #ffe066; background: rgba(120,100,30,.4); }
@@ -61,7 +61,7 @@
   .compact .hint { top: 82px; font-size: 12px; }
   .compact .zone { top: 6px; right: calc(8px + env(safe-area-inset-right)); font-size: 11px; padding: 4px 8px; max-width: 30vw; line-height: 1.45; }
   .compact .ctrl { bottom: calc(10px + env(safe-area-inset-bottom)); }
-  .compact .ctrl.l { left: calc(22px + env(safe-area-inset-left)); width: 168px; height: 122px; }
+  .compact .ctrl.l { left: calc(40px + env(safe-area-inset-left)); width: 168px; height: 122px; }
   .compact .ctrl.l .mv { width: 68px; height: 68px; font-size: 19px; }
   .compact .ctrl.l .jump { width: 60px; height: 60px; margin-left: -30px; font-size: 15px; }
   .compact .ctrl.r { right: calc(22px + env(safe-area-inset-right)); width: 174px; height: 122px; }
@@ -261,6 +261,7 @@
     <div class="setRow"><span data-t="setSound"></span><button class="toggle" id="soundTog"></button></div>
     <div class="setRow"><span data-t="setName"></span><input id="renameIn" maxlength="12"></div>
     <button class="btn pri" id="setClose" data-t="saveBack"></button>
+    <p class="note">v2.1 · 2026/11/17</p>
   </div>
 </div>
 
@@ -302,6 +303,7 @@
     <button class="btn pri hidden" id="shareNow" data-t="shareNow"></button>
     <a class="btn sec" id="saveImg" download="badminton-pk.png" data-t="saveImg"></a>
     <p class="note" data-t="longPress"></p>
+    <p class="note" data-t="igTip"></p>
     <button class="btn sec" id="copyTxt" data-t="copyText"></button>
     <div class="toast" id="toast"></div>
     <textarea class="copybox hidden" id="copyBox" readonly></textarea>
@@ -510,6 +512,7 @@
       installBtn: '📲 安裝到手機', gotIt: '知道了',
       iosInstallTitle: '安裝到 iPhone 主畫面 📲',
       iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      backAgain: '再滑一次返回就離開遊戲', igTip: 'IG 限動沒出現圖片的話：先「下載圖片」，再到 IG 從相簿選這張',
       gateP: '安裝到手機主畫面，全螢幕玩最順！', gateSkip: '先在瀏覽器玩',
       gateAndroidReady: '按下面的按鈕，就會把「羽球PK」裝到主畫面。',
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
@@ -606,6 +609,7 @@
       installBtn: '📲 Install the app', gotIt: 'Got it',
       iosInstallTitle: 'Add to your iPhone home screen 📲',
       iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      backAgain: 'Go back again to leave the game', igTip: 'If your IG story shows no image: “Download image” first, then pick it from your gallery in IG',
       gateP: 'Install it on your home screen for the best fullscreen experience!', gateSkip: 'Play in the browser for now',
       gateAndroidReady: 'Tap the button below to add “Badminton PK” to your home screen.',
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
@@ -1126,7 +1130,6 @@
     audio(); unlockSpeech(); if (isTouch) goFull();
     $('pName').textContent = playerName();
     showScreen(null); newMatch(lv, false); getReady();
-    try { history.pushState({ m: 1 }, ''); } catch (e) {}
   }
   $('contBtn').addEventListener('click', () => playStage(nextStage()));
   $('recBtn').addEventListener('click', () => { renderRecords(); overlayOpen('records'); });
@@ -1180,8 +1183,23 @@
   $('pHome').addEventListener('click', () => { overlayClose('pause'); showHome(); });
   $('pExit').addEventListener('click', () => { overlayClose('pause'); exitGame(); });
   // Android 返回手勢：比賽中先打開暫停，不會直接跳出 App
+  // 「防退出」：在歷史紀錄裡墊一層，返回手勢先被遊戲接住。
+  // Chrome 只認玩家點擊時墊上的那一層，所以每次點畫面時補墊。
+  let guard = false, homeBackAt = 0;
+  function armGuard() { if (guard || inFrame) return; try { history.pushState({ guard: 1 }, ''); guard = true; } catch (e) {} }
+  ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, armGuard, true));
   window.addEventListener('popstate', () => {
-    if (inMatch() && !paused) { openPause(); try { history.pushState({ m: 1 }, ''); } catch (e) {} }
+    guard = false;
+    const open = ['shareView', 'records', 'settings', 'help', 'notice'].find(id => !$(id).classList.contains('hidden'));
+    if (open) { open === 'help' ? closeHelp() : overlayClose(open); return; }          // 先關掉最上層的視窗
+    if (inMatch()) { if (!paused) openPause(); return; }                                  // 比賽中：打開暫停
+    if (!$('over').classList.contains('hidden')) { showHome(); return; }                  // 結算 → 主頁
+    if (!$('home').classList.contains('hidden')) {                                        // 主頁：再按一次才離開
+      if (Date.now() - homeBackAt < 2500) { history.back(); return; }
+      homeBackAt = Date.now(); showMsg(T().backAgain, '#ffffff', 2500); $('msg').style.top = '50%';
+      setTimeout(() => $('msg').style.top = '', 2600);
+      return;
+    }
   });
 
   // ---------- 按鍵說明（主頁、暫停都能開） ----------
@@ -1430,7 +1448,7 @@
     overlayOpen('shareView');
   });
   $('shareNow').addEventListener('click', async () => {
-    try { await navigator.share({ files: [shareFile], title: T().gameName, text: shareText() }); } catch (e) {}
+    try { await navigator.share({ files: [shareFile] }); } catch (e) {}
   });
   $('copyTxt').addEventListener('click', async () => {
     const txt = shareText();
