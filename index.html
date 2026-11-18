@@ -135,7 +135,7 @@
   .stageSel button.done { border-color: #5ce1c6; }
   .stageSel button:disabled { opacity: .35; cursor: default; }
   .homeRow { display: flex; gap: 6px; } .homeRow .btn { font-size: 14px; padding: 10px 4px; }
-  .recGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+  .recGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
   .recGrid div { background: rgba(255,255,255,.06); border-radius: 12px; padding: 8px; font-size: 12px; opacity: .95; }
   .recGrid b { display: block; font-size: 22px; color: #5ce1c6; }
   .setRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
@@ -158,6 +158,38 @@
   .compact #shareView .shareImg { grid-column: 1; grid-row: 1 / span 8; width: min(300px, 78vh); margin: 0; }
   .restIcon { font-size: 44px; line-height: 1; margin-bottom: 4px; }
   .restClock { font-size: 46px; font-weight: 900; color: #5ce1c6; margin: 6px 0; font-variant-numeric: tabular-nums; }
+  .acctLine { font-size: 13px; margin: 2px 0 6px; min-height: 18px; opacity: .9; }
+  .acctLine button { background: #fff; color: #1d2433; border: 0; border-radius: 99px; padding: 5px 14px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .acctBox { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .setLinks { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .setLinks .linkBtn { margin: 8px 0 0; }
+  .toast.err { color: #ff8a8a; }
+  .consent a { color: inherit; }
+  .lbCard { width: min(460px, 100%); }
+  .tabs { display: flex; gap: 4px; background: rgba(255,255,255,.07); padding: 4px; border-radius: 12px; margin: 8px 0; }
+  .tabs button { flex: 1; border: 0; background: none; color: #fff; padding: 7px 4px; border-radius: 9px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .tabs button.on { background: #5ce1c6; color: #1d2433; }
+  .stageChips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; margin-bottom: 6px; }
+  .stageChips button { border: 1px solid rgba(255,255,255,.25); background: none; color: #fff; border-radius: 99px; padding: 3px 9px; font: 700 12px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .stageChips button.on { background: #ffe066; color: #1d2433; border-color: #ffe066; }
+  .lbList { text-align: left; max-height: 44vh; overflow-y: auto; }
+  .lbRow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 14px; }
+  .lbRow .rk { width: 28px; text-align: center; font-weight: 900; color: rgba(255,255,255,.6); }
+  .lbRow:nth-child(1) .rk { color: #ffd54f; } .lbRow:nth-child(2) .rk { color: #cfd8dc; } .lbRow:nth-child(3) .rk { color: #ffab76; }
+  .lbRow .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lbRow .vl { font-weight: 900; color: #5ce1c6; font-variant-numeric: tabular-nums; }
+  .lbRow.me { background: rgba(92,225,198,.14); border-radius: 8px; }
+  .lbEmpty { text-align: center; opacity: .7; padding: 18px 0; font-size: 13px; }
+  .lbMe { font-size: 13px; color: #ffe066; margin-top: 8px; min-height: 18px; }
+  .stars { display: flex; justify-content: center; gap: 6px; margin: 8px 0; }
+  .stars button { background: none; border: 0; font-size: 40px; color: rgba(255,255,255,.25); cursor: pointer; padding: 0 2px; line-height: 1; }
+  .stars button.on { color: #ffd54f; }
+  #fbText { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #fff; font: 14px "Noto Sans TC", sans-serif; padding: 9px 12px; resize: none; outline: none; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .compact .lbList { max-height: 34vh; } .compact .stars button { font-size: 32px; }
+  .compact .homeRow .btn { font-size: 12px; padding: 8px 2px; }
+  .compact .acctLine { margin: 0 0 4px; font-size: 12px; } .compact .acctLine button { padding: 3px 10px; font-size: 12px; }
+  .compact #homeInstall { padding: 8px; font-size: 14px; } .compact .card.home .btn.big2 { padding: 11px; font-size: 17px; }
   .ladder { display: flex; justify-content: center; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
   .ladder span { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.08); }
   .ladder span.done { background: rgba(92,225,198,.25); color: #5ce1c6; }
@@ -225,6 +257,7 @@
     <div class="rules" data-rules></div>
     <input id="nameIn" maxlength="12">
     <button class="btn pri" id="startBtn" data-t="welcomeStart"></button>
+    <p class="note consent" data-t="consentNote"></p>
   </div>
 </div>
 
@@ -234,9 +267,11 @@
     <h1 data-t="gameName"></h1>
     <p class="homeHi" id="homeHi"></p>
     <p class="note" id="homeToday"></p>
+    <div class="acctLine" id="acctLine"></div>
     <button class="btn pri big2" id="contBtn"></button>
     <div class="stageSel" id="stageSel"></div>
     <div class="homeRow">
+      <button class="btn sec" id="lbBtn" data-t="lbBtn"></button>
       <button class="btn sec" id="recBtn" data-t="recordsBtn"></button>
       <button class="btn sec" id="setBtn" data-t="settingsBtn"></button>
       <button class="btn sec" id="homeHelpBtn" data-t="helpHome"></button>
@@ -266,8 +301,12 @@
     <div class="setRow"><span data-t="setRestEvery"></span><button class="toggle" id="restEvery"></button></div>
     <div class="setRow"><span data-t="setRestDaily"></span><button class="toggle" id="restDaily"></button></div>
     <div class="setRow"><span data-t="setName"></span><input id="renameIn" maxlength="12"></div>
+    <div class="toast err" id="renameErr"></div>
+    <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
+    <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <button class="btn pri" id="setClose" data-t="saveBack"></button>
-    <p class="note">v2.1 · 2026/11/17</p>
+    <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
+    <p class="note">v3.0 · 2026/11/18</p>
   </div>
 </div>
 
@@ -314,6 +353,41 @@
     <div class="toast" id="toast"></div>
     <textarea class="copybox hidden" id="copyBox" readonly></textarea>
     <button class="linkBtn" id="shareClose" data-t="back"></button>
+  </div>
+</div>
+
+<!-- 排行榜 -->
+<div class="overlay hidden" id="lb" style="z-index:30">
+  <div class="card lbCard">
+    <h2 data-t="lbTitle"></h2>
+    <div class="tabs" id="lbTabs"><button data-c="time"></button><button data-c="smash"></button><button data-c="cleared"></button></div>
+    <div class="stageChips" id="lbStages"></div>
+    <div class="lbList" id="lbList"></div>
+    <div class="lbMe" id="lbMe"></div>
+    <button class="btn sec hidden" id="lbLogin"></button>
+    <button class="btn pri" id="lbClose" data-t="back"></button>
+  </div>
+</div>
+
+<!-- 第一次用 Google 登入：取遊戲名字 -->
+<div class="overlay hidden" id="nameDlg" style="z-index:55">
+  <div class="card">
+    <h2 data-t="nameTitle"></h2>
+    <p data-t="nameP"></p>
+    <input id="nameDlgIn" maxlength="12">
+    <div class="toast err" id="nameErr"></div>
+    <button class="btn pri" id="nameSave" data-t="nameSave"></button>
+  </div>
+</div>
+
+<!-- 星級回饋 -->
+<div class="overlay hidden" id="fbDlg" style="z-index:52">
+  <div class="card">
+    <h2 data-t="fbTitle"></h2>
+    <div class="stars" id="stars"><button data-s="1">★</button><button data-s="2">★</button><button data-s="3">★</button><button data-s="4">★</button><button data-s="5">★</button></div>
+    <textarea id="fbText" maxlength="300" rows="3"></textarea>
+    <button class="btn pri" id="fbSend" data-t="fbSend" disabled></button>
+    <button class="linkBtn" id="fbLater" data-t="fbLater"></button>
   </div>
 </div>
 
@@ -569,6 +643,19 @@
       closeTipIOS: '網頁 App 不能自己關閉。<br>從螢幕<b>底部往上滑</b>，就能回到桌面；在 App 切換畫面把「羽球PK」往上滑就能完全關掉。',
       closeTipAndroid: '網頁 App 不能自己關閉。<br>按手機的<b>返回鍵</b>或從底部<b>往上滑</b>回到桌面；在多工畫面把「羽球PK」滑掉就能完全關掉。',
       closeTipPC: '關閉這個瀏覽器分頁就能離開遊戲。',
+      fastSmash: '最快殺球', clearTime: '通關時間', imgSmashSpd: '最快殺球 km/h',
+      lbBtn: '🏆 排行', lbTitle: '🏆 排行榜', lbTab_time: '通關時間', lbTab_smash: '最快殺球', lbTab_cleared: '最高關卡',
+      loading: '載入中…', lbEmpty: '還沒有人上榜，搶第一名吧！', lbErr: '排行榜暫時載入失敗，請稍後再試',
+      myRank: (n, v) => `你目前第 ${n} 名（${v}）`, lbNoMine: '你在這個項目還沒有成績', loginLb: '🔑 用 Google 登入，上排行榜',
+      nameTitle: '取一個遊戲名字', nameP: '排行榜只會顯示這個名字，不會顯示你的電子郵件。', nameSave: '確定',
+      nameLen: '名字要 2～12 個字', nameBad: '這個名字不太適合，換一個吧',
+      fbTitle: '喜歡這個遊戲嗎？', fbSend: '送出', fbLater: '下次再說', fbPlaceholder: '想說的話（可以不填）', fbThanks: '謝謝你的評分！🏸',
+      setAccount: '帳號', setData: '匿名遊玩數據', rateBtn: '⭐ 給個評分', privacyLink: '隱私說明', delData: '刪除我的帳號資料', delConfirm: '再按一次確認刪除',
+      deleted: '已刪除你的帳號資料和排行榜紀錄。這台裝置上的遊戲進度還在。', delFail: '刪除失敗，請稍後再試',
+      consentNote: '本遊戲會收集匿名遊玩數據來改善遊戲，可以在設定關閉。<a href="privacy.html" target="_blank" rel="noopener">隱私說明</a>',
+      fbOffline: '目前連不上伺服器，排行榜和登入暫時不能用，但遊戲可以照常玩。', fbWait: '正在連線，請稍等一下再試',
+      loginFail: '登入沒有成功，請再試一次。iPhone 可以先用 Safari 打開網頁登入。', offlineMode: '離線模式（排行榜暫時不能用）',
+      signedInAs: n => `已登入：${n}`, loginBtn: '🔑 用 Google 登入', loginWhy: '上排行榜、換手機也保留紀錄', guest: '訪客', logout: '登出', login: '登入',
       htmlLang: 'zh-Hant', title: '羽球PK', gameName: '羽球PK',
       sub: '10 位打法各異的對手等你挑戰，全破你就是羽球之神！',
       placeholder: '你的名字', start: '上場！', you: '你',
@@ -678,6 +765,19 @@
       closeTipIOS: 'Web apps can’t close themselves.<br><b>Swipe up from the bottom</b> to go home; swipe “Badminton PK” away in the app switcher to fully close it.',
       closeTipAndroid: 'Web apps can’t close themselves.<br>Press <b>Back</b> or <b>swipe up</b> to go home; swipe “Badminton PK” away in recent apps to fully close it.',
       closeTipPC: 'Close this browser tab to leave the game.',
+      fastSmash: 'Fastest smash', clearTime: 'Clear time', imgSmashSpd: 'Top smash km/h',
+      lbBtn: '🏆 Ranks', lbTitle: '🏆 Leaderboard', lbTab_time: 'Clear time', lbTab_smash: 'Fastest smash', lbTab_cleared: 'Top stage',
+      loading: 'Loading…', lbEmpty: 'No one here yet — be the first!', lbErr: 'Couldn’t load the leaderboard. Please try again later.',
+      myRank: (n, v) => `You’re #${n} (${v})`, lbNoMine: 'You don’t have a record here yet', loginLb: '🔑 Sign in with Google to join',
+      nameTitle: 'Pick a player name', nameP: 'Only this name appears on the leaderboard — never your email.', nameSave: 'OK',
+      nameLen: 'Names must be 2–12 characters', nameBad: 'Please choose a different name',
+      fbTitle: 'Enjoying the game?', fbSend: 'Send', fbLater: 'Maybe later', fbPlaceholder: 'Anything to add? (optional)', fbThanks: 'Thanks for rating! 🏸',
+      setAccount: 'Account', setData: 'Anonymous play data', rateBtn: '⭐ Rate the game', privacyLink: 'Privacy', delData: 'Delete my account data', delConfirm: 'Tap again to confirm',
+      deleted: 'Your account data and leaderboard entries were deleted. Progress on this device is kept.', delFail: 'Couldn’t delete. Please try again later.',
+      consentNote: 'This game collects anonymous play data to improve it. You can turn this off in Settings. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>',
+      fbOffline: 'Can’t reach the server. Sign-in and the leaderboard are unavailable, but you can still play.', fbWait: 'Connecting — please try again in a moment',
+      loginFail: 'Sign-in didn’t work. Please try again. On iPhone, try signing in from Safari first.', offlineMode: 'Offline mode (leaderboard unavailable)',
+      signedInAs: n => `Signed in: ${n}`, loginBtn: '🔑 Sign in with Google', loginWhy: 'Join the leaderboard and keep progress across devices', guest: 'Guest', logout: 'Sign out', login: 'Sign in',
       htmlLang: 'en', title: 'Badminton PK', gameName: 'Badminton PK',
       sub: '10 rivals, 10 playing styles. Beat them all to become a badminton legend!',
       placeholder: 'Your name', start: 'Let’s play!', you: 'You',
@@ -815,12 +915,13 @@
       b: null, state: 'serve', timer: 0, rally: 0,
       trail: [], aiRetarget: 0, aiDelay: 0, aiPlan: null, aiRoll: 1, aiJumped: false, aiFeintT: 0, aiFeintDir: 0, aiPend: null,
       coach: { streak: 0, counts: {}, shown: {} },
-      stats: { smash: 0, longest: 0, total: 0, shots: {}, rallies: [], feints: 0, fooled: 0 }
+      stats: { smash: 0, longest: 0, total: 0, shots: {}, rallies: [], feints: 0, fooled: 0, bestSmash: 0, lost: {} }
     };
     G_.a.lefty = !!LEVELS[level].lefty; G_.a.scale = LEVELS[level].scale || 1;
     $('aName').textContent = T().levels[level];
     $('lvLbl').textContent = T().stage(level + 1);
     updScore(); setupServe();
+    track('match_start', { stage: level + 1 });
   }
 
   function setupServe() {
@@ -991,7 +1092,18 @@
     else if (who === 'p') g.aiFeintT = 0;
     if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.splitStep && g.a.y === 0) g.a.vy = 1.5; } // 高手：你擊球時啟動步
     const tx = who === 'p' ? t : COURT - t;
-    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, who === 'a' ? (L.smashBoost || 0) : 0);
+    let boost = who === 'a' ? (L.smashBoost || 0) : 0, kmh = 0;
+    if (who === 'p' && (kind === 'smash' || kind === 'kill')) {
+      // 殺球品質：擊球點剛好在身體前方、打得越高越快
+      const cx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
+      const q = Math.max(0, 1 - Math.abs(cx - 0.35) / 0.7), hq = Math.max(0, Math.min(1, (b.y - 2.0) / 1.2));
+      boost = q * 3 + hq * 2 + (Math.random() - 0.5);
+    }
+    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, boost);
+    if (kind === 'smash' || kind === 'kill') {
+      kmh = Math.round(Math.hypot(v.vx, v.vy) * 11.5); // 換算成接近真實比賽的時速
+      if (who === 'p') g.stats.bestSmash = Math.max(g.stats.bestSmash || 0, kmh);
+    }
     b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false;
     pl.swingType = kind; pl.swingT = contactT(kind);
     g.rally++;
@@ -999,7 +1111,7 @@
     const mine = who === 'p';
     const nm = T().shots[kind];
     const label = feint ? (mine ? '' : T().opp('')) + T().feintName(dec.fake, kind) + (mine && fooled ? T().fooled : '') : (mine ? nm : T().opp(nm));
-    showMsg(label, (kind === 'smash' || kind === 'kill') ? (mine ? '#ffe066' : '#ff8a8a') : mine ? '#bfe9ff' : '#ffd0b0');
+    showMsg(kmh ? `${label} ${kmh} km/h` : label, (kind === 'smash' || kind === 'kill') ? (mine ? '#ffe066' : '#ff8a8a') : mine ? '#bfe9ff' : '#ffd0b0');
     hitSound(kind);
   }
 
@@ -1124,7 +1236,7 @@
   const canInstallHere = !inFrame && !standalone;
   let installEvt = null;
   if (canInstallHere) window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; updInstallUI(); });
-  window.addEventListener('appinstalled', () => { installEvt = null; store.set('bd_installed', '1'); updInstallUI(); });
+  window.addEventListener('appinstalled', () => { track('pwa_install'); installEvt = null; store.set('bd_installed', '1'); updInstallUI(); });
 
   // ---------- 畫面切換 ----------
   const SCREENS = ['gate', 'menu', 'home', 'over'];
@@ -1169,7 +1281,7 @@
   }
 
   // ---------- 進度與紀錄（存在這支手機／電腦） ----------
-  const REC0 = { matches: 0, wins: 0, cleared: 0, smash: 0, longest: 0, points: 0, shots: {} };
+  const REC0 = { matches: 0, wins: 0, cleared: 0, smash: 0, longest: 0, points: 0, shots: {}, bestSmash: 0, times: {} };
   function getRec() { try { return Object.assign({}, REC0, JSON.parse(store.get('bd_rec', '{}'))); } catch (e) { return Object.assign({}, REC0); } }
   function setRec(r) { store.set('bd_rec', JSON.stringify(r)); }
   function nextStage() { return Math.min(getRec().cleared, LEVELS.length - 1); }
@@ -1215,7 +1327,7 @@
     const cells = [
       [r.matches, t.recMatches], [r.wins, t.recWins], [r.matches ? Math.round(r.wins / r.matches * 100) + '%' : '–', t.recRate],
       [r.cleared >= LEVELS.length ? '🏆' : `${Math.min(r.cleared + 1, LEVELS.length)} / ${LEVELS.length}`, t.recBest], [r.smash, t.recSmash], [r.longest, t.recLongest],
-      [r.points, t.recPoints], [fav ? t.shots[fav[0]].replace(/[！!]/, '') : '–', t.recFav]
+      [r.points, t.recPoints], [r.bestSmash ? r.bestSmash + ' km/h' : '–', t.fastSmash], [fav ? t.shots[fav[0]].replace(/[！!]/, '') : '–', t.recFav]
     ];
     $('recGrid').innerHTML = cells.map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
   }
@@ -1227,11 +1339,15 @@
     $('voiceTog').textContent = voiceOn ? t.on : t.off; $('voiceTog').classList.toggle('on', voiceOn);
     $('soundTog').textContent = soundOn ? t.on : t.off; $('soundTog').classList.toggle('on', soundOn);
   }
-  function openSettings() { $('renameIn').value = store.get('bd_name', ''); updToggles(); updRestToggles(); overlayOpen('settings'); }
+  function openSettings() { $('renameIn').value = store.get('bd_name', ''); $('renameErr').textContent = ''; updToggles(); updRestToggles(); updConsent(); updAccountUI(); overlayOpen('settings'); }
   $('voiceTog').addEventListener('click', () => { voiceOn = !voiceOn; store.set('bd_voice', voiceOn ? '1' : '0'); if (!voiceOn) { try { speechSynthesis.cancel(); } catch (e) {} } else unlockSpeech(); updToggles(); });
   $('soundTog').addEventListener('click', () => { soundOn = !soundOn; store.set('bd_sound', soundOn ? '1' : '0'); updToggles(); });
   $('setClose').addEventListener('click', () => {
-    const n = $('renameIn').value.trim(); if (n) { store.set('bd_name', n); $('nameIn').value = n; }
+    const n = $('renameIn').value.trim();
+    if (n && isGoogle() && n !== (FB.profile && FB.profile.name)) {   // 登入後改名：排行榜也一起改
+      const err = checkName(n); if (err) { $('renameErr').textContent = err; return; }
+      saveCloudName(n); updAccountUI();
+    } else if (n) { store.set('bd_name', n); $('nameIn').value = n; }
     $('pName').textContent = playerName(); overlayClose('settings');
     if (!$('home').classList.contains('hidden')) showHome();
   });
@@ -1273,6 +1389,8 @@
     $('restB').textContent = bTxt; $('restB').onclick = () => overlayClose('rest');
     $('restB').classList.remove('hidden');
     setTimeout(() => overlayOpen('rest'), 1300);
+    track('rest_reminder', { icon });
+    return true;
   }
   function startBreak() {
     const t = T(), end = Date.now() + 10 * 60 * 1000;
@@ -1317,9 +1435,10 @@
   $('resumeBtn').addEventListener('click', closePause);
   $('pHelp').addEventListener('click', () => openHelp());
   $('pSet').addEventListener('click', openSettings);
-  $('pRestart').addEventListener('click', () => { overlayClose('pause'); paused = false; newMatch(G_.level, false); getReady(); });
-  $('pHome').addEventListener('click', () => { overlayClose('pause'); showHome(); });
-  $('pExit').addEventListener('click', () => { overlayClose('pause'); exitGame(); });
+  const quitInfo = () => G_ ? { stage: G_.level + 1, score_me: G_.ps, score_opp: G_.as, duration_s: Math.round(G_.playT || 0) } : {};
+  $('pRestart').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'restart' })); overlayClose('pause'); paused = false; newMatch(G_.level, false); getReady(); });
+  $('pHome').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'home' })); overlayClose('pause'); showHome(); });
+  $('pExit').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'exit' })); overlayClose('pause'); exitGame(); });
   // Android 返回手勢：比賽中先打開暫停，不會直接跳出 App
   // 「防退出」：在歷史紀錄裡墊一層，返回手勢先被遊戲接住。
   // Chrome 只認玩家點擊時墊上的那一層，所以每次點畫面時補墊。
@@ -1342,6 +1461,7 @@
 
   // ---------- 按鍵說明（主頁、暫停都能開） ----------
   function openHelp() {
+    track('help_open', { in_match: inMatch() ? 1 : 0 });
     $('helpClose').textContent = inMatch() ? T().resume : T().back;
     if (inMatch()) { paused = true; keys.left = keys.right = false; pendingSwing = null; }
     overlayOpen('help');
@@ -1394,7 +1514,7 @@
       return;
     }
     const g = G_; if (!g || g.over || paused) return;
-    tickPlay(dt);
+    tickPlay(dt); g.playT = (g.playT || 0) + dt;
     const p = g.p;
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
@@ -1482,6 +1602,7 @@
       : T().callScore(sv, rc, isGameOver(g.ps + 1, g.as) || isGameOver(g.ps, g.as + 1), serviceOver);
     clearTimeout(g.callTimer);
     g.callTimer = setTimeout(() => umpire(call), clean ? 250 : 750);
+    if (w === 'a' && cause) g.stats.lost[cause] = (g.stats.lost[cause] || 0) + 1;
     coachAfterPoint(w, cause);
     pointSound(w === 'p');
     updScore();
@@ -1505,6 +1626,7 @@
   // ---------- 結算：比分、來回、技術數據 ----------
   const TECH_ORDER = ['smash', 'kill', 'drive', 'block', 'clear', 'flatClear', 'slice', 'push', 'lift', 'net', 'netUnder', 'defClear', 'dropUnder'];
   let lastResult = null;
+  const fmtTime = s => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`;
   function endMatch(won) {
     const g = G_, t = T(); g.over = true;
     const lv = g.level, champ = won && lv === LEVELS.length - 1, st = g.stats;
@@ -1517,7 +1639,12 @@
     if (won) r.cleared = Math.max(r.cleared, lv + 1);
     r.smash += st.smash; r.longest = Math.max(r.longest, st.longest); r.points += st.total;
     for (const [k, v] of Object.entries(st.shots)) r.shots[k] = (r.shots[k] || 0) + v;
+    r.bestSmash = Math.max(r.bestSmash || 0, st.bestSmash || 0);
+    const secs = Math.round((g.playT || 0) * 10) / 10;
+    let newBest = false;
+    if (won) { r.times = r.times || {}; if (!r.times[lv] || secs < r.times[lv]) { r.times[lv] = secs; newBest = true; } }
     setRec(r);
+    cloudAfterMatch(g, won, secs, r);
     // 畫面
     $('ovTitle').textContent = champ ? t.champTitle : won ? t.wonTitle(t.levels[lv]) : t.lostTitle(t.levels[lv]);
     $('ovScore').textContent = `${g.ps} : ${g.as}`;
@@ -1526,14 +1653,16 @@
       .map(k => `<span>${t.shots[k].replace(/[！!]/, '')}<b>×${st.shots[k]}</b></span>`);
     if (st.smash) chips.unshift(`<span>${t.statSmash}<b>${st.smash}</b></span>`);
     if (st.feints) chips.push(`<span>${t.feintStat(st.fooled)}<b>×${st.feints}</b></span>`);
+    if (st.bestSmash) chips.unshift(`<span>${t.fastSmash}<b>${st.bestSmash} km/h</b></span>`);
+    if (won) chips.unshift(`<span>${t.clearTime}<b>${fmtTime(secs)}${newBest ? ' 🆕' : ''}</b></span>`);
     $('techList').innerHTML = chips.join('') || `<span>–</span>`;
     const nextLv = champ ? lv : won ? lv + 1 : lv;
     $('nextBtn').textContent = champ ? t.champAgain : won ? t.next(t.levels[lv + 1]) : t.again;
     $('nextBtn').onclick = () => { showScreen(null); newMatch(nextLv, false); getReady(); };
-    lastResult = { won, champ, lv, ps: g.ps, as: g.as, longest: st.longest, avg, shotsTotal, smash: st.smash, feints: st.feints, top: TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 3) };
+    lastResult = { won, champ, lv, secs, bestSmash: st.bestSmash || 0, ps: g.ps, as: g.as, longest: st.longest, avg, shotsTotal, smash: st.smash, feints: st.feints, top: TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 3) };
     shareFile = null; makeShareImage();
     setTimeout(() => { if (G_ === g) showScreen('over'); }, 900);
-    checkRest();
+    if (!checkRest()) maybeAskFeedback(won, r.matches);
   }
   $('ovHome').addEventListener('click', showHome);
 
@@ -1563,7 +1692,7 @@
     x.fillStyle = '#fff'; x.font = `900 210px ${F}`; x.fillText(`${r.ps} : ${r.as}`, N / 2, 540);
     x.font = `700 40px ${F}`; x.fillStyle = '#5ce1c6'; x.fillText(playerName(), N / 2 - 230, 600); x.fillStyle = '#ffa45c'; x.fillText(t.levels[r.lv], N / 2 + 230, 600);
     // 數據
-    const boxes = [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.smash, t.statSmash], [r.feints, t.imgFeint]];
+    const boxes = [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.bestSmash || '–', t.imgSmashSpd], [r.won ? fmtTime(r.secs) : r.feints, r.won ? t.clearTime : t.imgFeint]];
     boxes.forEach(([v, l], i) => {
       const bx = 90 + i * 232, by = 650;
       x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.roundRect ? x.roundRect(bx, by, 212, 170, 22) : x.rect(bx, by, 212, 170); x.fill();
@@ -1583,13 +1712,14 @@
     }, 'image/png');
   }
   $('shareBtn').addEventListener('click', () => {
+    track('share_open');
     const can = !!(shareFile && navigator.canShare && navigator.canShare({ files: [shareFile] }));
     $('shareNow').classList.toggle('hidden', !can);
     $('toast').textContent = ''; $('copyBox').classList.add('hidden');
     overlayOpen('shareView');
   });
   $('shareNow').addEventListener('click', async () => {
-    try { await navigator.share({ files: [shareFile] }); } catch (e) {}
+    try { await navigator.share({ files: [shareFile] }); track('share_sent'); } catch (e) {}
   });
   $('copyTxt').addEventListener('click', async () => {
     const txt = shareText();
@@ -1597,6 +1727,269 @@
     catch (e) { const b = $('copyBox'); b.value = txt; b.classList.remove('hidden'); b.select(); $('toast').textContent = T().copyFail; }
   });
   $('shareClose').addEventListener('click', () => overlayClose('shareView'));
+
+  // ---------- Firebase：帳號、排行榜、回饋、數據 ----------
+  // 這段設定碼本來就會公開在網頁上，不是密碼；資料安全靠 Firestore 安全規則保護
+  const FB_CFG = {
+    apiKey: 'AIzaSyDt8Sjg7NTzuNy0XNJ59RN6KublWIFRF74',
+    authDomain: 'badminton-game-1a6bb.firebaseapp.com',
+    projectId: 'badminton-game-1a6bb',
+    storageBucket: 'badminton-game-1a6bb.firebasestorage.app',
+    messagingSenderId: '882728728863',
+    appId: '1:882728728863:web:e897fa560c42844e10582a',
+    measurementId: 'G-BKNFEKEES1'
+  };
+  const FB_V = '11.0.1';
+  const FB = { ready: false, err: false, user: null, profile: null, m: null, an: null };
+  let consent = store.get('bd_consent', '1') === '1';
+  const isGoogle = () => !!(FB.user && !FB.user.isAnonymous);
+
+  async function fbInit() {
+    try {
+      if (window.__FBMOCK) FB.m = window.__FBMOCK;
+      else {
+        const mods = await Promise.all(['app', 'auth', 'firestore', 'analytics'].map(n => import(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-${n}.js`)));
+        FB.m = Object.assign({}, ...mods);
+      }
+      const m = FB.m;
+      FB.app = m.initializeApp(FB_CFG); FB.auth = m.getAuth(FB.app); FB.db = m.getFirestore(FB.app);
+      try { if (await m.isSupported()) { FB.an = m.getAnalytics(FB.app); m.setAnalyticsCollectionEnabled(FB.an, consent); } } catch (e) {}
+      try { await m.getRedirectResult(FB.auth); } catch (e) { await handleLoginError(e); }
+      m.onAuthStateChanged(FB.auth, async u => {
+        FB.user = u;
+        if (!u) { try { await m.signInAnonymously(FB.auth); } catch (e) { FB.ready = true; updAccountUI(); } return; } // 訪客也有匿名帳號
+        FB.ready = true;
+        if (!u.isAnonymous) await loadProfile(); else FB.profile = null;
+        updAccountUI(); flushPending();
+      });
+    } catch (e) { console.warn('Firebase 無法連線', e); FB.err = true; updAccountUI(); }
+  }
+
+  function track(name, params) {
+    if (!FB.an || !consent) return;
+    try { FB.m.logEvent(FB.an, name, params || {}); } catch (e) {}
+  }
+
+  // ---- 登入／登出 ----
+  async function fbLogin() {
+    if (!FB.ready) { notice(FB.err ? T().fbOffline : T().fbWait); return; }
+    const m = FB.m, p = new m.GoogleAuthProvider();
+    try {
+      if (FB.user && FB.user.isAnonymous) await m.linkWithPopup(FB.user, p); // 訪客升級：同一個帳號，紀錄不會不見
+      else await m.signInWithPopup(FB.auth, p);
+      FB.user = FB.auth.currentUser; await loadProfile(); updAccountUI(); track('login', { method: 'google' });
+    } catch (e) {
+      if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) {
+        try { FB.user && FB.user.isAnonymous ? await m.linkWithRedirect(FB.user, p) : await m.signInWithRedirect(FB.auth, p); return; } // 彈出視窗不行就改用跳轉
+        catch (e2) { await handleLoginError(e2); return; }
+      }
+      await handleLoginError(e);
+    }
+  }
+  async function handleLoginError(e) {
+    const m = FB.m;
+    // 這個 Google 帳號之前已經登入過（例如在別的手機）→ 直接切換到那個帳號
+    if (e && (e.code === 'auth/credential-already-in-use' || e.code === 'auth/email-already-in-use')) {
+      const cred = m.GoogleAuthProvider.credentialFromError(e);
+      if (cred) { try { await m.signInWithCredential(FB.auth, cred); FB.user = FB.auth.currentUser; await loadProfile(); updAccountUI(); track('login', { method: 'google' }); return; } catch (e2) { e = e2; } }
+    }
+    if (e && e.code && !['auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/user-cancelled'].includes(e.code))
+      notice(`${T().loginFail}<br><small style="opacity:.6">${e.code}</small>`);
+  }
+  async function fbLogout() { try { await FB.m.signOut(FB.auth); } catch (e) {} FB.profile = null; updAccountUI(); }
+
+  // ---- 個人資料與紀錄同步 ----
+  function mergeRec(a, b) {
+    const r = Object.assign({}, REC0, a);
+    for (const k of ['matches', 'wins', 'cleared', 'smash', 'longest', 'points', 'bestSmash']) r[k] = Math.max(a[k] || 0, b[k] || 0);
+    r.shots = Object.assign({}, a.shots); for (const [k, v] of Object.entries(b.shots || {})) r.shots[k] = Math.max(r.shots[k] || 0, v);
+    r.times = Object.assign({}, a.times); for (const [k, v] of Object.entries(b.times || {})) if (!r.times[k] || v < r.times[k]) r.times[k] = v;
+    return r;
+  }
+  async function loadProfile() {
+    const m = FB.m, u = FB.user; if (!u) return;
+    try {
+      const ref = m.doc(FB.db, 'users', u.uid), snap = await m.getDoc(ref);
+      const d = snap.exists() ? snap.data() : {};
+      const r = mergeRec(getRec(), d.rec || {}); setRec(r);
+      FB.profile = { name: d.name || null };
+      if (d.name) { store.set('bd_name', d.name); $('pName').textContent = d.name; }
+      await m.setDoc(ref, { rec: r, updated: m.serverTimestamp() }, { merge: true });
+      if (!d.name) askName(); else syncLB(r);
+      if (!$('home').classList.contains('hidden')) showHome();
+    } catch (e) { console.warn(e); }
+  }
+  async function saveRecCloud(r) {
+    if (!FB.ready || !FB.user || FB.user.isAnonymous) return;
+    try { await FB.m.setDoc(FB.m.doc(FB.db, 'users', FB.user.uid), { rec: r, updated: FB.m.serverTimestamp() }, { merge: true }); } catch (e) {}
+  }
+  // 排行榜：只放名字和成績，不放電子郵件
+  async function syncLB(r) {
+    if (!isGoogle() || !FB.profile || !FB.profile.name) return;
+    const m = FB.m, d = { name: FB.profile.name, cleared: r.cleared || 0, smash: r.bestSmash || 0, updated: m.serverTimestamp() };
+    for (const [k, v] of Object.entries(r.times || {})) if (v >= 15) d['t' + (+k + 1)] = Math.round(v * 1000);
+    try { await m.setDoc(m.doc(FB.db, 'lb', FB.user.uid), d, { merge: true }); } catch (e) { console.warn(e); }
+  }
+
+  // ---- 名字 ----
+  const BAD = ['fuck', 'shit', 'bitch', 'dick', 'cunt', 'nigg', '幹你', '操你', '靠北', '靠杯', '屌', '雞巴', '機掰', '媽的', '他媽', '智障', '白痴', '王八'];
+  function checkName(n) {
+    n = (n || '').trim();
+    if (n.length < 2 || n.length > 12) return T().nameLen;
+    const low = n.toLowerCase().replace(/\s/g, '');
+    if (BAD.some(w => low.includes(w))) return T().nameBad;
+    return '';
+  }
+  function askName() {
+    $('nameDlgIn').value = store.get('bd_name', '') === T().you ? '' : store.get('bd_name', '');
+    $('nameErr').textContent = ''; overlayOpen('nameDlg');
+  }
+  async function saveCloudName(n) {
+    const m = FB.m;
+    FB.profile = Object.assign(FB.profile || {}, { name: n });
+    store.set('bd_name', n); $('nameIn').value = n; $('pName').textContent = n;
+    try { await m.setDoc(m.doc(FB.db, 'users', FB.user.uid), { name: n, updated: m.serverTimestamp() }, { merge: true }); } catch (e) {}
+    syncLB(getRec());
+  }
+  $('nameSave').addEventListener('click', async () => {
+    const n = $('nameDlgIn').value.trim(), err = checkName(n);
+    if (err) { $('nameErr').textContent = err; return; }
+    overlayClose('nameDlg'); await saveCloudName(n); updAccountUI();
+    if (!$('home').classList.contains('hidden')) showHome();
+  });
+
+  // ---- 刪除帳號資料（按兩次確認） ----
+  let delArm = 0;
+  $('delBtn').addEventListener('click', async () => {
+    if (Date.now() - delArm > 4000) { delArm = Date.now(); $('delBtn').textContent = T().delConfirm; setTimeout(() => $('delBtn').textContent = T().delData, 4000); return; }
+    const m = FB.m, uid = FB.user.uid;
+    try {
+      await m.deleteDoc(m.doc(FB.db, 'lb', uid));
+      await m.deleteDoc(m.doc(FB.db, 'users', uid));
+      try { await FB.user.delete(); } catch (e) { await m.signOut(FB.auth); }
+      FB.profile = null; track('account_delete'); overlayClose('settings'); notice(T().deleted);
+    } catch (e) { notice(T().delFail); }
+  });
+
+  // ---- 帳號狀態顯示 ----
+  function updAccountUI() {
+    const t = T(), g = isGoogle(), nm = (FB.profile && FB.profile.name) || '';
+    $('acctLine').innerHTML = FB.err ? `<span style="opacity:.6">${t.offlineMode}</span>`
+      : g ? `✅ ${t.signedInAs(escapeHtml(nm || '…'))}` : `<button id="homeLogin">${t.loginBtn}</button> <span style="opacity:.65">${t.loginWhy}</span>`;
+    const hl = $('homeLogin'); if (hl) hl.addEventListener('click', fbLogin);
+    $('acctName').textContent = g ? (FB.user.email || nm) : t.guest;
+    $('acctBtn').textContent = g ? t.logout : t.login;
+    $('acctBtn').classList.toggle('on', !g);
+    $('delBtn').classList.toggle('hidden', !g);
+    $('lbLogin').textContent = t.loginLb;
+    $('lbLogin').classList.toggle('hidden', g || FB.err);
+  }
+  const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  $('acctBtn').addEventListener('click', () => isGoogle() ? fbLogout() : fbLogin());
+  $('lbLogin').addEventListener('click', fbLogin);
+
+  // ---- 匿名數據開關 ----
+  function updConsent() { $('consentTog').textContent = consent ? T().on : T().off; $('consentTog').classList.toggle('on', consent); }
+  $('consentTog').addEventListener('click', () => {
+    consent = !consent; store.set('bd_consent', consent ? '1' : '0'); updConsent();
+    try { if (FB.an) FB.m.setAnalyticsCollectionEnabled(FB.an, consent); } catch (e) {}
+  });
+
+  // ---- 每場比賽結束：同步紀錄、排行榜、匿名比賽數據 ----
+  async function cloudAfterMatch(g, won, secs, r) {
+    const st = g.stats, rallies = st.rallies.length ? st.rallies : [0];
+    const avg = Math.round(rallies.reduce((a, b) => a + b, 0) / rallies.length * 10) / 10;
+    track('match_end', { stage: g.level + 1, won: won ? 1 : 0, score_me: g.ps, score_opp: g.as, duration_s: Math.round(secs), rally_avg: avg, best_smash: st.bestSmash || 0, feints: st.feints });
+    if (!FB.ready || !FB.user) return;
+    saveRecCloud(r); syncLB(r);
+    if (!consent) return;
+    try {
+      await FB.m.addDoc(FB.m.collection(FB.db, 'matches'), {
+        uid: FB.user.uid, stage: g.level + 1, won, ps: g.ps, as: g.as, secs: Math.round(secs),
+        rallies: st.rallies.length, avgRally: avg, longest: st.longest, shots: st.shots, feints: st.feints, fooled: st.fooled,
+        bestSmash: st.bestSmash || 0, lost: st.lost, lang: LANG, mobile: isTouch, app: standalone, ts: FB.m.serverTimestamp()
+      });
+    } catch (e) {}
+  }
+
+  // ---- 排行榜 ----
+  let lbCat = 'time', lbStage = 0;
+  function openLB() {
+    lbStage = Math.min(Math.max(0, getRec().cleared - 1), LEVELS.length - 1);
+    overlayOpen('lb'); renderLB(); track('leaderboard_open');
+  }
+  async function renderLB() {
+    const t = T();
+    $('lbTabs').querySelectorAll('button').forEach(b => { b.textContent = t['lbTab_' + b.dataset.c]; b.classList.toggle('on', b.dataset.c === lbCat); });
+    $('lbStages').innerHTML = lbCat === 'time' ? LEVELS.map((_, i) => `<button data-i="${i}" class="${i === lbStage ? 'on' : ''}">${i + 1}</button>`).join('') : '';
+    $('lbStages').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { lbStage = +b.dataset.i; renderLB(); }));
+    updAccountUI();
+    $('lbMe').textContent = '';
+    if (FB.err || !FB.ready) { $('lbList').innerHTML = `<div class="lbEmpty">${FB.err ? t.fbOffline : t.loading}</div>`; if (!FB.err) setTimeout(() => { if (!$('lb').classList.contains('hidden')) renderLB(); }, 1500); return; }
+    $('lbList').innerHTML = `<div class="lbEmpty">${t.loading}</div>`;
+    const m = FB.m, col = m.collection(FB.db, 'lb');
+    const field = lbCat === 'time' ? 't' + (lbStage + 1) : lbCat === 'smash' ? 'smash' : 'cleared', asc = lbCat === 'time';
+    const fmt = v => lbCat === 'time' ? fmtTime(v / 1000) : lbCat === 'smash' ? `${v} km/h` : t.stage(Math.min(v, LEVELS.length)) + (v >= LEVELS.length ? ' 🏆' : '');
+    const want = `${lbCat}:${lbStage}`; renderLB.want = want;
+    try {
+      const snap = await m.getDocs(m.query(col, m.where(field, '>', 0), m.orderBy(field, asc ? 'asc' : 'desc'), m.limit(20)));
+      if (renderLB.want !== want) return;
+      const rows = []; snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+      $('lbList').innerHTML = rows.length ? rows.map((r, i) => `<div class="lbRow ${FB.user && r.id === FB.user.uid ? 'me' : ''}"><span class="rk">${i + 1}</span><span class="nm">${escapeHtml(r.name || '—')}</span><span class="vl">${fmt(r[field])}</span></div>`).join('')
+        : `<div class="lbEmpty">${t.lbEmpty}</div>`;
+      // 我的名次
+      if (isGoogle()) {
+        const mine = await m.getDoc(m.doc(FB.db, 'lb', FB.user.uid)), v = mine.exists() ? mine.data()[field] : null;
+        if (renderLB.want !== want) return;
+        if (v) {
+          const c = await m.getCountFromServer(m.query(col, m.where(field, asc ? '<' : '>', v)));
+          if (renderLB.want === want) $('lbMe').textContent = t.myRank(c.data().count + 1, fmt(v));
+        } else $('lbMe').textContent = t.lbNoMine;
+      }
+    } catch (e) { console.warn(e); if (renderLB.want === want) $('lbList').innerHTML = `<div class="lbEmpty">${t.lbErr}</div>`; }
+  }
+  $('lbTabs').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { lbCat = b.dataset.c; renderLB(); }));
+  $('lbBtn').addEventListener('click', openLB);
+  $('lbClose').addEventListener('click', () => overlayClose('lb'));
+
+  // ---- 星級回饋 ----
+  let fbStars = 0, fbFrom = '';
+  function openFeedback(from) {
+    fbFrom = from; fbStars = 0; $('fbText').value = ''; $('fbText').placeholder = T().fbPlaceholder;
+    $('stars').querySelectorAll('button').forEach(b => b.classList.remove('on')); $('fbSend').disabled = true;
+    overlayOpen('fbDlg'); track('feedback_prompt', { from });
+  }
+  $('stars').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    fbStars = +b.dataset.s; $('fbSend').disabled = false;
+    $('stars').querySelectorAll('button').forEach(x => x.classList.toggle('on', +x.dataset.s <= fbStars));
+  }));
+  function pendingFb() { try { return JSON.parse(store.get('bd_fbq', '[]')); } catch (e) { return []; } }
+  async function flushPending() {
+    if (!FB.ready || !FB.user) return;
+    const q = pendingFb(); if (!q.length) return;
+    const left = [];
+    for (const f of q) { try { await FB.m.addDoc(FB.m.collection(FB.db, 'feedback'), Object.assign(f, { uid: FB.user.uid, ts: FB.m.serverTimestamp() })); } catch (e) { left.push(f); } }
+    store.set('bd_fbq', JSON.stringify(left));
+  }
+  $('fbSend').addEventListener('click', () => {
+    const f = { stars: fbStars, comment: $('fbText').value.trim().slice(0, 300), stage: getRec().cleared + 1, lang: LANG, from: fbFrom };
+    store.set('bd_fbq', JSON.stringify(pendingFb().concat([f]))); store.set('bd_rated', '1');
+    track('feedback', { stars: fbStars, has_comment: f.comment ? 1 : 0, from: fbFrom });
+    flushPending(); overlayClose('fbDlg'); notice(T().fbThanks);
+  });
+  $('fbLater').addEventListener('click', () => { overlayClose('fbDlg'); track('feedback_later', { from: fbFrom }); });
+  $('rateBtn').addEventListener('click', () => { overlayClose('settings'); openFeedback('settings'); });
+  // 自動詢問：第一次贏球、第 3 場結束，最多兩次；評過分就不再問
+  function maybeAskFeedback(won, matches) {
+    if (store.get('bd_rated', '') === '1') return false;
+    const asked = +store.get('bd_fbAsked', '0'); if (asked >= 2) return false;
+    const key = won && !store.get('bd_fbWin', '') ? 'win' : matches === 3 ? 'm3' : '';
+    if (!key) return false;
+    if (key === 'win') store.set('bd_fbWin', '1');
+    store.set('bd_fbAsked', String(asked + 1));
+    setTimeout(() => openFeedback(key), 1600);
+    return true;
+  }
 
   // ---------- 第一次：取名字 ----------
   $('nameIn').value = store.get('bd_name', '');
@@ -1612,11 +2005,14 @@
     if (!$('gate').classList.contains('hidden')) updInstallUI();
     if (!$('records').classList.contains('hidden')) renderRecords();
     if (!$('settings').classList.contains('hidden')) { updToggles(); updRestToggles(); }
+    updAccountUI(); updConsent();
+    if (!$('lb').classList.contains('hidden')) renderLB();
     if (!$('help').classList.contains('hidden')) $('helpClose').textContent = inMatch() ? T().resume : T().back;
     if (lastResult && !$('over').classList.contains('hidden')) makeShareImage();
   }
   applyLang();
   boot();
+  updAccountUI(); fbInit();
 
   // ---------- 輸入 ----------
   window.addEventListener('keydown', e => {
