@@ -129,9 +129,9 @@
   .card.home { width: min(460px, 100%); }
   .homeHi { font-size: 16px !important; color: #ffe066; font-weight: 700; }
   .btn.big2 { font-size: 19px; padding: 15px; }
-  .stageSel { display: flex; gap: 6px; margin-top: 8px; }
-  .stageSel button { flex: 1; padding: 8px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.07); color: #fff; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; line-height: 1.35; }
-  .stageSel button small { display: block; font-weight: 400; opacity: .7; font-size: 11px; }
+  .stageSel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 8px; }
+  .stageSel button { padding: 5px 2px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.07); color: #fff; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; line-height: 1.35; }
+  .stageSel button small { display: block; font-weight: 400; opacity: .7; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .stageSel button.done { border-color: #5ce1c6; }
   .stageSel button:disabled { opacity: .35; cursor: default; }
   .homeRow { display: flex; gap: 6px; } .homeRow .btn { font-size: 14px; padding: 10px 4px; }
@@ -151,10 +151,13 @@
   a.btn { text-decoration: none; box-sizing: border-box; }
   .compact .card.result { width: min(560px, 100%); }
   .compact .result .big { font-size: 30px; } .compact .result h2 { font-size: 17px; margin: 0; }
+  .compact .setRow { padding: 4px 0; font-size: 13px; } .compact .toggle { padding: 3px 10px; font-size: 12px; } .compact #settings h2 { margin: 0 0 2px; }
   .compact .card.home { padding: 12px 16px; } .compact .card.home h1 { margin-top: 0; }
   .compact #shareView .card { width: min(680px, 100%); display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: center; }
   .compact #shareView .card > * { grid-column: 2; }
   .compact #shareView .shareImg { grid-column: 1; grid-row: 1 / span 8; width: min(300px, 78vh); margin: 0; }
+  .restIcon { font-size: 44px; line-height: 1; margin-bottom: 4px; }
+  .restClock { font-size: 46px; font-weight: 900; color: #5ce1c6; margin: 6px 0; font-variant-numeric: tabular-nums; }
   .ladder { display: flex; justify-content: center; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
   .ladder span { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.08); }
   .ladder span.done { background: rgba(92,225,198,.25); color: #5ce1c6; }
@@ -219,7 +222,6 @@
     <div class="langSw"><button class="langBtn" data-lang="zh">中文</button><button class="langBtn" data-lang="en">English</button></div>
     <h1 data-t="gameName"></h1>
     <p data-t="sub"></p>
-    <div class="ladder menuLadder"></div>
     <div class="rules" data-rules></div>
     <input id="nameIn" maxlength="12">
     <button class="btn pri" id="startBtn" data-t="welcomeStart"></button>
@@ -231,6 +233,7 @@
   <div class="card home">
     <h1 data-t="gameName"></h1>
     <p class="homeHi" id="homeHi"></p>
+    <p class="note" id="homeToday"></p>
     <button class="btn pri big2" id="contBtn"></button>
     <div class="stageSel" id="stageSel"></div>
     <div class="homeRow">
@@ -259,6 +262,9 @@
     <div class="setRow"><span data-t="setLang"></span><div class="langSw"><button class="langBtn" data-lang="zh">中文</button><button class="langBtn" data-lang="en">English</button></div></div>
     <div class="setRow"><span data-t="setVoice"></span><button class="toggle" id="voiceTog"></button></div>
     <div class="setRow"><span data-t="setSound"></span><button class="toggle" id="soundTog"></button></div>
+    <div class="setRow"><span data-t="setRest"></span><button class="toggle" id="restTog"></button></div>
+    <div class="setRow"><span data-t="setRestEvery"></span><button class="toggle" id="restEvery"></button></div>
+    <div class="setRow"><span data-t="setRestDaily"></span><button class="toggle" id="restDaily"></button></div>
     <div class="setRow"><span data-t="setName"></span><input id="renameIn" maxlength="12"></div>
     <button class="btn pri" id="setClose" data-t="saveBack"></button>
     <p class="note">v2.1 · 2026/11/17</p>
@@ -308,6 +314,18 @@
     <div class="toast" id="toast"></div>
     <textarea class="copybox hidden" id="copyBox" readonly></textarea>
     <button class="linkBtn" id="shareClose" data-t="back"></button>
+  </div>
+</div>
+
+<!-- 休息提醒 -->
+<div class="overlay hidden" id="rest" style="z-index:50">
+  <div class="card">
+    <div class="restIcon" id="restIcon"></div>
+    <h2 id="restTitle"></h2>
+    <p id="restTxt"></p>
+    <div class="restClock hidden" id="restClock"></div>
+    <button class="btn pri" id="restA"></button>
+    <button class="btn sec" id="restB"></button>
   </div>
 </div>
 
@@ -457,9 +475,9 @@
     const a = (lo + hi) / 2 * Math.PI / 180;
     return { vx: dir * sp * Math.cos(a), vy: sp * Math.sin(a) };
   }
-  function shot(x, y, tx, type, air) {
+  function shot(x, y, tx, type, air, boost = 0) {
     if (type === 'smash' || type === 'kill') {
-      const spd = type === 'kill' ? 22 : air ? 29 : 25; // 跳殺比原地殺球快
+      const spd = (type === 'kill' ? 22 : air ? 29 : 25) + boost; // 跳殺比原地殺球快
       for (let k = 0; k < 4; k++) {
         const t = tx + Math.sign(tx - x) * k * 0.9, v = solveAngle(x, y, t, spd);
         const r = sim(x, y, v.vx, v.vy);
@@ -492,16 +510,33 @@
 
   // ---------- 關卡 ----------
   // style：rookie 只會把球打高、常送半場球；captain 會看你站哪打空檔；ace 跳殺、撲球、四角調動
+  // 每位對手的打法參數。新欄位：base 回位點、backSlow 往後退的速度倍率、softBias 偏好輕球的機率、
+  // smashGround 原地殺球機率、smashBoost 殺球加速、deepFault／slowFault 接深球／慢球的失誤、tire 會累、
+  // precise 落點精準、splitStep 啟動步、lefty 左手持拍、scale 體型
   const LEVELS = [
     { style: 'rookie', speed: 3.1, react: 0.36, fault: 0.14, smashP: 0, killP: 0, exploit: 0, recover: 0, driveP: 0, blockP: 0, feintP: 0, feintRead: 0.5, readP: 0, pressFault: 0.3, color: '#ffa45c' },
     { style: 'captain', speed: 4.0, react: 0.26, fault: 0.05, smashP: 0.35, killP: 0.15, exploit: 0.6, recover: 0.75, driveP: 0.45, blockP: 0.2, feintP: 0.1, feintRead: 0.32, readP: 0.15, pressFault: 0.1, color: '#ff6b8a' },
-    { style: 'ace', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.7, killP: 0.55, exploit: 0.75, recover: 1, driveP: 0.45, blockP: 0.3, feintP: 0.2, feintRead: 0.2, readP: 0.4, pressFault: 0.03, color: '#b088ff' }
+    { style: 'ace', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.7, killP: 0.55, exploit: 0.75, recover: 1, driveP: 0.45, blockP: 0.3, feintP: 0.2, feintRead: 0.2, readP: 0.4, pressFault: 0.03, precise: 1, splitStep: 1, color: '#b088ff' },
+    { style: 'netbully', speed: 4.6, react: 0.2, fault: 0.04, smashP: 0.3, killP: 0.9, exploit: 0.5, recover: 1, driveP: 0.3, blockP: 0.35, feintP: 0.2, feintRead: 0.28, readP: 0.2, pressFault: 0.06, base: 8.9, backSlow: 0.55, softBias: 0.75, deepFault: 0.1, color: '#4fc3f7' },
+    { style: 'driver', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.45, killP: 0.45, exploit: 0.6, recover: 1, driveP: 0.88, blockP: 0.04, feintP: 0.1, feintRead: 0.25, readP: 0.25, pressFault: 0.04, base: 9.5, softBias: 0.3, slowFault: 0.07, color: '#ff5252' },
+    { style: 'wall', speed: 5.2, react: 0.13, fault: 0.014, smashP: 0.12, smashGround: 0.03, killP: 0.3, exploit: 0.4, recover: 1, driveP: 0.4, blockP: 0.45, feintP: 0.05, feintRead: 0.2, readP: 0.45, pressFault: 0.02, softBias: 0.35, precise: 1, color: '#90a4ae' },
+    { style: 'lefty', speed: 5.3, react: 0.12, fault: 0.024, smashP: 0.5, killP: 0.5, exploit: 0.75, recover: 1, driveP: 0.4, blockP: 0.35, feintP: 0.55, feintRead: 0.2, readP: 0.4, pressFault: 0.03, softBias: 0.65, precise: 1, lefty: 1, color: '#f06292' },
+    { style: 'power', speed: 5.4, react: 0.12, fault: 0.018, smashP: 0.95, smashGround: 0.85, smashBoost: 6, killP: 0.6, exploit: 0.6, recover: 0.9, driveP: 0.5, blockP: 0.1, feintP: 0.1, feintRead: 0.2, readP: 0.3, pressFault: 0.03, tire: 1, scale: 1.12, color: '#ff7043' },
+    { style: 'allround', speed: 5.4, react: 0.11, fault: 0.022, smashP: 0.7, killP: 0.6, exploit: 0.8, recover: 1, driveP: 0.5, blockP: 0.3, feintP: 0.3, feintRead: 0.18, readP: 0.5, pressFault: 0.02, precise: 1, splitStep: 1, color: '#26c6da' },
+    { style: 'legend', speed: 5.8, react: 0.08, fault: 0.016, smashP: 0.75, smashBoost: 2, killP: 0.7, exploit: 0.85, recover: 1, driveP: 0.5, blockP: 0.35, feintP: 0.35, feintRead: 0.15, readP: 0.65, pressFault: 0.015, precise: 1, splitStep: 1, color: '#ffd54f' }
   ];
-  // 各關對手的站姿不同：學弟站得直、拍子垂著；王牌壓低重心、拍子舉高
+  // 各關對手的站姿不同
   const STANCE = {
     rookie: { ready: { drop: .02, lean: .02, ff: .14, bf: -.14, ua: .75, fa: .35, ra: .25 }, overPrep: { ua: -2.3, fa: -1.3, ra: -1.5, oa: .8 } },
     captain: {},
-    ace: { ready: { drop: .2, lean: .26, ff: .34, bf: -.34, ua: .35, fa: -.75, ra: -1.45, oa: .5 } }
+    ace: { ready: { drop: .2, lean: .26, ff: .34, bf: -.34, ua: .35, fa: -.75, ra: -1.45, oa: .5 } },
+    netbully: { ready: { drop: .18, lean: .34, ff: .5, bf: -.3, ua: -.2, fa: -.6, ra: -1.0, oa: 2.2 } },   // 重心前傾、拍子舉在身前搶網
+    driver: { ready: { drop: .17, lean: .18, ff: .42, bf: -.32, ua: .15, fa: -1.15, ra: -1.05, oa: .9 } }, // 隨時準備平抽
+    wall: { ready: { drop: .27, lean: .2, ff: .44, bf: -.44, ua: .5, fa: .2, ra: .5, oa: .9 } },            // 低重心、寬站姿、拍子放低防守
+    lefty: { ready: { drop: .14, lean: .16, ff: .3, bf: -.3, ua: .4, fa: -.6, ra: -1.2, oa: .7 } },
+    power: { ready: { drop: .08, lean: .05, ff: .3, bf: -.3, ua: -1.2, fa: -1.6, ra: -1.9, oa: .6 } },      // 拍子舉高隨時準備殺
+    allround: { ready: { drop: .2, lean: .24, ff: .36, bf: -.34, ua: .3, fa: -.8, ra: -1.4, oa: .55 } },
+    legend: { ready: { drop: .22, lean: .26, ff: .38, bf: -.36, ua: .3, fa: -.85, ra: -1.45, oa: .5 } }
   };
   const WIN_PTS = 7, CAP_PTS = 11;
   // 7 分制：6 平後要領先 2 分，最多 11 分（10 平時下一分決勝）
@@ -512,23 +547,30 @@
       installBtn: '📲 安裝到手機', gotIt: '知道了',
       iosInstallTitle: '安裝到 iPhone 主畫面 📲',
       iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      setRest: '休息提醒', setRestEvery: '連續遊玩提醒', setRestDaily: '每日遊玩上限', mins: n => `${n} 分鐘`, hours: n => `${n} 小時`,
+      today: n => `今天已玩 ${n} 分鐘`,
+      rest1T: '休息一下吧', rest1: n => `已經連續打 ${n} 分鐘了，起來喝口水、轉轉手腕吧！`, rest1A: '休息一下', rest1B: '再打一局',
+      rest2T: '該好好休息了', rest2: n => `已經連續打 ${n} 分鐘，眼睛和手腕都需要休息，建議休息 10 分鐘。`, rest2A: '開始休息 10 分鐘', rest2B: '跳過，繼續玩',
+      restingT: '休息中…', resting: '看看遠方、伸展一下手腕和肩膀', restSkip: '提早結束休息', restDoneT: '休息完畢！', restDone: '精神充飽了，繼續挑戰吧！', restGo: '回主頁',
+      dayT: '今天打很多了', day: n => `今天已經玩了 ${n}，明天再來挑戰吧！`, dayA: '今天就到這裡', dayB: '再玩一下',
+      lateT: '很晚了 🌙', late: '已經過晚上 11 點了，打完這局記得早點休息喔！',
       backAgain: '再滑一次返回就離開遊戲', igTip: 'IG 限動沒出現圖片的話：先「下載圖片」，再到 IG 從相簿選這張',
       gateP: '安裝到手機主畫面，全螢幕玩最順！', gateSkip: '先在瀏覽器玩',
       gateAndroidReady: '按下面的按鈕，就會把「羽球PK」裝到主畫面。',
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
-      welcomeStart: '開始第一場！', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰校隊王牌',
+      welcomeStart: '開始第一場！', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 紀錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '個人紀錄', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
       settingsTitle: '設定', setLang: '語言', setVoice: '裁判語音報分', setSound: '擊球音效', setName: '名字', saveBack: '儲存並返回', on: '開', off: '關',
       pauseBtn: '⏸ 暫停', pauseTitle: '暫停中', restart: '重新開始這關', toHome: '回主頁',
       statLongest: '最長來回', statAvg: '平均來回', statShots: '總擊球', techTitle: '技術使用', feintStat: m => `假動作（騙到 ${m}）`,
-      champAgain: '再挑戰一次王牌', shareImg: '📷 分享成績圖', shareNow: '分享到 IG／FB／LINE', saveImg: '下載圖片', longPress: '手機也可以長按圖片儲存', copyText: '複製文字和連結',
-      imgChamp: '🏆 三關全破！', imgWin: '🏸 勝利！', imgLose: '💪 惜敗，再來！', imgFeint: '假動作', imgTop: '拿手球路：', imgChallenge: '來挑戰我！',
+      champAgain: '再挑戰一次傳奇球王', shareImg: '📷 分享成績圖', shareNow: '分享到 IG／FB／LINE', saveImg: '下載圖片', longPress: '手機也可以長按圖片儲存', copyText: '複製文字和連結',
+      imgChamp: '🏆 十關全破！', imgWin: '🏸 勝利！', imgLose: '💪 惜敗，再來！', imgFeint: '假動作', imgTop: '拿手球路：', imgChallenge: '來挑戰我！',
       closeTipIOS: '網頁 App 不能自己關閉。<br>從螢幕<b>底部往上滑</b>，就能回到桌面；在 App 切換畫面把「羽球PK」往上滑就能完全關掉。',
       closeTipAndroid: '網頁 App 不能自己關閉。<br>按手機的<b>返回鍵</b>或從底部<b>往上滑</b>回到桌面；在多工畫面把「羽球PK」滑掉就能完全關掉。',
       closeTipPC: '關閉這個瀏覽器分頁就能離開遊戲。',
       htmlLang: 'zh-Hant', title: '羽球PK', gameName: '羽球PK',
-      sub: '跟系隊三位高手輪流過招，連贏三關你就是羽球之神！',
+      sub: '10 位打法各異的對手等你挑戰，全破你就是羽球之神！',
       placeholder: '你的名字', start: '上場！', you: '你',
       browserTip: '📱 請用 <b>Chrome</b>／<b>Safari</b> 開啟，別在 LINE、IG 等 App 裡玩',
       fsTip: '手機會自動切成全螢幕橫向',
@@ -541,8 +583,13 @@
       rotateB: '請把手機轉成橫向', rotateS: '橫著拿才看得到整個球場，比賽會先暫停', fsRotate: '⛶ 直接全螢幕橫向開啟',
       btnJump: '跳', btnSoft: '輕', btnSwing: '揮拍',
       stage: n => `第 ${n} 關`, ruleLbl: '7 分制・平分最多 11',
-      levels: ['新生學弟', '系隊隊長', '校隊王牌'],
-      intros: ['🐣 學弟常送半場高球 → 按住▶＋揮拍殺下去！', '🎽 隊長會平抽、打空檔 → 打完記得回中場！', '👑 王牌會跳殺、假動作 → 球要打深，耐心調動！'],
+      levels: ['新生學弟', '系隊隊長', '校隊王牌', '網前小霸王', '平抽快槍手', '銅牆鐵壁', '左手魔術師', '重砲手', '全能國手', '傳奇球王'],
+      intros: ['🐣 學弟常送半場高球 → 按住▶＋揮拍殺下去！', '🎽 隊長會平抽、打空檔 → 打完記得回中場！', '👑 王牌會跳殺、假動作 → 球要打深，耐心調動！',
+        '🕸️ 小霸王網前很兇、後場退得慢 → 多打後場高遠球！', '⚡ 快槍手平抽又快又密 → 用平擋或挑高打亂他的節奏！', '🧱 銅牆鐵壁幾乎不失誤 → 耐心調四角，等半場球再殺！',
+        '🪄 左手魔術師假動作很多 → 別太早跑，看清楚再動！', '💥 重砲手殺球超快 → 先擋回去，拖長來回讓他累！', '🌟 全能國手沒有弱點 → 把學過的戰術全部用上！', '👑 最終關：傳奇球王會看穿假動作 → 拿出全部實力！'],
+      beatTips: ['💡 等學弟送半場高球，按住▶＋揮拍殺！', '💡 打完記得回中場，別被打空檔', '💡 球打深一點，耐心調動再找機會', '💡 一直打他後場，他退得很慢',
+        '💡 按「輕」平擋放慢節奏，他就容易失誤', '💡 他很少失誤，要靠殺球、撲球主動得分', '💡 他的球常是假動作，晚一點再跑', '💡 來回超過 9 拍他會變慢，撐住！',
+        '💡 高遠球逼後場＋吊網前，前後拉開他', '💡 假動作會被看穿，靠落點和耐心取勝'],
       youServe: '你發球', oppServe: '對手發球', hintTouch: '按「揮拍」發球', hintKey: '按空白鍵發球',
       shots: { serve: '反手發小球', net: '放網', netUnder: '下手放網', push: '推球', lift: '挑球', smash: '殺球！', kill: '撲球！', slice: '切球', clear: '高遠球', defClear: '防守高球', dropUnder: '下手吊球', drive: '平抽！', block: '平擋', flatClear: '平高球' },
       feintTag: '（假動作）', fooled: '・騙到了！', langTop: 'EN',
@@ -565,10 +612,10 @@
         feint: '💡 假動作：球還在飛過來時先按揮拍，手指不放直接滑到「輕」',
         attack: '💡 先打後場，再吊網前，等半場高球就殺！', nice: '🔥 漂亮！就是這樣殺！'
       },
-      champTitle: '🏆 三關全破！你就是羽球之神', wonTitle: n => `贏了 ${n}！`, lostTitle: n => `輸給 ${n}…`,
-      champMsg: n => `${n}，連校隊王牌都擋不住你！`, wonMsg: '下一關對手更快更會殺，記得殺完要回位。', lostMsg: '前場多放網、後場多切球，把對手前後拉開！',
+      champTitle: '🏆 十關全破！你就是羽球之神', wonTitle: n => `贏了 ${n}！`, lostTitle: n => `輸給 ${n}…`,
+      champMsg: n => `${n}，連傳奇球王都擋不住你！`, wonMsg: '下一關對手更快更會殺，記得殺完要回位。', lostMsg: '前場多放網、後場多切球，把對手前後拉開！',
       again: '再戰一局', next: n => `挑戰下一關：${n}`, retry: '再打一次這關',
-      shareChamp: u => `🏸 我在「羽球PK」三關全破，連校隊王牌都打贏了！你能做到嗎？\n${u}`,
+      shareChamp: u => `🏸 我在「羽球PK」十關全破，連傳奇球王都打贏了！你能做到嗎？\n${u}`,
       shareMid: (st, n, sc, u) => `🏸 我在「羽球PK」打到第 ${st} 關（${n} ${sc}），換你來挑戰！\n${u}`,
       copied: '已複製！貼到 LINE / IG 給朋友吧', copyFail: '自動複製失敗，請手動複製下面的文字',
       banner: '系 隊 練 習 中 ・ 請 勿 走 進 場 內',
@@ -609,23 +656,30 @@
       installBtn: '📲 Install the app', gotIt: 'Got it',
       iosInstallTitle: 'Add to your iPhone home screen 📲',
       iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      setRest: 'Break reminders', setRestEvery: 'Continuous play reminder', setRestDaily: 'Daily play limit', mins: n => `${n} min`, hours: n => n === 1 ? '1 hour' : `${n} hours`,
+      today: n => `Played ${n} min today`,
+      rest1T: 'Time for a short break', rest1: n => `You’ve played for ${n} minutes straight. Grab some water and stretch your wrists!`, rest1A: 'Take a break', rest1B: 'One more match',
+      rest2T: 'Time for a proper rest', rest2: n => `You’ve played for ${n} minutes straight. Your eyes and wrists need a rest — we suggest 10 minutes.`, rest2A: 'Start a 10-minute break', rest2B: 'Skip and keep playing',
+      restingT: 'Resting…', resting: 'Look into the distance and stretch your wrists and shoulders', restSkip: 'End break early', restDoneT: 'Break over!', restDone: 'Fully recharged — let’s play!', restGo: 'Home',
+      dayT: 'That’s a lot of badminton today', day: n => `You’ve played ${n} today. Come back tomorrow for more!`, dayA: 'Done for today', dayB: 'Play a bit more',
+      lateT: 'It’s getting late 🌙', late: 'It’s past 11 pm — remember to get some sleep after this match!',
       backAgain: 'Go back again to leave the game', igTip: 'If your IG story shows no image: “Download image” first, then pick it from your gallery in IG',
       gateP: 'Install it on your home screen for the best fullscreen experience!', gateSkip: 'Play in the browser for now',
       gateAndroidReady: 'Tap the button below to add “Badminton PK” to your home screen.',
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
-      welcomeStart: 'Start your first match!', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge the Varsity Ace again',
+      welcomeStart: 'Start your first match!', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 Records', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'My records', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
       settingsTitle: 'Settings', setLang: 'Language', setVoice: 'Umpire voice', setSound: 'Hit sounds', setName: 'Name', saveBack: 'Save & back', on: 'On', off: 'Off',
       pauseBtn: '⏸ Pause', pauseTitle: 'Paused', restart: 'Restart this stage', toHome: 'Home',
       statLongest: 'Longest rally', statAvg: 'Average rally', statShots: 'Total shots', techTitle: 'Shots used', feintStat: m => `Deception (fooled ${m})`,
-      champAgain: 'Challenge the Ace again', shareImg: '📷 Share result image', shareNow: 'Share to IG / FB / LINE', saveImg: 'Download image', longPress: 'On a phone you can also long-press the image to save it', copyText: 'Copy text & link',
-      imgChamp: '🏆 All 3 stages cleared!', imgWin: '🏸 Victory!', imgLose: '💪 So close — again!', imgFeint: 'Deceptions', imgTop: 'Best shots: ', imgChallenge: 'Come and beat me!',
+      champAgain: 'Challenge The Legend again', shareImg: '📷 Share result image', shareNow: 'Share to IG / FB / LINE', saveImg: 'Download image', longPress: 'On a phone you can also long-press the image to save it', copyText: 'Copy text & link',
+      imgChamp: '🏆 All 10 stages cleared!', imgWin: '🏸 Victory!', imgLose: '💪 So close — again!', imgFeint: 'Deceptions', imgTop: 'Best shots: ', imgChallenge: 'Come and beat me!',
       closeTipIOS: 'Web apps can’t close themselves.<br><b>Swipe up from the bottom</b> to go home; swipe “Badminton PK” away in the app switcher to fully close it.',
       closeTipAndroid: 'Web apps can’t close themselves.<br>Press <b>Back</b> or <b>swipe up</b> to go home; swipe “Badminton PK” away in recent apps to fully close it.',
       closeTipPC: 'Close this browser tab to leave the game.',
       htmlLang: 'en', title: 'Badminton PK', gameName: 'Badminton PK',
-      sub: 'Beat three varsity rivals in a row to become a badminton legend!',
+      sub: '10 rivals, 10 playing styles. Beat them all to become a badminton legend!',
       placeholder: 'Your name', start: 'Let’s play!', you: 'You',
       browserTip: '📱 Open in <b>Chrome</b>/<b>Safari</b>, not inside apps like LINE or Instagram',
       fsTip: 'Your phone will switch to fullscreen landscape',
@@ -638,8 +692,13 @@
       rotateB: 'Please rotate to landscape', rotateS: 'Hold your phone sideways to see the whole court. The game is paused.', fsRotate: '⛶ Open in fullscreen landscape',
       btnJump: 'Jump', btnSoft: 'Soft', btnSwing: 'Hit',
       stage: n => `Stage ${n}`, ruleLbl: '7 pts · setting to 11',
-      levels: ['Freshman', 'Team Captain', 'Varsity Ace'],
-      intros: ['🐣 The Freshman lifts short → hold ▶ + Hit to smash!', '🎽 The Captain drives and finds open space → recover to base!', '👑 The Ace jump-smashes and uses deception → hit deep, be patient!'],
+      levels: ['Freshman', 'Team Captain', 'Varsity Ace', 'Net Bully', 'Drive Gunner', 'The Wall', 'Lefty Magician', 'Heavy Hitter', 'All-Rounder', 'The Legend'],
+      intros: ['🐣 The Freshman lifts short → hold ▶ + Hit to smash!', '🎽 The Captain drives and finds open space → recover to base!', '👑 The Ace jump-smashes and uses deception → hit deep, be patient!',
+        '🕸️ The Net Bully rules the net but is slow going back → clear deep!', '⚡ The Drive Gunner drives fast and flat → block or lift to break the rhythm!', '🧱 The Wall almost never misses → move all four corners, smash the short lift!',
+        '🪄 The Lefty Magician loves deception → don’t move too early!', '💥 The Heavy Hitter smashes hardest → block it back and make the rallies long!', '🌟 The All-Rounder has no weakness → use every tactic you’ve learned!', '👑 Final stage: The Legend reads your deception → give it everything!'],
+      beatTips: ['💡 Wait for the short lift, then hold ▶ + Hit to smash', '💡 Recover to base after every shot', '💡 Hit deeper and be patient', '💡 Keep clearing deep — he’s slow going back',
+        '💡 Use Soft to block and slow the tempo — he makes errors', '💡 He rarely misses — win points with smashes and net kills', '💡 Many of his shots are fakes — move a little later', '💡 After 9 shots he slows down — hang in there!',
+        '💡 Clear deep, then drop short to stretch him', '💡 He reads deception — win with placement and patience'],
       youServe: 'Your serve', oppServe: 'Opponent’s serve', hintTouch: 'Tap “Hit” to serve', hintKey: 'Press Space to serve',
       shots: { serve: 'Backhand low serve', net: 'Net shot', netUnder: 'Underhand net shot', push: 'Push', lift: 'Lift', smash: 'Smash!', kill: 'Net kill!', slice: 'Slice', clear: 'Clear', defClear: 'Defensive clear', dropUnder: 'Underhand drop', drive: 'Drive!', block: 'Block', flatClear: 'Attacking clear' },
       feintTag: ' (deception)', fooled: ' · Fooled them!', langTop: '中',
@@ -662,10 +721,10 @@
         feint: '💡 Deception: press Hit early, then slide your thumb to “Soft” without lifting',
         attack: '💡 Clear deep, drop short, smash the weak return!', nice: '🔥 Great smash! That’s it!'
       },
-      champTitle: '🏆 All 3 stages cleared! Badminton legend', wonTitle: n => `You beat the ${n}!`, lostTitle: n => `Lost to the ${n}…`,
-      champMsg: n => `${n}, not even the Varsity Ace could stop you!`, wonMsg: 'The next rival is faster — recover to base after every smash.', lostMsg: 'Mix net shots and slices to move your rival front and back!',
+      champTitle: '🏆 All 10 stages cleared! Badminton legend', wonTitle: n => `You beat the ${n}!`, lostTitle: n => `Lost to the ${n}…`,
+      champMsg: n => `${n}, not even The Legend could stop you!`, wonMsg: 'The next rival is faster — recover to base after every smash.', lostMsg: 'Mix net shots and slices to move your rival front and back!',
       again: 'Play again', next: n => `Next: ${n}`, retry: 'Retry this stage',
-      shareChamp: u => `🏸 I cleared all 3 stages of “Badminton PK” and beat the Varsity Ace! Can you?\n${u}`,
+      shareChamp: u => `🏸 I cleared all 10 stages of “Badminton PK” and beat The Legend! Can you?\n${u}`,
       shareMid: (st, n, sc, u) => `🏸 I reached Stage ${st} in “Badminton PK” (${n} ${sc}). Your turn!\n${u}`,
       copied: 'Copied! Send it to your friends', copyFail: 'Auto copy failed — copy the text below',
       banner: 'T E A M   P R A C T I C E  ·  S T A Y   O F F   T H E   C O U R T',
@@ -758,6 +817,7 @@
       coach: { streak: 0, counts: {}, shown: {} },
       stats: { smash: 0, longest: 0, total: 0, shots: {}, rallies: [], feints: 0, fooled: 0 }
     };
+    G_.a.lefty = !!LEVELS[level].lefty; G_.a.scale = LEVELS[level].scale || 1;
     $('aName').textContent = T().levels[level];
     $('lvLbl').textContent = T().stage(level + 1);
     updScore(); setupServe();
@@ -827,15 +887,15 @@
     return soft ? 'dropUnder' : 'defClear';
   }
   // 以擊球者的方向來看的落點（對面場地 6.7～13.4）
-  function targetFor(kind, opp, who, style) {
-    const r = Math.random();
+  function targetFor(kind, opp, who, L) {
+    const r = Math.random(), style = L ? L.style : null;
     const oppFront = who === 'p' ? opp.x < NET_X + 2.6 : opp.x > NET_X - 2.6;
     if (style === 'rookie') { // 學弟：高球只打到半場，網前也不夠貼
       if (['clear', 'lift', 'defClear', 'push', 'drive', 'flatClear'].includes(kind)) return 9.7 + r * 1.5;
       if (kind === 'smash') return 9.5 + r * 2;
       return NET_X + 0.9 + r * 1.2;
     }
-    if (style === 'ace') { // 王牌：四角精準
+    if (L && L.precise) { // 高手：四角精準
       switch (kind) {
         case 'net': case 'netUnder': return NET_X + 0.3 + r * 0.45;
         case 'dropUnder': case 'slice': return NET_X + 0.6 + r * 0.8;
@@ -874,7 +934,7 @@
       return { kind: g.aiRoll < L.smashP ? 'smash' : 'flatClear' };
     } else {
       const high = z === 'mid' ? h > 1.9 : h >= 1.7;
-      if (high) { attack = Math.random() < L.smashP * 0.45 ? 'smash' : 'clear'; soft = 'slice'; }
+      if (high) { attack = Math.random() < (L.smashGround ?? L.smashP * 0.45) ? 'smash' : 'clear'; soft = 'slice'; }
       else if (z === 'mid' && h >= 1.0) { attack = 'drive'; soft = 'block'; }
       else { attack = 'defClear'; soft = 'dropUnder'; }
     }
@@ -888,7 +948,8 @@
       const pBack = p.x < 3.4, pFront = p.x > 4.4;
       if (R < L.exploit && pBack) kind = soft;            // 你在後場 → 吊網前
       else if (R < L.exploit && pFront) kind = attack;    // 你在網前 → 打後場
-      else kind = Math.random() < 0.5 ? attack : soft;
+      else kind = Math.random() < (L.softBias ?? 0.5) ? soft : attack;
+      if (L.style === 'netbully' && z === 'front' && kind === attack && Math.random() < 0.5) kind = soft; // 網前一定要跟你比手感
     }
     // 假動作：同一個架拍，打出相反的球
     let fake = null;
@@ -908,7 +969,7 @@
     const opp = who === 'p' ? g.a : g.p;
     const dec = who === 'a' ? (opt.decision || aiChoose(pl, b, L, opp)) : { kind: chooseKind(pl, b, soft, opt.fwd), fake: opt.feint ? (opt.fakeKind || 'clear') : null };
     const kind = dec.kind, feint = !!dec.fake;
-    let t = targetFor(kind, opp, who, who === 'a' ? L.style : null);
+    let t = targetFor(kind, opp, who, who === 'a' ? L : null);
     if (who === 'p' && DEEP.includes(kind)) {
       // 理想擊球點在身體前方約 0.35 公尺；越前面（越早出手）力道越大、越容易出界
       const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
@@ -916,7 +977,11 @@
       if (zoneOf(pl) === 'front' && kind !== 'push') t += 0.35; // 網前挑球離底線近，更容易挑出界
     }
     if (who === 'a') { // 對手失誤：難的球路、或接你的快球時比較容易失誤
-      const pf = L.fault * (KIND_RISK[kind] || 1) + (FAST.includes(b.type) ? L.pressFault : 0);
+      const risk = (L.style === 'power' && kind === 'smash') ? 0.5 : (KIND_RISK[kind] || 1); // 重砲手殺球很穩
+      let pf = L.fault * risk + (FAST.includes(b.type) ? L.pressFault : 0);
+      if (L.deepFault && ['clear', 'lift', 'defClear', 'flatClear'].includes(b.type) && zoneOf(pl) === 'back') pf += L.deepFault; // 被逼到後場
+      if (L.slowFault && SHORT.includes(b.type)) pf += L.slowFault;  // 節奏被放慢
+      if (L.tire && g.rally > 9) pf += 0.05 + (g.rally - 9) * 0.01;   // 來回一長就累
       if (Math.random() < pf) t = Math.random() < .5 ? COURT + 0.5 + Math.random() * 0.8 : NET_X - 0.5;
     }
     // 你的假動作：對手先往反方向跑（王牌有機會看穿）
@@ -924,9 +989,9 @@
     if (who === 'p') { g.stats.shots[kind] = (g.stats.shots[kind] || 0) + 1; if (feint) { g.usedFeint = true; g.stats.feints++; } }
     if (who === 'p' && feint && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
     else if (who === 'p') g.aiFeintT = 0;
-    if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.style === 'ace' && g.a.y === 0) g.a.vy = 1.5; } // 王牌：你擊球時啟動步
+    if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.splitStep && g.a.y === 0) g.a.vy = 1.5; } // 高手：你擊球時啟動步
     const tx = who === 'p' ? t : COURT - t;
-    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2);
+    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, who === 'a' ? (L.smashBoost || 0) : 0);
     b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false;
     pl.swingType = kind; pl.swingT = contactT(kind);
     g.rally++;
@@ -963,11 +1028,13 @@
       }
     } else if (g.state === 'rally' && b && b.last === 'a') {
       // 打完回中場：學弟不回位、隊長慢慢回、王牌馬上回
-      if (L.recover > 0) { target = 9.8; sp *= L.recover; }
+      if (L.recover > 0) { target = L.base || 9.8; sp *= L.recover; }
     }
     // 被你的假動作騙：先往反方向跑一下
     if (g.aiFeintT > 0 && b && b.last === 'p') { g.aiFeintT -= dt; target = a.x + g.aiFeintDir * 3; }
     const d = target - a.x;
+    if (L.backSlow && d > 0) sp *= L.backSlow;          // 往後場退得慢
+    if (L.tire && g.rally > 9) sp *= 0.75;               // 來回太長就累了
     a.x += Math.max(-sp * dt, Math.min(sp * dt, d));
     a.x = Math.max(NET_X + 0.35, Math.min(COURT - 0.2, a.x));
 
@@ -1112,6 +1179,8 @@
     const t = T(), r = getRec(), ns = nextStage();
     G_ = null; paused = false; clearHud();
     $('homeHi').textContent = t.homeHi(playerName());
+    if (!PLAY) loadPlay();
+    const tm = Math.floor(PLAY.daily / 60); $('homeToday').textContent = tm > 0 ? t.today(tm) : '';
     $('contBtn').textContent = r.cleared >= LEVELS.length ? t.contChamp : t.cont(ns + 1, t.levels[ns]);
     $('stageSel').innerHTML = LEVELS.map((L, i) => {
       const open = i <= r.cleared, done = i < r.cleared;
@@ -1128,6 +1197,8 @@
   }
   function playStage(lv) {
     audio(); unlockSpeech(); if (isTouch) goFull();
+    loadPlay();
+    if (restCfg.on && lateNight() && !lateShown) { lateShown = true; setTimeout(() => notice(`<b>${T().lateT}</b><br>${T().late}`), 200); }
     $('pName').textContent = playerName();
     showScreen(null); newMatch(lv, false); getReady();
   }
@@ -1143,7 +1214,7 @@
     const fav = Object.entries(r.shots).filter(([k]) => t.shots[k]).sort((a, b) => b[1] - a[1])[0];
     const cells = [
       [r.matches, t.recMatches], [r.wins, t.recWins], [r.matches ? Math.round(r.wins / r.matches * 100) + '%' : '–', t.recRate],
-      [r.cleared >= 3 ? '🏆' : `${Math.min(r.cleared + 1, 3)} / 3`, t.recBest], [r.smash, t.recSmash], [r.longest, t.recLongest],
+      [r.cleared >= LEVELS.length ? '🏆' : `${Math.min(r.cleared + 1, LEVELS.length)} / ${LEVELS.length}`, t.recBest], [r.smash, t.recSmash], [r.longest, t.recLongest],
       [r.points, t.recPoints], [fav ? t.shots[fav[0]].replace(/[！!]/, '') : '–', t.recFav]
     ];
     $('recGrid').innerHTML = cells.map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
@@ -1156,7 +1227,7 @@
     $('voiceTog').textContent = voiceOn ? t.on : t.off; $('voiceTog').classList.toggle('on', voiceOn);
     $('soundTog').textContent = soundOn ? t.on : t.off; $('soundTog').classList.toggle('on', soundOn);
   }
-  function openSettings() { $('renameIn').value = store.get('bd_name', ''); updToggles(); overlayOpen('settings'); }
+  function openSettings() { $('renameIn').value = store.get('bd_name', ''); updToggles(); updRestToggles(); overlayOpen('settings'); }
   $('voiceTog').addEventListener('click', () => { voiceOn = !voiceOn; store.set('bd_voice', voiceOn ? '1' : '0'); if (!voiceOn) { try { speechSynthesis.cancel(); } catch (e) {} } else unlockSpeech(); updToggles(); });
   $('soundTog').addEventListener('click', () => { soundOn = !soundOn; store.set('bd_sound', soundOn ? '1' : '0'); updToggles(); });
   $('setClose').addEventListener('click', () => {
@@ -1164,6 +1235,73 @@
     $('pName').textContent = playerName(); overlayClose('settings');
     if (!$('home').classList.contains('hidden')) showHome();
   });
+
+  // ---------- 休息提醒 ----------
+  // 只算真的在比賽的時間；離開超過 10 分鐘，連續時間就重新計算
+  const REST_EVERY = [30, 45, 60], REST_DAILY = [1, 2, 3];
+  function getRestCfg() { try { return Object.assign({ on: true, every: 30, daily: 2 }, JSON.parse(store.get('bd_restcfg', '{}'))); } catch (e) { return { on: true, every: 30, daily: 2 }; } }
+  let restCfg = getRestCfg();
+  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+  let PLAY = null, playSaveT = 0, lateShown = false;
+  function loadPlay() {
+    try { PLAY = JSON.parse(store.get('bd_play', '{}')); } catch (e) { PLAY = {}; }
+    PLAY = Object.assign({ date: todayStr(), daily: 0, cont: 0, last: 0, s1: 0, s2: 0, sd: 0 }, PLAY);
+    if (PLAY.date !== todayStr()) Object.assign(PLAY, { date: todayStr(), daily: 0, sd: 0 });
+    if (Date.now() - PLAY.last > 10 * 60 * 1000) Object.assign(PLAY, { cont: 0, s1: 0, s2: 0 });
+  }
+  function savePlay() { store.set('bd_play', JSON.stringify(PLAY)); }
+  function tickPlay(dt) {
+    if (!PLAY) loadPlay();
+    PLAY.cont += dt; PLAY.daily += dt; PLAY.last = Date.now();
+    if ((playSaveT += dt) > 5) { playSaveT = 0; savePlay(); }
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { loadPlay(); if (!$('home').classList.contains('hidden')) showHome(); } else if (PLAY) savePlay(); });
+  // 比賽結束時檢查要不要提醒（一次只跳一種）
+  function checkRest() {
+    if (!restCfg.on || !PLAY) return;
+    savePlay();
+    const t = T(), mins = Math.floor(PLAY.cont / 60);
+    if (!PLAY.sd && PLAY.daily >= restCfg.daily * 3600) { PLAY.sd = 1; savePlay(); return restPop('📅', t.dayT, t.day(t.hours(restCfg.daily)), t.dayA, t.dayB, () => { overlayClose('rest'); showHome(); }); }
+    if (!PLAY.s2 && PLAY.cont >= restCfg.every * 2 * 60) { PLAY.s2 = 1; PLAY.s1 = 1; savePlay(); return restPop('😴', t.rest2T, t.rest2(mins), t.rest2A, t.rest2B, startBreak); }
+    if (!PLAY.s1 && PLAY.cont >= restCfg.every * 60) { PLAY.s1 = 1; savePlay(); return restPop('🥤', t.rest1T, t.rest1(mins), t.rest1A, t.rest1B, () => { overlayClose('rest'); showHome(); }); }
+  }
+  let restTimer = null;
+  function restPop(icon, title, txt, aTxt, bTxt, aFn) {
+    $('restIcon').textContent = icon; $('restTitle').textContent = title; $('restTxt').textContent = txt;
+    $('restClock').classList.add('hidden');
+    $('restA').textContent = aTxt; $('restA').onclick = aFn;
+    $('restB').textContent = bTxt; $('restB').onclick = () => overlayClose('rest');
+    $('restB').classList.remove('hidden');
+    setTimeout(() => overlayOpen('rest'), 1300);
+  }
+  function startBreak() {
+    const t = T(), end = Date.now() + 10 * 60 * 1000;
+    $('restIcon').textContent = '🧘'; $('restTitle').textContent = t.restingT; $('restTxt').textContent = t.resting;
+    $('restClock').classList.remove('hidden');
+    $('restA').textContent = t.restSkip; $('restA').onclick = () => { clearInterval(restTimer); overlayClose('rest'); };
+    $('restB').classList.add('hidden');
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+      $('restClock').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+      if (left <= 0) {
+        clearInterval(restTimer); Object.assign(PLAY, { cont: 0, s1: 0, s2: 0 }); savePlay();
+        $('restIcon').textContent = '✅'; $('restTitle').textContent = t.restDoneT; $('restTxt').textContent = t.restDone;
+        $('restClock').classList.add('hidden'); $('restA').textContent = t.restGo; $('restA').onclick = () => { overlayClose('rest'); showHome(); };
+      }
+    };
+    clearInterval(restTimer); tick(); restTimer = setInterval(tick, 1000);
+  }
+  function updRestToggles() {
+    const t = T();
+    $('restTog').textContent = restCfg.on ? t.on : t.off; $('restTog').classList.toggle('on', restCfg.on);
+    $('restEvery').textContent = t.mins(restCfg.every); $('restDaily').textContent = t.hours(restCfg.daily);
+    $('restEvery').disabled = $('restDaily').disabled = !restCfg.on;
+  }
+  const saveRestCfg = () => { store.set('bd_restcfg', JSON.stringify(restCfg)); updRestToggles(); };
+  $('restTog').addEventListener('click', () => { restCfg.on = !restCfg.on; saveRestCfg(); });
+  $('restEvery').addEventListener('click', () => { restCfg.every = REST_EVERY[(REST_EVERY.indexOf(restCfg.every) + 1) % REST_EVERY.length]; saveRestCfg(); });
+  $('restDaily').addEventListener('click', () => { restCfg.daily = REST_DAILY[(REST_DAILY.indexOf(restCfg.daily) + 1) % REST_DAILY.length]; saveRestCfg(); });
+  function lateNight() { const h = new Date().getHours(); return h >= 23 || h < 5; }
 
   // ---------- 暫停 ----------
   let paused = false;
@@ -1190,7 +1328,7 @@
   ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, armGuard, true));
   window.addEventListener('popstate', () => {
     guard = false;
-    const open = ['shareView', 'records', 'settings', 'help', 'notice'].find(id => !$(id).classList.contains('hidden'));
+    const open = ['notice', 'rest', 'shareView', 'records', 'settings', 'help'].find(id => !$(id).classList.contains('hidden'));
     if (open) { open === 'help' ? closeHelp() : overlayClose(open); return; }          // 先關掉最上層的視窗
     if (inMatch()) { if (!paused) openPause(); return; }                                  // 比賽中：打開暫停
     if (!$('over').classList.contains('hidden')) { showHome(); return; }                  // 結算 → 主頁
@@ -1256,6 +1394,7 @@
       return;
     }
     const g = G_; if (!g || g.over || paused) return;
+    tickPlay(dt);
     const p = g.p;
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
@@ -1313,6 +1452,7 @@
   $('coach').addEventListener('click', () => $('coach').classList.add('hidden'));
   function coachAfterPoint(w, cause) {
     const g = G_, c = g.coach;
+    if (w === 'a' && g.as - g.ps >= 3 && !c.shown.beat) { c.shown.beat = 1; coachSay(T().beatTips[g.level], 5000); return; }
     // 第二關開始教一次假動作
     if (g.level >= 1 && !c.shown.feint && !g.usedFeint && g.ps + g.as === 3) { c.shown.feint = 1; coachSay(TIPS.feint, 5500); return; }
     if (cause === 'svline' || cause === 'rcvline') { coachSay(TIPS[cause]); return; } // 發球犯規馬上提醒
@@ -1393,6 +1533,7 @@
     lastResult = { won, champ, lv, ps: g.ps, as: g.as, longest: st.longest, avg, shotsTotal, smash: st.smash, feints: st.feints, top: TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 3) };
     shareFile = null; makeShareImage();
     setTimeout(() => { if (G_ === g) showScreen('over'); }, 900);
+    checkRest();
   }
   $('ovHome').addEventListener('click', showHome);
 
@@ -1401,7 +1542,7 @@
   try { iconImg = new Image(); iconImg.src = 'icon-512.png'; } catch (e) {}
   function shareText() {
     const r = lastResult, t = T();
-    return r.champ ? t.shareChamp(GAME_URL) : t.shareMid(r.won ? Math.min(r.lv + 2, 3) : r.lv + 1, t.levels[r.lv], `${r.ps}:${r.as}`, GAME_URL);
+    return r.champ ? t.shareChamp(GAME_URL) : t.shareMid(r.won ? Math.min(r.lv + 2, LEVELS.length) : r.lv + 1, t.levels[r.lv], `${r.ps}:${r.as}`, GAME_URL);
   }
   function makeShareImage() {
     const r = lastResult, t = T(), N = 1080, c = document.createElement('canvas'); c.width = c.height = N;
@@ -1470,7 +1611,7 @@
     if (!$('home').classList.contains('hidden')) showHome();
     if (!$('gate').classList.contains('hidden')) updInstallUI();
     if (!$('records').classList.contains('hidden')) renderRecords();
-    if (!$('settings').classList.contains('hidden')) updToggles();
+    if (!$('settings').classList.contains('hidden')) { updToggles(); updRestToggles(); }
     if (!$('help').classList.contains('hidden')) $('helpClose').textContent = inMatch() ? T().resume : T().back;
     if (lastResult && !$('over').classList.contains('hidden')) makeShareImage();
   }
@@ -1739,7 +1880,7 @@
       const x = pl.pose[key], v = pl.pv[key] || 0, a = kS * (tp.p[key] - x) - cS * v;
       pl.pv[key] = v + a * h; pl.pose[key] = x + pl.pv[key] * h;
     }
-    const q = keepOffNet(pl, pl.pose, dir), m = S_;
+    const q = keepOffNet(pl, pl.pose, dir), m = S_ * (pl.scale || 1);
     const bx = px(pl.x), by = py(pl.y);
     const LEG = 0.46 * m, TORSO = 0.56 * m, UA = 0.3 * m, FA = 0.27 * m, OFF = 0.55 * m;
     // 影子
@@ -1756,30 +1897,36 @@
       ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(k.kx, k.ky); ctx.lineTo(k.fx, k.fy); ctx.stroke();
       ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.ellipse(k.fx + 0.05 * m * dir, k.fy - 1, 0.1 * m, Math.max(2, 0.04 * m), 0, 0, 7); ctx.fill();
     }
-    // 非持拍手（在身體後面）
-    const [ox, oy] = at(sx, sy, q.oa, OFF);
-    ctx.strokeStyle = '#e8bc93'; ctx.lineWidth = Math.max(2.5, m * 0.08);
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ox, oy); ctx.stroke();
+    let cx = 0, cy = 0, ox = 0, oy = 0;
+    const drawOff = () => { // 非持拍手
+      [ox, oy] = at(sx, sy, q.oa, OFF);
+      ctx.strokeStyle = '#e8bc93'; ctx.lineWidth = Math.max(2.5, m * 0.08);
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ox, oy); ctx.stroke();
+    };
+    const drawRacketArm = () => { // 持拍手：上臂 → 前臂 → 球拍
+      const [ex, ey] = at(sx, sy, q.ua, UA), [wx, wy] = at(ex, ey, q.fa, FA);
+      ctx.strokeStyle = pl.lefty ? '#e8bc93' : '#f2c9a0'; ctx.lineWidth = Math.max(3, m * 0.09);
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(wx, wy); ctx.stroke();
+      const [nx, ny] = at(wx, wy, q.ra, 0.36 * m); [cx, cy] = at(wx, wy, q.ra, 0.55 * m);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = Math.max(1.5, m * 0.035);
+      ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(nx, ny); ctx.stroke();
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(dir > 0 ? q.ra : Math.PI - q.ra);
+      ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, m * 0.05);
+      ctx.beginPath(); ctx.ellipse(0, 0, 0.17 * m, 0.11 * m, 0, 0, 7); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 0.8;
+      for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 0.055 * m, -0.1 * m); ctx.lineTo(i * 0.055 * m, 0.1 * m); ctx.stroke(); }
+      ctx.restore();
+    };
+    // 右手持拍：拍子在身體前面；左手持拍：拍子在身體後面那一側
+    if (pl.lefty) drawRacketArm(); else drawOff();
     // 上身
     ctx.strokeStyle = color; ctx.lineWidth = Math.max(6, m * 0.3);
     ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(sx, sy); ctx.stroke();
     // 頭
     const hdx = sx + Math.sin(q.lean) * 0.17 * m * dir, hdy = sy - Math.cos(q.lean) * 0.17 * m, hr = 0.11 * m;
     ctx.fillStyle = '#f2c9a0'; ctx.beginPath(); ctx.arc(hdx, hdy, hr, 0, 7); ctx.fill();
-    ctx.fillStyle = '#1d2433'; ctx.beginPath(); ctx.arc(hdx - 0.02 * m * dir, hdy - 0.02 * m, hr, Math.PI * (dir > 0 ? 1.05 : 1.05), Math.PI * 1.95); ctx.fill();
-    // 持拍手：上臂 → 前臂 → 球拍
-    const [ex, ey] = at(sx, sy, q.ua, UA), [wx, wy] = at(ex, ey, q.fa, FA);
-    ctx.strokeStyle = '#f2c9a0'; ctx.lineWidth = Math.max(3, m * 0.09);
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(wx, wy); ctx.stroke();
-    const [nx, ny] = at(wx, wy, q.ra, 0.36 * m), [cx, cy] = at(wx, wy, q.ra, 0.55 * m);
-    ctx.strokeStyle = '#ddd'; ctx.lineWidth = Math.max(1.5, m * 0.035);
-    ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(nx, ny); ctx.stroke();
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(dir > 0 ? q.ra : Math.PI - q.ra);
-    ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, m * 0.05);
-    ctx.beginPath(); ctx.ellipse(0, 0, 0.17 * m, 0.11 * m, 0, 0, 7); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 0.8;
-    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 0.055 * m, -0.1 * m); ctx.lineTo(i * 0.055 * m, 0.1 * m); ctx.stroke(); }
-    ctx.restore();
+    ctx.fillStyle = '#1d2433'; ctx.beginPath(); ctx.arc(hdx - 0.02 * m * dir, hdy - 0.02 * m, hr, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
+    if (pl.lefty) drawOff(); else drawRacketArm();
     // 揮拍殘影
     pl.trail = pl.trail || [];
     if (pl.swingT >= 0) pl.trail.push({ x: cx, y: cy, a: .45 }); 
