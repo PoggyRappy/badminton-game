@@ -255,8 +255,10 @@
     <h1 data-t="gameName"></h1>
     <p data-t="sub"></p>
     <div class="rules" data-rules></div>
-    <input id="nameIn" maxlength="12">
-    <button class="btn pri" id="startBtn" data-t="welcomeStart"></button>
+    <input id="nameIn" maxlength="12" class="hidden">
+    <button class="btn pri big2" id="wGoogle"></button>
+    <p class="note" data-t="loginWhy"></p>
+    <button class="btn sec" id="wGuest" data-t="wGuest"></button>
     <p class="note consent" data-t="consentNote"></p>
   </div>
 </div>
@@ -306,7 +308,7 @@
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <button class="btn pri" id="setClose" data-t="saveBack"></button>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.0 · 2026/11/18</p>
+    <p class="note">v3.1 · 2026/11/18</p>
   </div>
 </div>
 
@@ -373,7 +375,7 @@
 <div class="overlay hidden" id="nameDlg" style="z-index:55">
   <div class="card">
     <h2 data-t="nameTitle"></h2>
-    <p data-t="nameP"></p>
+    <p id="nameP"></p>
     <input id="nameDlgIn" maxlength="12">
     <div class="toast err" id="nameErr"></div>
     <button class="btn pri" id="nameSave" data-t="nameSave"></button>
@@ -632,7 +634,8 @@
       gateP: '安裝到手機主畫面，全螢幕玩最順！', gateSkip: '先在瀏覽器玩',
       gateAndroidReady: '按下面的按鈕，就會把「羽球PK」裝到主畫面。',
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
-      welcomeStart: '開始第一場！', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
+      wGuest: '以訪客身分玩', wConnecting: '連線中…', wGoogleOff: '目前無法登入（可以用訪客玩）',
+      namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 紀錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '個人紀錄', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
       settingsTitle: '設定', setLang: '語言', setVoice: '裁判語音報分', setSound: '擊球音效', setName: '名字', saveBack: '儲存並返回', on: '開', off: '關',
@@ -754,7 +757,8 @@
       gateP: 'Install it on your home screen for the best fullscreen experience!', gateSkip: 'Play in the browser for now',
       gateAndroidReady: 'Tap the button below to add “Badminton PK” to your home screen.',
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
-      welcomeStart: 'Start your first match!', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
+      wGuest: 'Play as a guest', wConnecting: 'Connecting…', wGoogleOff: 'Sign-in unavailable (play as a guest)',
+      namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 Records', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'My records', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
       settingsTitle: 'Settings', setLang: 'Language', setVoice: 'Umpire voice', setSound: 'Hit sounds', setName: 'Name', saveBack: 'Save & back', on: 'On', off: 'Off',
@@ -1275,8 +1279,9 @@
     if (isTouch && canInstallHere && !skipped) { updInstallUI(); showScreen('gate'); }
     else afterGate();
   }
+  // 還沒選過「Google 登入」或「訪客」→ 先到歡迎頁選；選過就直接到主頁選關
   function afterGate() {
-    if (!store.get('bd_name', '')) { $('nameIn').value = ''; showScreen('menu'); }
+    if (!store.get('bd_entry', '')) { showScreen('menu'); updWelcome(); }
     else showHome();
   }
 
@@ -1759,7 +1764,7 @@
         FB.user = u;
         if (!u) { try { await m.signInAnonymously(FB.auth); } catch (e) { FB.ready = true; updAccountUI(); } return; } // 訪客也有匿名帳號
         FB.ready = true;
-        if (!u.isAnonymous) await loadProfile(); else FB.profile = null;
+        if (!u.isAnonymous) { await loadProfile(); welcomeDone(); } else FB.profile = null; // 跳轉登入回來時也會走這裡
         updAccountUI(); flushPending();
       });
     } catch (e) { console.warn('Firebase 無法連線', e); FB.err = true; updAccountUI(); }
@@ -1840,9 +1845,13 @@
     if (BAD.some(w => low.includes(w))) return T().nameBad;
     return '';
   }
-  function askName() {
+  let nameMode = 'google';
+  function askName(mode) {
+    nameMode = mode || 'google';
+    $('nameP').textContent = nameMode === 'guest' ? T().namePGuest : T().nameP;
     $('nameDlgIn').value = store.get('bd_name', '') === T().you ? '' : store.get('bd_name', '');
     $('nameErr').textContent = ''; overlayOpen('nameDlg');
+    setTimeout(() => { try { $('nameDlgIn').focus(); } catch (e) {} }, 100);
   }
   async function saveCloudName(n) {
     const m = FB.m;
@@ -1854,9 +1863,29 @@
   $('nameSave').addEventListener('click', async () => {
     const n = $('nameDlgIn').value.trim(), err = checkName(n);
     if (err) { $('nameErr').textContent = err; return; }
-    overlayClose('nameDlg'); await saveCloudName(n); updAccountUI();
-    if (!$('home').classList.contains('hidden')) showHome();
+    overlayClose('nameDlg');
+    if (nameMode === 'guest') { store.set('bd_name', n); $('nameIn').value = n; store.set('bd_entry', 'guest'); track('enter', { mode: 'guest' }); showHome(); return; }
+    await saveCloudName(n); updAccountUI();
+    if (!$('menu').classList.contains('hidden')) { store.set('bd_entry', 'google'); track('enter', { mode: 'google' }); }
+    showHome();
   });
+
+  // ---- 歡迎頁：Google 登入／訪客 ----
+  function updWelcome() {
+    const t = T(), b = $('wGoogle');
+    b.textContent = FB.err ? t.wGoogleOff : !FB.ready ? t.wConnecting : t.loginBtn;
+    b.disabled = FB.err || !FB.ready;
+  }
+  $('wGoogle').addEventListener('click', async () => {
+    audio(); unlockSpeech();
+    await fbLogin();
+    if (isGoogle()) welcomeDone();
+  });
+  function welcomeDone() { // 登入成功：有名字就進主頁，沒有名字會先跳出取名視窗
+    if ($('menu').classList.contains('hidden')) return;
+    if (FB.profile && FB.profile.name) { store.set('bd_entry', 'google'); track('enter', { mode: 'google' }); showHome(); }
+  }
+  $('wGuest').addEventListener('click', () => { audio(); unlockSpeech(); askName('guest'); });
 
   // ---- 刪除帳號資料（按兩次確認） ----
   let delArm = 0;
@@ -1873,6 +1902,7 @@
 
   // ---- 帳號狀態顯示 ----
   function updAccountUI() {
+    updWelcome();
     const t = T(), g = isGoogle(), nm = (FB.profile && FB.profile.name) || '';
     $('acctLine').innerHTML = FB.err ? `<span style="opacity:.6">${t.offlineMode}</span>`
       : g ? `✅ ${t.signedInAs(escapeHtml(nm || '…'))}` : `<button id="homeLogin">${t.loginBtn}</button> <span style="opacity:.65">${t.loginWhy}</span>`;
@@ -1993,12 +2023,6 @@
 
   // ---------- 第一次：取名字 ----------
   $('nameIn').value = store.get('bd_name', '');
-  function start() {
-    const n = ($('nameIn').value || '').trim() || T().you;
-    store.set('bd_name', n);
-    playStage(0); // 第一次取完名字直接開打第一關
-  }
-  $('startBtn').addEventListener('click', start);
   document.querySelectorAll('.langBtn').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
   function refreshScreens() {
     if (!$('home').classList.contains('hidden')) showHome();
@@ -2016,7 +2040,7 @@
 
   // ---------- 輸入 ----------
   window.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter' && e.target.id === 'nameIn') start(); return; }
+    if (e.target.tagName === 'INPUT') { if (e.key === 'Enter' && e.target.id === 'nameDlgIn') $('nameSave').click(); return; }
     const c = e.code;
     if (!$('help').classList.contains('hidden')) { if (c === 'Escape' || c === 'KeyH' || c === 'Enter') closeHelp(); return; }
     if (!$('pause').classList.contains('hidden')) { if (c === 'Escape' || c === 'KeyP') closePause(); return; }
