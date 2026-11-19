@@ -201,7 +201,7 @@
   .cmb { display: inline-flex; align-items: center; gap: 3px; } .cmb i { font-style: normal; opacity: .6; font-size: 12px; }
   .padDemo { display: flex; justify-content: space-between; gap: 14px; background: rgba(255,255,255,.05); border-radius: 14px; padding: 12px 16px; margin: 8px 0; }
   .pd { display: flex; flex-direction: column; align-items: center; gap: 6px; } .pd .row { display: flex; gap: 10px; align-items: center; }
-  .pd small { opacity: .75; font-size: 12px; }
+  .pd small { opacity: .75; font-size: 12px; } .kbDemo { justify-content: space-around; }
   .keyGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
   .keyGrid div { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.05); border-radius: 10px; padding: 7px 10px; }
   .tips, .rulesList { margin: 8px 0 0; padding-left: 18px; } .tips li, .rulesList li { margin: 3px 0; }
@@ -350,7 +350,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.2 · 2026/11/18</p>
+    <p class="note">v3.4 · 2026/11/19</p>
   </div>
 </div>
 
@@ -594,6 +594,20 @@
     const a = (lo + hi) / 2 * Math.PI / 180;
     return { vx: dir * sp * Math.cos(a), vy: sp * Math.sin(a) };
   }
+  // 放網：在所有能過網的角度裡，挑過網後最低的弧線（真實放網是貼網翻過去，不會飄高給人撲）
+  function peakAfterNet(x, y, v) {
+    const b = { x, y, vx: v.vx, vy: v.vy }, side = Math.sign(NET_X - x); let m = 0;
+    for (let i = 0; i < 900 && b.y > 0; i++) { step(b, 1 / 120); if ((b.x - NET_X) * side > 0) m = Math.max(m, b.y); }
+    return m;
+  }
+  function tightNet(x, y, tx, margin) {
+    let best = null, bm = 99, last = null;
+    for (let a = -8; a <= 84; a += 3) {
+      const v = solveSpeed(x, y, tx, a); last = v;
+      if (sim(x, y, v.vx, v.vy).netY > NET_H + margin) { const m = peakAfterNet(x, y, v); if (m < bm) { bm = m; best = v; } }
+    }
+    return best || last;
+  }
   function shot(x, y, tx, type, air, boost = 0) {
     if (type === 'smash' || type === 'kill') {
       const spd = (type === 'kill' ? 22 : air ? 29 : 25) + boost; // 跳殺比原地殺球快
@@ -619,6 +633,7 @@
       flatClear: [28, 24, 32, 36, 40]         // 平高球：比高遠球低、快
     };
     const margin = ['net', 'netUnder', 'dropUnder', 'serve', 'block'].includes(type) ? 0.07 : type === 'drive' ? 0.1 : 0.15;
+    if (type === 'net' || type === 'netUnder') return tightNet(x, y, tx, margin + 0.04);
     let v;
     for (const a of (ANG[type] || ANG.clear)) {
       v = solveSpeed(x, y, tx, a);
@@ -662,7 +677,7 @@
   const isGameOver = (a, b) => (a >= WIN_PTS || b >= WIN_PTS) && (Math.abs(a - b) >= 2 || a >= CAP_PTS || b >= CAP_PTS);
   // ---------- 按鍵說明：操作／技術／規則 三個分頁 ----------
   const KEYLBL = { touch: { zh: { swing: '揮拍', soft: '輕', jump: '跳', fwd: '▶' }, en: { swing: 'Hit', soft: 'Soft', jump: 'Jump', fwd: '▶' } },
-                   kb: { zh: { swing: '空白鍵', soft: 'K', jump: '↑', fwd: '→' }, en: { swing: 'Space', soft: 'K', jump: '↑', fwd: '→' } } };
+                   kb: { zh: { swing: 'J', soft: 'K', jump: 'W', fwd: 'D' }, en: { swing: 'J', soft: 'K', jump: 'W', fwd: 'D' } } };
   const keyChip = k => `<span class="kc ${k}">${KEYLBL[isTouch ? 'touch' : 'kb'][LANG][k]}</span>`;
   const combo = ks => ks.map(keyChip).join('<i>＋</i>');
   function helpPane(tab) {
@@ -671,7 +686,9 @@
       const pad = isTouch
         ? `<div class="padDemo"><div class="pd l"><div class="row"><span class="kc jump">${KEYLBL.touch[LANG].jump}</span></div><div class="row"><span class="kc">◀</span><span class="kc">▶</span></div><small>${h.leftHand}</small></div>
            <div class="pd r"><div class="row"><span class="kc soft">${KEYLBL.touch[LANG].soft}</span><span class="kc swing big">${KEYLBL.touch[LANG].swing}</span></div><small>${h.rightHand}</small></div></div>`
-        : `<div class="keyGrid">${h.keys.map(([k, d]) => `<div><span class="kc">${k}</span><span>${d}</span></div>`).join('')}</div>`;
+        : `<div class="padDemo kbDemo"><div class="pd l"><div class="row"><span class="kc jump">W</span></div><div class="row"><span class="kc">A</span><span class="kc">D</span></div><small>${h.kbLeft}</small></div>
+           <div class="pd r"><div class="row"><span class="kc swing big">J</span><span class="kc soft">K</span></div><small>${h.kbRight}</small></div></div>
+           <div class="keyGrid">${h.keys.map(([k, d]) => `<div><span class="kc">${k}</span><span>${d}</span></div>`).join('')}</div>`;
       return pad + `<ul class="tips">${h.opTips.map(x => `<li>${x}</li>`).join('')}</ul>`;
     }
     if (tab === 1) { // 技術
@@ -737,7 +754,7 @@
       signedInAs: n => `已登入：${n}`, loginBtn: '🔑 用 Google 登入', loginWhy: '上排行榜、換手機也保留紀錄', guest: '訪客', logout: '登出', login: '登入',
       help: {
         tabs: ['操作', '技術', '規則'], leftHand: '左手：移動、跳', rightHand: '右手：擊球',
-        keys: [['← →', '移動'], ['↑', '跳'], ['空白鍵', '揮拍'], ['K', '輕'], ['Esc', '暫停'], ['H', '說明']],
+        keys: [['方向鍵／空白鍵', '也可以用'], ['Esc', '暫停'], ['H', '說明']], kbLeft: '左手：A D 移動、W 跳', kbRight: '右手：J 揮拍、K 輕',
         opTips: ['球還在飛過來時就可以先按，遊戲會等球到最好的位置才擊出', '打出什麼球，看你<b>站在哪一區</b>和<b>球多高</b>（看「技術」分頁）', '比賽中左上角 ⏸ 可以暫停、回主頁'],
         zones: ['前場', '中場', '後場'], net: '網', zoneNote: '右上角會即時提示你現在在哪一區',
         groups: [
@@ -747,7 +764,7 @@
         ],
         passive: '💡 球太低（被動）時，會自動改成下手球：防守高球、下手吊球、下手放網',
         feintT: '假動作', feints: [['swing', 'soft', '假殺真吊・假推真放'], ['soft', 'swing', '假放真推（球低時假放真挑）']],
-        feintHow: '球還沒到時先按第一顆，等另一顆<b>亮起來</b>再按；手機可以手指不放，直接滑過去',
+        feintHow: '<b>第一顆＝伸拍做樣子</b>，<b>第二顆＝真正打出的球</b>。球還沒到時先按第一顆，另一顆<b>亮起來</b>就改按；手機可以手指不放直接滑過去',
         powerT: '力道', power: '球在身體前方剛好的位置最穩。太早打會出界，太晚打打不深。提早按，遊戲會等最好的時機出手。',
         rules: [['計分', '先拿 7 分獲勝；6 平後要領先 2 分，最多打到 11 分（10 平時下一分決勝）'], ['發球', '一律反手發小球（按揮拍或輕），得分的一方發球'],
                 ['前發球線', '發球、接發球時，雙方都不能越過黃色的前發球線，否則犯規失分'], ['失分', '球落在自己場內、掛網、打出界']]
@@ -773,7 +790,7 @@
       beatTips: ['💡 等學弟送半場高球，按住▶＋揮拍殺！', '💡 打完記得回中場，別被打空檔', '💡 球打深一點，耐心調動再找機會', '💡 一直打他後場，他退得很慢',
         '💡 按「輕」平擋放慢節奏，他就容易失誤', '💡 他很少失誤，要靠殺球、撲球主動得分', '💡 他的球常是假動作，晚一點再跑', '💡 來回超過 9 拍他會變慢，撐住！',
         '💡 高遠球逼後場＋吊網前，前後拉開他', '💡 假動作會被看穿，靠落點和耐心取勝'],
-      youServe: '你發球', oppServe: '對手發球', hintTouch: '按「揮拍」發球', hintKey: '按空白鍵發球',
+      youServe: '你發球', oppServe: '對手發球', hintTouch: '按「揮拍」發球', hintKey: '按 J 發球',
       shots: { serve: '反手發小球', net: '放網', netUnder: '下手放網', push: '推球', lift: '挑球', smash: '殺球！', kill: '撲球！', slice: '切球', clear: '高遠球', defClear: '防守高球', dropUnder: '下手吊球', drive: '平抽！', block: '平擋', flatClear: '平高球' },
       feintTag: '（假動作）', fooled: '・騙到了！', langTop: 'EN',
       feintName: (f, r) => { const N = { smash: '殺', kill: '撲', clear: '高遠', flatClear: '平高', defClear: '挑', lift: '挑', push: '推', drive: '抽', slice: '切', net: '放', netUnder: '放', dropUnder: '吊', block: '擋' }; return `假${N[f] || '打'}真${N[r] || '打'}！`; },
@@ -806,6 +823,7 @@
       // 裁判報分
       num: n => ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一'][n] ?? String(n),
       callStart: '零比零，比賽開始',
+      intro: (p, o) => [`在我右邊，${p}`, `在我左邊，${o}`, `${p} 發球`, '零比零，比賽開始'],
       callScore: (s, r, mp, over) => {
         const N = I18N.zh.num; let t = s === r ? `${N(s)}平` : `${N(s)}比${N(r)}`;
         if (mp) t += '，賽點';
@@ -814,8 +832,7 @@
       callGame: (a, b) => `比賽結束，${I18N.zh.num(a)}比${I18N.zh.num(b)}`,
       speechLang: 'zh-TW',
       rules: `
-      <span class="kb"><b>移動</b>：<kbd>←</kbd><kbd>→</kbd> 或 <kbd>A</kbd><kbd>D</kbd><br>
-      <b>揮拍</b> <kbd>空白鍵</kbd>/<kbd>J</kbd>　<b>輕</b> <kbd>K</kbd>　<b>跳</b> <kbd>↑</kbd>/<kbd>W</kbd><br></span>
+      <span class="kb"><b>左手</b> <kbd>A</kbd><kbd>D</kbd> 移動、<kbd>W</kbd> 跳　<b>右手</b> <kbd>J</kbd> 揮拍、<kbd>K</kbd> 輕<br></span>
       <span class="tc"><b>左手</b> ◀ ▶ 移動、上方「跳」　<b>右手</b> 大顆「揮拍」、旁邊「輕」<br></span>
       打出什麼球看你<b>站在哪</b>、球多高，還有有沒有<b>按住往前（▶）</b>：
       <table class="shots">
@@ -877,7 +894,7 @@
       signedInAs: n => `Signed in: ${n}`, loginBtn: '🔑 Sign in with Google', loginWhy: 'Join the leaderboard and keep progress across devices', guest: 'Guest', logout: 'Sign out', login: 'Sign in',
       help: {
         tabs: ['Controls', 'Shots', 'Rules'], leftHand: 'Left thumb: move & jump', rightHand: 'Right thumb: hit',
-        keys: [['← →', 'Move'], ['↑', 'Jump'], ['Space', 'Hit'], ['K', 'Soft'], ['Esc', 'Pause'], ['H', 'Help']],
+        keys: [['Arrows / Space', 'also work'], ['Esc', 'Pause'], ['H', 'Help']], kbLeft: 'Left hand: A D move, W jump', kbRight: 'Right hand: J hit, K soft',
         opTips: ['You can press early — the game hits when the shuttle reaches the best spot', 'Your shot depends on <b>which zone you’re in</b> and <b>how high the shuttle is</b> (see “Shots”)', 'Tap ⏸ at the top-left to pause or go home'],
         zones: ['Front', 'Mid', 'Rear'], net: 'Net', zoneNote: 'The top-right corner shows your current zone',
         groups: [
@@ -887,7 +904,7 @@
         ],
         passive: '💡 When the shuttle is low (under pressure) you automatically play underhand: defensive clear, underhand drop or net shot',
         feintT: 'Deception', feints: [['swing', 'soft', 'fake smash, real drop · fake push, real net'], ['soft', 'swing', 'fake net, real push (real lift when low)']],
-        feintHow: 'Press the first button early, then press the other when it <b>lights up</b>. On a phone, just slide your thumb across.',
+        feintHow: '<b>First button = the fake racket set-up</b>, <b>second button = the real shot</b>. Press the first early, then switch when the other <b>lights up</b>. On a phone, just slide your thumb across.',
         powerT: 'Power', power: 'Hit with the shuttle just in front of you. Too early goes out, too late falls short. Press early and the game picks the best moment.',
         rules: [['Scoring', 'First to 7; at 6-all you need a 2-point lead, capped at 11 (at 10-all the next point wins)'], ['Serve', 'Always a backhand low serve (Hit or Soft); the rally winner serves'],
                 ['Short line', 'Server and receiver must not cross the yellow short service line — fault'], ['Lose a point', 'Shuttle lands in your court, hits the net or goes out']]
@@ -913,7 +930,7 @@
       beatTips: ['💡 Wait for the short lift, then hold ▶ + Hit to smash', '💡 Recover to base after every shot', '💡 Hit deeper and be patient', '💡 Keep clearing deep — he’s slow going back',
         '💡 Use Soft to block and slow the tempo — he makes errors', '💡 He rarely misses — win points with smashes and net kills', '💡 Many of his shots are fakes — move a little later', '💡 After 9 shots he slows down — hang in there!',
         '💡 Clear deep, then drop short to stretch him', '💡 He reads deception — win with placement and patience'],
-      youServe: 'Your serve', oppServe: 'Opponent’s serve', hintTouch: 'Tap “Hit” to serve', hintKey: 'Press Space to serve',
+      youServe: 'Your serve', oppServe: 'Opponent’s serve', hintTouch: 'Tap “Hit” to serve', hintKey: 'Press J to serve',
       shots: { serve: 'Backhand low serve', net: 'Net shot', netUnder: 'Underhand net shot', push: 'Push', lift: 'Lift', smash: 'Smash!', kill: 'Net kill!', slice: 'Slice', clear: 'Clear', defClear: 'Defensive clear', dropUnder: 'Underhand drop', drive: 'Drive!', block: 'Block', flatClear: 'Attacking clear' },
       feintTag: ' (deception)', fooled: ' · Fooled them!', langTop: '中',
       feintName: (f, r) => { const N = { smash: 'smash', kill: 'kill', clear: 'clear', flatClear: 'clear', defClear: 'lift', lift: 'lift', push: 'push', drive: 'drive', slice: 'slice', net: 'net', netUnder: 'net', dropUnder: 'drop', block: 'block' }; return `Fake ${N[f] || 'shot'}, real ${N[r] || 'shot'}!`; },
@@ -945,6 +962,7 @@
       voiceOn: '🔊', voiceOff: '🔇',
       num: n => n === 0 ? 'Love' : String(n),
       callStart: 'Love all, play',
+      intro: (p, o) => [`On my right, ${p}`, `On my left, ${o}`, `${p} to serve`, 'Love all, play'],
       callScore: (s, r, mp, over) => {
         const N = I18N.en.num; let t;
         if (s === r) t = mp ? `${N(s)} match point all` : `${N(s)} all`;
@@ -954,8 +972,7 @@
       callGame: (a, b) => `Game. ${a}–${b}`,
       speechLang: 'en-GB',
       rules: `
-      <span class="kb"><b>Move</b>: <kbd>←</kbd><kbd>→</kbd> or <kbd>A</kbd><kbd>D</kbd><br>
-      <b>Hit</b> <kbd>Space</kbd>/<kbd>J</kbd>　<b>Soft</b> <kbd>K</kbd>　<b>Jump</b> <kbd>↑</kbd>/<kbd>W</kbd><br></span>
+      <span class="kb"><b>Left hand</b> <kbd>A</kbd><kbd>D</kbd> move, <kbd>W</kbd> jump　<b>Right hand</b> <kbd>J</kbd> hit, <kbd>K</kbd> soft<br></span>
       <span class="tc"><b>Left thumb</b> ◀ ▶ move, “Jump” above　<b>Right thumb</b> big “Hit”, “Soft” beside it<br></span>
       The shot depends on <b>where you stand</b>, how high the shuttle is, and whether you <b>hold forward (▶)</b>:
       <table class="shots">
@@ -999,16 +1016,18 @@
   // ---------- 裁判報分（文字＋語音） ----------
   let voiceOn = store.get('bd_voice', '1') === '1';
   function updVoiceBtn() { if (typeof updToggles === 'function' && $('voiceTog')) updToggles(); }
-  function speak(text) {
-    if (!voiceOn || !('speechSynthesis' in window)) return;
+  function speak(text, onEnd) {
+    if (!voiceOn || !('speechSynthesis' in window)) return false;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text.replace(/–/g, ' '));
       u.lang = T().speechLang; u.rate = 1.0;
       const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.replace('_', '-').toLowerCase().startsWith(u.lang.toLowerCase().slice(0, LANG === 'zh' ? 5 : 2)));
       if (v) u.voice = v;
+      if (onEnd) u.onend = onEnd;
       speechSynthesis.speak(u);
-    } catch (e) {}
+      return true;
+    } catch (e) { return false; }
   }
   function unlockSpeech() { // 手機要在點擊時先「解鎖」語音
     try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
@@ -1023,6 +1042,7 @@
 
   function newMatch(level, keepTotals) {
     const prev = G_;
+    introLines = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
     G_ = {
       level, ps: 0, as: 0, server: 'p',
       p: mkPlayer(4.6, 'p'), a: mkPlayer(8.8, 'a'),
@@ -1144,7 +1164,8 @@
     let attack, soft;
     if (z === 'front') {
       if (h > 2.0 && b.vy <= 0.5 && (air || Math.random() < L.killP)) return { kind: 'kill' }; // 只撲往下掉或平飛的球
-      attack = h > 1.3 ? 'push' : 'lift'; soft = h >= 1.1 ? 'net' : 'netUnder';
+      const tight = Math.abs(b.x - NET_X) < 0.9 && h < NET_H + 0.2; // 貼網、比網帶低的球推不下去，只能放或挑
+      attack = h > 1.3 && !tight ? 'push' : 'lift'; soft = h >= 1.1 ? 'net' : 'netUnder';
     } else if (air && h > 2.0) {
       return { kind: g.aiRoll < L.smashP ? 'smash' : 'flatClear' };
     } else {
@@ -1288,6 +1309,19 @@
   }
 
   let pendingSwing = null, pendingT = 0, pendingFeint = false, pendingFwd = false, pendingFake = null;
+  // 預測球接下來會落到可以打的位置，回傳理想站位（球在身體前方 0.35 公尺）；太遠就不幫忙
+  function alignX(p, b) {
+    if (!b || b.last === 'p') return null;
+    const s = { x: b.x, y: b.y, vx: b.vx, vy: b.vy }, top = reach(p) - 0.1;
+    for (let i = 0; i < 72 && s.y > 0.3; i++) {
+      if (s.x < NET_X && s.y < top && (s.vy < 0 || s.y < 2.0)) {
+        const t = Math.max(0.2, Math.min(NET_X - 0.35, s.x - 0.35));
+        return Math.abs(t - p.x) < 1.3 ? t : null;
+      }
+      step(s, 1 / 120);
+    }
+    return null;
+  }
   function playerSwing(type) {
     if (!G_ || G_.over || paused || readyT > 0) return;
     const g = G_, p = g.p;
@@ -1306,7 +1340,8 @@
     if (g.b && g.state === 'rally' && inZone(p, g.b)) { hit('p', soft, { fwd: keys.right }); return; }
     p.swingT = 0; p.swingType = g.b ? chooseKind(p, g.b, soft, keys.right) : 'clear';
     swishSound(p.swingType === 'smash' || p.swingType === 'kill');
-    pendingSwing = type; pendingT = 0.4; pendingFeint = false; pendingFwd = keys.right; // 早按一點也沒關係，球一進範圍就擊出
+    const smashIntent = keys.right && g.b && g.b.y > 1.7 && !isFront(p); // 按住 ▶ 準備殺高球：可以更早按
+    pendingSwing = type; pendingT = smashIntent ? 0.65 : 0.4; pendingFeint = false; pendingFwd = keys.right; // 早按一點也沒關係，球一進範圍就擊出
   }
   function playerJump() { if (paused || readyT > 0) return; const p = G_ && G_.p; if (p && p.y === 0) p.vy = 4.3; }
 
@@ -1338,7 +1373,22 @@
   }));
   // 開打前倒數：讓瀏覽器的全螢幕提示先消失，這段時間按鈕不會誤觸
   let readyT = 0;
-  function getReady() { readyT = 3.6; keys.left = keys.right = false; pendingSwing = null; if (G_ && G_.state === 'serve' && G_.ps + G_.as === 0) coachSay(T().intros[G_.level], 4500); }
+  // 每局開打：裁判照 BWF 方式介紹雙方（玩家在畫面左邊＝面向觀眾的裁判右手邊），唸完才能發球。
+  // 這段時間也剛好蓋過手機的系統提示，按鈕不會誤觸。
+  let introLines = null, introT = 0;
+  function getReady() {
+    keys.left = keys.right = false; pendingSwing = null;
+    const g = G_, first = g && g.state === 'serve' && g.ps + g.as === 0;
+    if (first && !introLines) {
+      introLines = T().intro(playerName(), T().levels[g.level]); introT = 0;
+      readyT = 9; // 上限；唸完會提早結束
+      const talking = speak(introLines.join(LANG === 'zh' ? '，' : '. '), () => { if (introLines) readyT = Math.min(readyT, Math.max(0.5, 5.6 - introT)); });
+      if (!talking) readyT = 6.2;
+      setTimeout(() => { if (G_ === g && introLines) coachSay(T().intros[g.level], 4500); }, 600);
+      return;
+    }
+    if (!introLines) readyT = 3.6;
+  }
 
   // ---------- 偵測環境 ----------
   const GAME_URL = 'https://poggyrappy.github.io/badminton-game/';
@@ -1423,7 +1473,7 @@
     lastZone = '';
   }
   function playStage(lv) {
-    audio(); unlockSpeech(); if (isTouch) goFull();
+    audio(); unlockSpeech(); if (isTouch && !appMode) goFull();
     loadPlay();
     if (restCfg.on && lateNight() && !lateShown) { lateShown = true; setTimeout(() => notice(`<b>${T().lateT}</b><br>${T().late}`), 200); }
     $('pName').textContent = playerName();
@@ -1621,17 +1671,25 @@
     if (document.body.classList.contains('portrait')) { keys.left = keys.right = false; return; } // 直向先暫停
     if (readyT > 0) {
       readyT -= dt;
-      const n = Math.ceil(readyT / 1.2);
       $('msg').style.opacity = 1; $('msg').style.color = '#ffe066';
-      $('msg').textContent = T().ready(n);
-      if (readyT <= 0) { const g = G_; if (g && g.ps + g.as === 0) umpire(T().callStart); else showMsg('', '#fff'); }
+      if (introLines) { // 裁判介紹：一句一句顯示
+        introT += dt;
+        const i = Math.min(introLines.length - 1, Math.floor(introT / 1.4));
+        $('msg').textContent = introLines[i];
+        if (readyT <= 0) { showMsg(introLines[introLines.length - 1], '#ffffff', 1200); introLines = null; }
+      } else {
+        $('msg').textContent = T().ready(Math.ceil(readyT / 1.2));
+        if (readyT <= 0) showMsg('', '#fff');
+      }
       return;
     }
     const g = G_; if (!g || g.over || paused) return;
     tickPlay(dt); g.playT = (g.playT || 0) + dt;
     const p = g.p;
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
-    p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
+    const ax = pendingSwing && g.state === 'rally' ? alignX(p, g.b) : null;
+    if (ax !== null) p.x += Math.max(-5.2 * dt, Math.min(5.2 * dt, ax - p.x)); // 已經按了揮拍：自動對準擊球點，按住 ▶ 也不會跑過頭
+    else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
 
@@ -1677,8 +1735,27 @@
   // ---------- 戰術教學 ----------
   const TIPS = new Proxy({}, { get: (_, k) => T().tips[k] });
   let coachTimer = null;
+  // 手機：把教練提示放在左右按鍵中間的空隙；空隙太窄就放到比分下方，避免擋到按鍵
+  function placeCoach() {
+    const c = $('coach'), st = c.style;
+    st.left = st.top = st.bottom = st.maxWidth = '';
+    if (!document.body.classList.contains('compact')) return;
+    const l = document.querySelector('.ctrl.l').getBoundingClientRect(), r = document.querySelector('.ctrl.r').getBoundingClientRect();
+    const gap = r.left - l.right - 24;
+    if (l.width && r.width && gap >= 230) {
+      st.left = (l.right + r.left) / 2 + 'px'; st.maxWidth = gap + 'px';
+      st.top = 'auto'; st.bottom = 'calc(10px + env(safe-area-inset-bottom))';
+    } else {
+      const sc = document.querySelector('.score').getBoundingClientRect();
+      st.left = '50%'; st.top = (sc.bottom + 6) + 'px'; st.bottom = 'auto'; st.maxWidth = 'min(72vw, 520px)';
+    }
+  }
+  window.addEventListener('resize', () => { if (!$('coach').classList.contains('hidden')) placeCoach(); });
+  // 電腦版：提示裡的觸控按鈕名稱換成鍵盤按鍵
+  const KB_SWAP = [['▶', 'D'], ['「揮拍」', ' J '], ['「輕」', ' K '], ['＋揮拍', '＋J'], ['按揮拍', '按 J'], ['“Hit”', 'J'], ['“Soft”', 'K'], ['+ Hit', '+ J'], ['Use Soft', 'Use K']];
+  const kbText = t => isTouch || typeof t !== 'string' ? t : KB_SWAP.reduce((x, [f, r]) => x.split(f).join(r), t);
   function coachSay(text, ms) {
-    const c = $('coach');
+    const c = $('coach'); placeCoach(); text = kbText(text);
     c.textContent = text;
     c.classList.remove('hidden');
     clearTimeout(coachTimer); coachTimer = setTimeout(() => c.classList.add('hidden'), ms || 4500);
