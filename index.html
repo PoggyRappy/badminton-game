@@ -246,6 +246,33 @@
   .stats b { display: block; font-size: 20px; }
   .toast { font-size: 13px; color: #5ce1c6; min-height: 20px; margin-top: 6px; }
   textarea.copybox { width: 100%; height: 70px; margin-top: 8px; border-radius: 10px; background: rgba(0,0,0,.25); color: #fff; border: 1px solid rgba(255,255,255,.2); font: 13px "Noto Sans TC", sans-serif; padding: 8px; resize: none; }
+  /* 練習／新手教學 */
+  .homeMain { display: grid; grid-template-columns: 2.4fr 1fr; gap: 6px; }
+  .prCard { width: min(720px, 94vw); }
+  .prGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 8px 0 4px; }
+  .prGrid button { padding: 8px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.07); color: #fff; font: 700 14px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .prGrid button:hover { border-color: #5ce1c6; }
+  .prGrid .kcs { display: block; margin-top: 5px; font-size: 10px; }
+  .prGrid small { display: block; opacity: .6; font-weight: 400; font-size: 10px; margin-top: 3px; }
+  .drillBar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 8; background: rgba(10,16,28,.82); border: 1px solid rgba(255,224,102,.45); border-radius: 14px; padding: 6px 12px; text-align: center; max-width: min(92vw, 640px); box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+  .dbTop { display: flex; align-items: center; gap: 10px; justify-content: center; white-space: nowrap; }
+  .dbTop #dbStep { font-size: 11px; opacity: .65; } .dbTop b { font-size: 17px; color: #ffe066; }
+  .dbCnt { font-size: 13px; opacity: .85; }
+  .dbX { background: none; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 10px; font: 700 12px "Noto Sans TC", sans-serif; padding: 3px 9px; cursor: pointer; }
+  .dbHow { font-size: 13px; opacity: .9; margin-top: 2px; }
+  .drillBar .kc { font-size: 12px; padding: 1px 7px; }
+  .drilling .score, .drilling .hint, .drilling .coach, .drilling .zone { display: none !important; }
+  .drilling .msg { top: 84px; z-index: 7; }
+  .msg.big { font-size: 44px; color: #ffe066 !important; }
+  #spot { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
+  #spotDim { fill: rgba(0,0,0,.55); transition: fill .4s; }
+  #spot.lite #spotDim { fill: rgba(0,0,0,.12); }
+  #spotRings circle { fill: none; stroke: #ffe066; stroke-width: 3; animation: spotPulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes spotPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(1.08); } }
+  .compact .drillBar { top: 4px; padding: 3px 10px; } .compact .dbTop b { font-size: 15px; } .compact .dbHow { font-size: 12px; }
+  .compact.drilling .msg { top: 62px; } .compact .msg.big { font-size: 34px; }
+  .compact .prGrid button { font-size: 13px; padding: 6px 2px; }
+  .notouch #dbKeys .kc { display: inline-block; animation: spotPulse 1s ease-in-out infinite; box-shadow: 0 0 0 2px #ffe066; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -262,6 +289,12 @@
 <div class="coach hidden" id="coach"></div>
 <div class="feintCue hidden" id="feintCue"></div>
 <div class="zone hidden" id="zone"></div>
+<svg id="spot" class="hidden"><defs><mask id="spotMask"><rect width="100%" height="100%" fill="#fff"/><g id="spotHoles"></g></mask></defs>
+  <rect id="spotDim" width="100%" height="100%" mask="url(#spotMask)"/><g id="spotRings"></g></svg>
+<div class="drillBar hidden" id="drillBar">
+  <div class="dbTop"><span id="dbStep"></span><b id="dbName"></b><span id="dbKeys"></span><span class="dbCnt" id="dbCnt"></span><button class="dbX" id="dbX"></button></div>
+  <div class="dbHow" id="dbHow"></div>
+</div>
 <!-- 安裝畫面：手機用瀏覽器開啟時先出現（可以略過） -->
 <div class="overlay hidden" id="gate" style="z-index:60">
   <div class="card">
@@ -312,7 +345,7 @@
     <p class="homeHi" id="homeHi"></p>
     <p class="note" id="homeToday"></p>
     <div class="acctLine" id="acctLine"></div>
-    <button class="btn pri big2" id="contBtn"></button>
+    <div class="homeMain"><button class="btn pri big2" id="contBtn"></button><button class="btn sec big2" id="prBtn"></button></div>
     <div class="stageSel" id="stageSel"></div>
     <div class="homeRow">
       <button class="btn sec" id="lbBtn" data-t="lbBtn"></button>
@@ -322,6 +355,26 @@
     </div>
     <button class="btn sec hidden" id="homeInstall" data-t="installHome"></button>
     <button class="linkBtn" id="exitBtn" data-t="exitGame"></button>
+  </div>
+</div>
+
+<!-- 練習模式 -->
+<div class="overlay hidden" id="practice" style="z-index:30">
+  <div class="card prCard">
+    <button class="xBtn" id="prClose" aria-label="close">✕</button>
+    <h2 id="prTitle"></h2>
+    <p class="note" id="prSub"></p>
+    <div class="prGrid" id="prGrid"></div>
+    <button class="linkBtn" id="tutAgain"></button>
+  </div>
+</div>
+<!-- 新手教學完成 -->
+<div class="overlay hidden" id="tutDone" style="z-index:30">
+  <div class="card">
+    <h2 id="tdT"></h2>
+    <p id="tdP"></p>
+    <button class="btn pri" id="tdPlay"></button>
+    <button class="btn sec" id="tdPractice"></button>
   </div>
 </div>
 
@@ -350,7 +403,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.4 · 2026/11/19</p>
+    <p class="note">v3.5 · 2026/11/19</p>
   </div>
 </div>
 
@@ -553,6 +606,7 @@
   }
   function swishSound(strong) { try { burst('bandpass', 500, 1.4, strong ? 0.16 : 0.12, strong ? 0.22 : 0.12, 0, 1800); } catch (e) {} }
   function floorSound() { try { burst('lowpass', 420, 0.7, 0.06, 0.25); tone('sine', 110, 70, 0.06, 0.15); } catch (e) {} }
+  function tickSound() { try { tone('sine', 660, 660, 0.05, 0.08); } catch (e) {} }
   function netSound() { try { burst('lowpass', 900, 0.8, 0.12, 0.3); } catch (e) {} }
   function pointSound(mine) { try { tone('sine', mine ? 880 : 330, mine ? 1320 : 260, 0.18, 0.12); } catch (e) {} }
 
@@ -784,6 +838,19 @@
       btnJump: '跳', btnSoft: '輕', btnSwing: '揮拍',
       stage: n => `第 ${n} 關`, ruleLbl: '7 分制・平分最多 11',
       levels: ['新生學弟', '系隊隊長', '校隊王牌', '網前小霸王', '平抽快槍手', '銅牆鐵壁', '左手魔術師', '重砲手', '全能國手', '傳奇球王'],
+      dr: {
+        practice: '🎯 練習', title: '練習模式', sub: '發球機固定送同一種球，專心練一招。', tutAgain: '重看新手教學',
+        made: '成功', tries: '次數', feeder: '發球機', ok: '漂亮！',
+        names: { clear: '高遠球', smash: '殺球', jump: '跳殺', slice: '切球', net: '放網', lift: '挑球', kill: '撲球', drive: '平抽', defense: '接殺', feint: '網前假動作' },
+        how: { clear: '球飛到頭頂前方時按', smash: '先按住 ▶，再按揮拍', jump: '先跳，在空中按住 ▶＋揮拍', slice: '後場高球改按輕', net: '球到網前時按輕', lift: '網前低球按揮拍，挑到後場',
+               kill: '球在網上方時，按住 ▶＋揮拍往下壓', drive: '胸前的平球直接按揮拍', defense: '對方殺過來，按輕擋回網前', feint: '先按揮拍，「輕」亮起來時改按輕' },
+        miss: { none: '沒打到：站到黃圈，提早一點按', out: '出界了', net: '掛網了', wrong: k => `打成了${k}，再試一次` },
+        count: n => `${n}`, ready: '球來了！',
+        tutStep: (i, n) => `新手教學 ${i}/${n}`, skip: '略過',
+        move: '用 ◀ ▶ 走到黃色圓圈', moveKb: '用 A／D 走到黃色圓圈', moveT: '移動',
+        pass: '沒關係，先學下一招，之後可以到「練習」多練',
+        doneT: '新手教學完成！', done: '想再練哪一招，主頁的「🎯 練習」隨時可以進去。', play1: '開始第 1 關', toPractice: '去練習'
+      },
       intros: ['🐣 學弟常送半場高球 → 按住▶＋揮拍殺下去！', '🎽 隊長會平抽、打空檔 → 打完記得回中場！', '👑 王牌會跳殺、假動作 → 球要打深，耐心調動！',
         '🕸️ 小霸王網前很兇、後場退得慢 → 多打後場高遠球！', '⚡ 快槍手平抽又快又密 → 用平擋或挑高打亂他的節奏！', '🧱 銅牆鐵壁幾乎不失誤 → 耐心調四角，等半場球再殺！',
         '🪄 左手魔術師假動作很多 → 別太早跑，看清楚再動！', '💥 重砲手殺球超快 → 先擋回去，拖長來回讓他累！', '🌟 全能國手沒有弱點 → 把學過的戰術全部用上！', '👑 最終關：傳奇球王會看穿假動作 → 拿出全部實力！'],
@@ -924,6 +991,19 @@
       btnJump: 'Jump', btnSoft: 'Soft', btnSwing: 'Hit',
       stage: n => `Stage ${n}`, ruleLbl: '7 pts · setting to 11',
       levels: ['Freshman', 'Team Captain', 'Varsity Ace', 'Net Bully', 'Drive Gunner', 'The Wall', 'Lefty Magician', 'Heavy Hitter', 'All-Rounder', 'The Legend'],
+      dr: {
+        practice: '🎯 Practice', title: 'Practice', sub: 'The shuttle machine feeds the same shot every time. Focus on one skill.', tutAgain: 'Replay the tutorial',
+        made: 'Made', tries: 'Tries', feeder: 'Machine', ok: 'Nice!',
+        names: { clear: 'Clear', smash: 'Smash', jump: 'Jump smash', slice: 'Slice drop', net: 'Net shot', lift: 'Lift', kill: 'Net kill', drive: 'Drive', defense: 'Smash defence', feint: 'Net deception' },
+        how: { clear: 'Hit when the shuttle is just above and in front of you', smash: 'Hold ▶, then press Hit', jump: 'Jump, then hold ▶ + Hit in the air', slice: 'Press Soft on a high ball at the back', net: 'Press Soft when the shuttle reaches the net', lift: 'Press Hit on a low net ball to lift it deep',
+               kill: 'When the shuttle is above the net, hold ▶ + Hit', drive: 'Press Hit on a flat ball at chest height', defense: 'They smash at you: press Soft to block it short', feint: 'Press Hit, then switch to Soft when it lights up' },
+        miss: { none: 'Missed: stand in the yellow ring and press a bit earlier', out: 'Out', net: 'Into the net', wrong: k => `That was a ${k}. Try again` },
+        count: n => `${n}`, ready: 'Here it comes!',
+        tutStep: (i, n) => `Tutorial ${i}/${n}`, skip: 'Skip',
+        move: 'Use ◀ ▶ to walk into the yellow ring', moveKb: 'Use A / D to walk into the yellow ring', moveT: 'Move',
+        pass: "No worries. On to the next one; you can practise it later.",
+        doneT: 'Tutorial complete!', done: 'Want to drill a shot again? Open “🎯 Practice” on the home screen any time.', play1: 'Play Stage 1', toPractice: 'Practice'
+      },
       intros: ['🐣 The Freshman lifts short → hold ▶ + Hit to smash!', '🎽 The Captain drives and finds open space → recover to base!', '👑 The Ace jump-smashes and uses deception → hit deep, be patient!',
         '🕸️ The Net Bully rules the net but is slow going back → clear deep!', '⚡ The Drive Gunner drives fast and flat → block or lift to break the rhythm!', '🧱 The Wall almost never misses → move all four corners, smash the short lift!',
         '🪄 The Lefty Magician loves deception → don’t move too early!', '💥 The Heavy Hitter smashes hardest → block it back and make the rallies long!', '🌟 The All-Rounder has no weakness → use every tactic you’ve learned!', '👑 Final stage: The Legend reads your deception → give it everything!'],
@@ -1004,6 +1084,8 @@
     document.querySelectorAll('.ladder.menuLadder').forEach(el => el.innerHTML = t.levels.map(n => `<span>${n}</span>`).join(''));
     document.querySelectorAll('.langBtn').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
     $('ruleLbl').textContent = t.ruleLbl;
+    if ($('prBtn')) $('prBtn').textContent = t.dr.practice;
+    if (typeof G_ !== 'undefined' && G_ && G_.drill) drillBar();
     if (G_) { $('aName').textContent = t.levels[G_.level]; $('lvLbl').textContent = t.stage(G_.level + 1); }
     else { $('aName').textContent = t.levels[0]; $('lvLbl').textContent = t.stage(1); }
     $('pName').textContent = playerName();
@@ -1040,7 +1122,7 @@
   const keys = { left: false, right: false };
   function mkPlayer(x, side) { return { x, y: 0, vy: 0, side, swingT: -1, swingType: null, tx: x, cool: 0 }; }
 
-  function newMatch(level, keepTotals) {
+  function newMatch(level, keepTotals, quiet) {
     const prev = G_;
     introLines = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
     G_ = {
@@ -1055,7 +1137,7 @@
     $('aName').textContent = T().levels[level];
     $('lvLbl').textContent = T().stage(level + 1);
     updScore(); setupServe();
-    track('match_start', { stage: level + 1 });
+    if (!quiet) track('match_start', { stage: level + 1 });
   }
 
   function setupServe() {
@@ -1210,7 +1292,7 @@
       // 理想擊球點在身體前方約 0.35 公尺；越前面（越早出手）力道越大、越容易出界
       const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
       t = Math.min(t, 12.9) + (dx - 0.35) * 1.5 + (pl.y > 0.2 ? 0.25 : 0) + (Math.random() - 0.5) * 0.7;
-      if (zoneOf(pl) === 'front' && kind !== 'push') t += 0.35; // 網前挑球離底線近，更容易挑出界
+      if (zoneOf(pl) === 'front' && kind !== 'push') t += 0.15; // 網前挑球稍微容易挑出界
     }
     if (who === 'a') { // 對手失誤：難的球路、或接你的快球時比較容易失誤
       const risk = (L.style === 'power' && kind === 'smash') ? 0.5 : (KIND_RISK[kind] || 1); // 重砲手殺球很穩
@@ -1239,7 +1321,7 @@
       kmh = Math.round(Math.hypot(v.vx, v.vy) * 11.5); // 換算成接近真實比賽的時速
       if (who === 'p') g.stats.bestSmash = Math.max(g.stats.bestSmash || 0, kmh);
     }
-    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false;
+    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false; b.air = pl.y > 0.2; b.feint = feint;
     pl.swingType = kind; pl.swingT = contactT(kind);
     g.rally++;
     g.aiDelay = who === 'p' ? L.react : 0; g.aiPlan = null;
@@ -1309,6 +1391,11 @@
   }
 
   let pendingSwing = null, pendingT = 0, pendingFeint = false, pendingFwd = false, pendingFake = null;
+  function willReach(p, b, T) {
+    const s = { x: b.x, y: b.y, vx: b.vx, vy: b.vy };
+    for (let t = 0; t < T && s.y > 0; t += 1 / 120) { if (inZone(p, s)) return true; step(s, 1 / 120); }
+    return false;
+  }
   // 預測球接下來會落到可以打的位置，回傳理想站位（球在身體前方 0.35 公尺）；太遠就不幫忙
   function alignX(p, b) {
     if (!b || b.last === 'p') return null;
@@ -1378,6 +1465,7 @@
   let introLines = null, introT = 0;
   function getReady() {
     keys.left = keys.right = false; pendingSwing = null;
+    if (G_ && G_.drill) return; // 練習模式自己倒數
     const g = G_, first = g && g.state === 'serve' && g.ps + g.as === 0;
     if (first && !introLines) {
       introLines = T().intro(playerName(), T().levels[g.level]); introT = 0;
@@ -1454,7 +1542,8 @@
   // ---------- 主頁 ----------
   function showHome() {
     const t = T(), r = getRec(), ns = nextStage();
-    G_ = null; paused = false; clearHud();
+    G_ = null; paused = false; clearHud(); drillHud(false);
+    $('prBtn').textContent = t.dr.practice;
     $('homeHi').textContent = t.homeHi(playerName());
     if (!PLAY) loadPlay();
     const tm = Math.floor(PLAY.daily / 60); $('homeToday').textContent = tm > 0 ? t.today(tm) : '';
@@ -1466,6 +1555,8 @@
     $('stageSel').querySelectorAll('button').forEach(b => b.addEventListener('click', () => playStage(+b.dataset.st)));
     updInstallUI();
     showScreen('home');
+    // 第一次進來（還沒打過比賽、也沒看過教學）：直接開始新手教學
+    if (!store.get('bd_tut', '') && !r.matches) setTimeout(() => { if (!G_ && !$('home').classList.contains('hidden') && $('nameDlg') && $('nameDlg').classList.contains('hidden')) startTutorial(); }, 400);
   }
   function clearHud() {
     ['msg', 'hint'].forEach(id => $(id).textContent = '');
@@ -1601,8 +1692,8 @@
   $('pHelp').addEventListener('click', () => openHelp());
   $('pSet').addEventListener('click', openSettings);
   const quitInfo = () => G_ ? { stage: G_.level + 1, score_me: G_.ps, score_opp: G_.as, duration_s: Math.round(G_.playT || 0) } : {};
-  $('pRestart').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'restart' })); overlayClose('pause'); paused = false; newMatch(G_.level, false); getReady(); });
-  $('pHome').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'home' })); overlayClose('pause'); showHome(); });
+  $('pRestart').addEventListener('click', () => { if (G_ && G_.drill) { overlayClose('pause'); paused = false; if (G_.tut) startTutorial(); else startDrill(G_.drill.id); return; } track('match_quit', Object.assign(quitInfo(), { action: 'restart' })); overlayClose('pause'); paused = false; newMatch(G_.level, false); getReady(); });
+  $('pHome').addEventListener('click', () => { if (G_ && G_.drill) { overlayClose('pause'); leaveDrill('pause'); showHome(); return; } track('match_quit', Object.assign(quitInfo(), { action: 'home' })); overlayClose('pause'); showHome(); });
   $('pExit').addEventListener('click', () => { track('match_quit', Object.assign(quitInfo(), { action: 'exit' })); overlayClose('pause'); exitGame(); });
   // Android 返回手勢：比賽中先打開暫停，不會直接跳出 App
   // 「防退出」：在歷史紀錄裡墊一層，返回手勢先被遊戲接住。
@@ -1687,11 +1778,13 @@
     tickPlay(dt); g.playT = (g.playT || 0) + dt;
     const p = g.p;
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
-    const ax = pendingSwing && g.state === 'rally' ? alignX(p, g.b) : null;
-    if (ax !== null) p.x += Math.max(-5.2 * dt, Math.min(5.2 * dt, ax - p.x)); // 已經按了揮拍：自動對準擊球點，按住 ▶ 也不會跑過頭
-    else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
+    // 已經按了揮拍：站著就打得到就不動；打不到才自動小步對準（按住 ▶ 也不會跑過頭）
+    if (pendingSwing && g.state === 'rally' && g.b && g.b.last !== 'p') {
+      if (!willReach(p, g.b, pendingT + 0.1)) { const ax = alignX(p, g.b); if (ax !== null) p.x += Math.max(-5.2 * dt, Math.min(5.2 * dt, ax - p.x)); }
+    } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
+    if (g.drill) { drillUpdate(dt); return; }
 
     if (g.state === 'serve') {
       if (g.server === 'a') { g.timer += dt; if (g.timer > 1.1) doServe('a'); }
@@ -1730,6 +1823,192 @@
       else cause = (b.type === 'smash' || b.type === 'kill') ? 'smash' : (b.x > G_.p.x ? 'front' : 'deep');
       scorePoint(winner, inside && !b.net && !shortSv, cause);
     }
+  }
+
+
+  // ---------- 練習模式＋新手教學（發球機固定送同一種球） ----------
+  // feed：發球機位置 [x, 高度]、落點、球路（或指定仰角）；ch：理想擊球高度（拿來算黃圈站位）
+  const FEED_HIGH = { from: [10.6, 1.0], to: 1.6, type: 'lift' }, FEED_MID = { from: [10.6, 1.0], to: 2.4, type: 'lift' };
+  const FEED_NET = { from: [10.6, 1.0], to: 5.75, type: 'dropUnder' };
+  const DRILLS = [
+    { id: 'clear', keys: ['swing'], ok: ['clear', 'flatClear'], feed: FEED_HIGH, ch: 2.3 },
+    { id: 'smash', keys: ['fwd', 'swing'], ok: ['smash'], feed: FEED_MID, ch: 2.3 },
+    { id: 'jump', keys: ['jump', 'fwd', 'swing'], ok: ['smash'], air: true, feed: FEED_MID, ch: 2.9 },
+    { id: 'slice', keys: ['soft'], ok: ['slice'], feed: FEED_HIGH, ch: 2.3 },
+    { id: 'net', keys: ['soft'], ok: ['net', 'netUnder'], feed: FEED_NET, ch: 0.9 },
+    { id: 'lift', keys: ['swing'], ok: ['lift'], feed: FEED_NET, ch: 0.5 },
+    { id: 'kill', keys: ['fwd', 'swing'], ok: ['kill', 'push'], feed: { from: [8.2, 1.4], to: 4.8, ang: 45 }, ch: 2.0 },
+    { id: 'drive', keys: ['swing'], ok: ['drive', 'block'], feed: { from: [10.6, 1.3], to: 2.6, type: 'drive' }, ch: 1.2 },
+    { id: 'defense', keys: ['soft'], ok: ['block', 'dropUnder', 'defClear', 'drive', 'lift', 'netUnder', 'net'], feed: { from: [10.8, 2.9], to: 3.4, type: 'smash' }, ch: 0.9 },
+    { id: 'feint', keys: ['swing', 'soft'], seq: true, ok: ['net', 'netUnder'], feint: true, feed: FEED_NET, ch: 0.9 },
+  ];
+  const DR = Object.fromEntries(DRILLS.map(d => [d.id, d]));
+  const TUT = ['move', 'clear', 'smash', 'net', 'kill'];
+  const BTN_OF = { swing: 'swing', soft: 'drop', jump: 'jump', fwd: 'right', left: 'left', right: 'right' };
+
+  function feedVel(f) { const [x, y] = f.from; return f.ang != null ? solveSpeed(x, y, f.to, f.ang) : shot(x, y, f.to, f.type); }
+  // 黃圈：球第一次掉到理想擊球高度的位置，往後站 0.35 公尺
+  function standFor(d) {
+    const v = feedVel(d.feed), b = { x: d.feed.from[0], y: d.feed.from[1], vx: v.vx, vy: v.vy };
+    for (let i = 0; i < 1200 && b.y > 0; i++) { step(b, 1 / 120); if (b.x < NET_X && b.vy < 0 && b.y < d.ch) break; }
+    return Math.max(0.6, Math.min(NET_X - 0.4, b.x - 0.35));
+  }
+  function keysHtml(d) {
+    if (d === 'move') return isTouch ? '<span class="kc">◀</span> <span class="kc">▶</span>' : '<span class="kc">A</span> <span class="kc">D</span>';
+    return d.keys.map(keyChip).join(d.seq ? '<i>→</i>' : '<i>＋</i>');
+  }
+
+  function startDrill(id, tutIdx) {
+    audio(); unlockSpeech(); if (isTouch && !appMode) goFull(); loadPlay();
+    newMatch(0, false, true);
+    const g = G_, step0 = id === 'move';
+    g.state = 'rally'; g.b = null; g.p.x = 3.6;
+    g.drill = { id, d: DR[id], made: 0, tries: 0, phase: step0 ? 'move' : 'count', t: 3, hold: 0, startT: performance.now(),
+                stand: step0 ? 2.2 : standFor(DR[id]) };
+    if (tutIdx != null) g.tut = { i: tutIdx };
+    g.a.x = step0 ? 10.6 : DR[id].feed.from[0];
+    showScreen(null); drillHud(true); drillBar(); readyT = 0;
+    if (tutIdx == null) track('drill_start', { drill: id });
+  }
+  function startTutorial(i = 0) {
+    if (i === 0) { store.set('bd_tut', 'started'); track('tutorial_start', {}); }
+    else track('tutorial_step', { step: i + 1, skill: TUT[i] });
+    startDrill(TUT[i], i);
+  }
+  function leaveDrill(how) {
+    const g = G_; if (!g || !g.drill) return;
+    const dd = g.drill, dur = Math.round((performance.now() - dd.startT) / 1000);
+    if (g.tut) { store.set('bd_tut', 'skip'); track('tutorial_skip', { step: g.tut.i + 1, action: how }); }
+    else track('drill_end', { drill: dd.id, made: dd.made, tries: dd.tries, duration_s: dur });
+  }
+  function drillHud(on) {
+    document.body.classList.toggle('drilling', on);
+    $('drillBar').classList.toggle('hidden', !on);
+    if (!on) $('spot').classList.add('hidden');
+  }
+  function drillBar() {
+    const g = G_; if (!g || !g.drill) return;
+    const t = T().dr, dd = g.drill, id = dd.id;
+    $('dbStep').textContent = g.tut ? t.tutStep(g.tut.i + 1, TUT.length) : t.title;
+    $('dbName').textContent = id === 'move' ? t.moveT : t.names[id];
+    $('dbKeys').innerHTML = keysHtml(id === 'move' ? 'move' : dd.d);
+    $('dbCnt').textContent = id === 'move' ? '' : `${t.made} ${dd.made} / ${dd.tries}`;
+    $('dbHow').textContent = dd.note || (id === 'move' ? (isTouch ? t.move : t.moveKb) : t.how[id]);
+    $('dbX').textContent = g.tut ? t.skip : '✕';
+    spotlight();
+  }
+  // 聚焦：畫面變暗，只留下要按的按鈕（手機）；倒數時比較暗，球飛出來後變淡、圈圈留著
+  function spotlight() {
+    const g = G_, sp = $('spot');
+    if (!g || !g.drill || !isTouch || paused) { sp.classList.add('hidden'); return; }
+    const dd = g.drill, ks = dd.id === 'move' ? ['left', 'right'] : dd.d.keys;
+    const holes = [], rings = [];
+    ks.forEach(k => {
+      const el = document.querySelector(`.ctrl button[data-k="${BTN_OF[k]}"]`); if (!el) return;
+      const r = el.getBoundingClientRect(); if (!r.width) return;
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2, rad = r.width / 2 + 7;
+      holes.push(`<circle cx="${cx}" cy="${cy}" r="${rad}" fill="#000"/>`);
+      rings.push(`<circle cx="${cx}" cy="${cy}" r="${rad}"/>`);
+    });
+    $('spotHoles').innerHTML = holes.join(''); $('spotRings').innerHTML = rings.join('');
+    sp.classList.toggle('lite', dd.phase === 'fly' || dd.phase === 'rest');
+    sp.classList.remove('hidden');
+  }
+  window.addEventListener('resize', () => { if (G_ && G_.drill) spotlight(); });
+  $('dbX').addEventListener('click', e => { e.currentTarget.blur(); leaveDrill('x'); showHome(); });
+
+  function setPhase(ph, t) { const dd = G_.drill; dd.phase = ph; dd.t = t; spotlight(); }
+  function drillUpdate(dt) {
+    const g = G_, dd = g.drill, p = g.p, t = T().dr;
+    if (dd.phase === 'move') { // 教學第一步：走到黃圈
+      dd.hold = Math.abs(p.x - dd.stand) < 0.3 ? dd.hold + dt : 0;
+      if (dd.hold > 0.35) { dd.phase = 'done'; showMsg(t.ok, '#5ce1c6', 900); pointSound(true); setTimeout(() => tutNext(), 900); }
+      return;
+    }
+    if (dd.phase === 'count') {
+      const n = Math.ceil(dd.t); dd.t -= dt;
+      $('msg').style.opacity = 1; $('msg').classList.add('big'); $('msg').textContent = t.count(n);
+      if (Math.ceil(dd.t) !== n && dd.t > 0) tickSound();
+      if (dd.t <= 0) { // 發球機出球
+        const f = dd.d.feed, v = feedVel(f);
+        g.b = { x: f.from[0], y: f.from[1], vx: v.vx, vy: v.vy, last: 'a', type: 'feed', net: false };
+        g.trail = []; $('msg').classList.remove('big'); showMsg(t.ready, '#ffe066', 700); hitSound('clear'); setPhase('fly', 0);
+      }
+      return;
+    }
+    if (dd.phase === 'rest') { dd.t -= dt; if (dd.t <= 0) { if (dd.next) { const fn = dd.next; dd.next = null; fn(); } else { dd.note = null; drillBar(); setPhase('count', 3); } } return; }
+    if (dd.phase !== 'fly') return;
+    const b = g.b;
+    if (pendingSwing) {
+      pendingT -= dt;
+      if (inZone(p, b) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
+      else if (pendingT <= 0) { pendingSwing = null; pendingFeint = false; }
+    }
+    const prevX = b.x;
+    for (let i = 0; i < 4; i++) step(b, dt / 4);
+    if (b.type === 'smash' || Math.hypot(b.vx, b.vy) > 14) g.trail.push({ x: b.x, y: b.y, life: 0.25 });
+    if (!b.net && (prevX - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) { b.net = true; b.x = NET_X + (prevX < NET_X ? -0.05 : 0.05); b.vx = -b.vx * 0.08; b.vy = Math.min(b.vy, 0) * 0.3; netSound(); }
+    if (b.y > 0) return;
+    b.y = 0; floorSound();
+    // 判定這一球
+    const d = dd.d; let res;
+    if (b.last !== 'p') res = 'none';
+    else if (b.net) res = 'net';
+    else if (b.x < NET_X || b.x > COURT) res = 'out';
+    else if (!d.ok.includes(b.type) || (d.air && !b.air) || (d.feint && !b.feint)) res = 'wrong';
+    else res = 'ok';
+    dd.tries++; if (res === 'ok') dd.made++;
+    if (res === 'ok') { showMsg(t.ok, '#5ce1c6', 1300); pointSound(true); dd.note = null; }
+    else { dd.note = res === 'wrong' ? t.miss.wrong(T().shots[b.type] || b.type) : t.miss[res]; showMsg(res === 'none' ? '✕' : dd.note, '#ff8a8a', 1300); pointSound(false); }
+    drillBar();
+    if (g.tut) { // 教學：成功一次就下一招；試了 4 次還不行也先往下
+      if (res === 'ok') { dd.next = tutNext; setPhase('rest', 1.4); return; }
+      if (dd.tries >= 4) { dd.note = t.pass; drillBar(); dd.next = tutNext; setPhase('rest', 2.6); return; }
+    }
+    setPhase('rest', 1.6);
+  }
+  function tutNext() {
+    const g = G_; if (!g || !g.tut) return;
+    const i = g.tut.i + 1;
+    if (i < TUT.length) { startTutorial(i); return; }
+    store.set('bd_tut', 'done'); track('tutorial_done', {});
+    drillHud(false); G_ = null; clearHud();
+    const t = T().dr; $('tdT').textContent = t.doneT; $('tdP').textContent = t.done; $('tdPlay').textContent = t.play1; $('tdPractice').textContent = t.toPractice;
+    overlayOpen('tutDone');
+  }
+  $('tdPlay').addEventListener('click', () => { overlayClose('tutDone'); playStage(0); });
+  $('tdPractice').addEventListener('click', () => { overlayClose('tutDone'); showHome(); openPractice(); });
+
+  function openPractice() {
+    const t = T().dr;
+    $('prTitle').textContent = t.title; $('prSub').textContent = t.sub; $('tutAgain').textContent = t.tutAgain;
+    $('prGrid').innerHTML = DRILLS.map(d => `<button data-dr="${d.id}">${t.names[d.id]}<span class="kcs">${keysHtml(d)}</span></button>`).join('');
+    $('prGrid').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { overlayClose('practice'); startDrill(b.dataset.dr); }));
+    overlayOpen('practice');
+    track('practice_open', {});
+  }
+  $('prBtn').addEventListener('click', openPractice);
+  $('prClose').addEventListener('click', () => overlayClose('practice'));
+  $('tutAgain').addEventListener('click', () => { overlayClose('practice'); startTutorial(0); });
+
+  // 畫面：發球機＋黃圈站位
+  function drawDrill(t) {
+    const dd = G_.drill, fx = px(G_.a.x), fy = py(0);
+    if (dd.id !== 'move') { // 發球機：箱子＋出球管
+      const top = py(dd.d.feed.from[1]), w = 0.5 * S_;
+      ctx.fillStyle = '#c9d4e8'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.fillRect(fx - w / 2, top + 4, w, fy - top - 4); ctx.strokeRect(fx - w / 2, top + 4, w, fy - top - 4);
+      ctx.fillStyle = '#ffe066'; ctx.fillRect(fx - w / 2, top + 4, w, 6);
+      ctx.strokeStyle = '#e8eef8'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(fx, top + 8); ctx.lineTo(fx - w * 0.7, top - w * 0.35); ctx.stroke(); ctx.lineCap = 'butt';
+      ctx.fillStyle = 'rgba(20,30,48,.8)'; ctx.font = `700 ${Math.max(9, 0.12 * S_)}px "Noto Sans TC", sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(T().dr.feeder, fx, top + (fy - top) / 2 + 6); ctx.textAlign = 'left';
+    }
+    if (dd.phase === 'fly' && G_.b && G_.b.last === 'p') return;
+    const a = 0.55 + 0.35 * Math.sin(t * 6), cx = px(dd.stand);
+    ctx.strokeStyle = `rgba(255,224,102,${a})`; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.ellipse(cx, fy, 0.45 * S_, 0.12 * S_, 0, 0, 7); ctx.stroke();
+    const gr = ctx.createLinearGradient(0, fy, 0, py(2.2)); gr.addColorStop(0, `rgba(255,224,102,${a * 0.35})`); gr.addColorStop(1, 'rgba(255,224,102,0)');
+    ctx.fillStyle = gr; ctx.fillRect(cx - 0.4 * S_, py(2.2), 0.8 * S_, fy - py(2.2)); // 光柱：站位被按鈕擋住也看得到
   }
 
   // ---------- 戰術教學 ----------
@@ -1808,7 +2087,7 @@
   // ---------- UI ----------
   let msgTimer = null;
   function showMsg(t, c, ms) {
-    const m = $('msg'); m.textContent = t; m.style.color = c || '#fff'; m.style.opacity = t ? 1 : 0;
+    const m = $('msg'); m.classList.remove('big'); m.textContent = t; m.style.color = c || '#fff'; m.style.opacity = t ? 1 : 0;
     clearTimeout(msgTimer); msgTimer = setTimeout(() => m.style.opacity = 0, ms || 1000);
   }
   function updScore() { $('pScore').textContent = G_.ps; $('aScore').textContent = G_.as; }
@@ -2581,8 +2860,9 @@
     g.trail = g.trail.filter(tr => tr.life > 0);
     for (const tr of g.trail) { ctx.fillStyle = `rgba(255,224,102,${tr.life * 2})`; ctx.beginPath(); ctx.arc(px(tr.x), py(tr.y), 3, 0, 7); ctx.fill(); }
     g.p.serving = g.state === 'serve' && g.server === 'p'; g.a.serving = g.state === 'serve' && g.server === 'a';
+    if (g.drill) drawDrill(t);
     drawPlayer(g.p, '#5ce1c6', t, dt);
-    drawPlayer(g.a, LEVELS[g.level].color, t, dt);
+    if (!g.drill) drawPlayer(g.a, LEVELS[g.level].color, t, dt);
     if (g.b) drawShuttle(g.b);
     else if (g.state === 'serve') {
       const sv = g[g.server];
