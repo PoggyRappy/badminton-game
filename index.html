@@ -246,6 +246,27 @@
   .stats b { display: block; font-size: 20px; }
   .toast { font-size: 13px; color: #5ce1c6; min-height: 20px; margin-top: 6px; }
   textarea.copybox { width: 100%; height: 70px; margin-top: 8px; border-radius: 10px; background: rgba(0,0,0,.25); color: #fff; border: 1px solid rgba(255,255,255,.2); font: 13px "Noto Sans TC", sans-serif; padding: 8px; resize: none; }
+  /* 安裝示意圖 */
+  .gateBody { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .gateBody .rules { flex: 1 1 230px; text-align: left; margin: 0; }
+  .gDiag { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .gDiag:empty { display: none; }
+  #gate .card { width: min(820px, 96vw); }
+  #gate .gateBody { flex-wrap: nowrap; } @media (max-width: 600px) { #gate .gateBody { flex-wrap: wrap; } }
+  .mPhone { width: 150px; border-radius: 12px; background: #f2f4f8; color: #333; overflow: hidden; border: 2px solid #9aa6bd; position: relative; }
+  .mBar { display: flex; align-items: center; gap: 5px; padding: 6px; background: #fff; }
+  .mUrl { flex: 1; background: #e8ebf1; border-radius: 10px; padding: 3px 7px; font-size: 9px; color: #555; white-space: nowrap; overflow: hidden; }
+  .mIco { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; font-weight: 900; font-size: 13px; color: #444; position: relative; }
+  .mIco.hot { background: #ffe066; box-shadow: 0 0 0 3px rgba(255,224,102,.55); animation: spotPulse 1s ease-in-out infinite; }
+  .mBody { height: 46px; background: linear-gradient(#dfe5ef, #cfd8e6); }
+  .mBottom { display: flex; justify-content: space-around; padding: 5px 0; background: #fff; }
+  .mMenu { width: 132px; background: #fff; color: #333; border-radius: 10px; border: 2px solid #9aa6bd; padding: 4px 0; text-align: left; }
+  .mMenu div { padding: 4px 9px; font-size: 11px; opacity: .55; white-space: nowrap; }
+  .mMenu div.hot { opacity: 1; font-weight: 800; background: #ffe066; animation: spotPulse 1s ease-in-out infinite; }
+  .mStep { display: flex; flex-direction: column; align-items: center; gap: 3px; } .mStep small { color: #ffe066; font-weight: 700; }
+  .gDiag .arr { font-size: 18px; color: #ffe066; }
+  .compact .mPhone { width: 128px; } .compact .mBody { height: 30px; } .compact .gateBody .rules { font-size: 12px; }
+
   /* 練習／新手教學 */
   .homeMain { display: grid; grid-template-columns: 2.4fr 1fr; gap: 6px; }
   .prCard { width: min(720px, 94vw); }
@@ -301,7 +322,7 @@
     <img class="appIcon" src="icon-192.png" alt="" onerror="this.style.display='none'">
     <h1 data-t="gameName"></h1>
     <p data-t="gateP"></p>
-    <div class="rules" id="gateSteps"></div>
+    <div class="gateBody"><div class="rules" id="gateSteps"></div><div class="gDiag" id="gateDiag"></div></div>
     <button class="btn pri" id="gateBtn"></button>
     <textarea class="copybox hidden" id="urlBox" readonly></textarea>
     <div class="toast" id="urlToast"></div>
@@ -403,7 +424,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.5 · 2026/11/19</p>
+    <p class="note">v3.6 · 2026/11/19</p>
   </div>
 </div>
 
@@ -769,7 +790,7 @@
     zh: {
       installBtn: '📲 安裝到手機', gotIt: '知道了',
       iosInstallTitle: '安裝到 iPhone 主畫面 📲',
-      iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      iosInstallSteps: '<b>1.</b> 用 <b>Safari</b> 打開這個網頁（LINE、IG 裡面不行）<br><b>2.</b> 按下方的<b>分享</b>按鈕（方框加向上箭頭；新版 iOS 要先按右下角「⋯」）<br><b>3.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>4.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
       setRest: '休息提醒', setRestEvery: '連續遊玩提醒', setRestDaily: '每日遊玩上限', mins: n => `${n} 分鐘`, hours: n => `${n} 小時`,
       today: n => `今天已玩 ${n} 分鐘`,
       rest1T: '休息一下吧', rest1: n => `已經連續打 ${n} 分鐘了，起來喝口水、轉轉手腕吧！`, rest1A: '休息一下', rest1B: '再打一局',
@@ -780,6 +801,8 @@
       backAgain: '再滑一次返回就離開遊戲', igTip: 'IG 限動沒出現圖片的話：先「下載圖片」，再到 IG 從相簿選這張',
       gateP: '安裝到手機主畫面，全螢幕玩最順！', gateSkip: '先在瀏覽器玩',
       gateAndroidReady: '按下面的按鈕，就會把「羽球PK」裝到主畫面。',
+      iosChromeSteps: '<b>1.</b> 按網址列右邊的<b>分享</b>按鈕（方框加向上箭頭）<br><b>2.</b> 往下滑，選「<b>加入主畫面</b>」，再按「新增」<br><b>3.</b> 之後從主畫面的「羽球PK」打開，就是全螢幕',
+      dg: { url: 'poggyrappy.github.io', install: '安裝應用程式', addHome: '加入主畫面', a1: '新分頁', a2: '書籤', i1: '拷貝', i2: '加入書籤', tap1: '① 點這裡', tap2: '② 選這個' },
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
       wGuest: '以訪客身分玩', wConnecting: '連線中…', wGoogleOff: '目前無法登入（可以用訪客玩）',
       namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
@@ -922,7 +945,7 @@
     en: {
       installBtn: '📲 Install the app', gotIt: 'Got it',
       iosInstallTitle: 'Add to your iPhone home screen 📲',
-      iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      iosInstallSteps: '<b>1.</b> Open this page in <b>Safari</b> (not inside LINE or Instagram)<br><b>2.</b> Tap the <b>Share</b> button (square with an up arrow; on newer iOS, tap “⋯” at the bottom right first)<br><b>3.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>4.</b> Open “Badminton PK” from your home screen to play fullscreen',
       setRest: 'Break reminders', setRestEvery: 'Continuous play reminder', setRestDaily: 'Daily play limit', mins: n => `${n} min`, hours: n => n === 1 ? '1 hour' : `${n} hours`,
       today: n => `Played ${n} min today`,
       rest1T: 'Time for a short break', rest1: n => `You’ve played for ${n} minutes straight. Grab some water and stretch your wrists!`, rest1A: 'Take a break', rest1B: 'One more match',
@@ -933,6 +956,8 @@
       backAgain: 'Go back again to leave the game', igTip: 'If your IG story shows no image: “Download image” first, then pick it from your gallery in IG',
       gateP: 'Install it on your home screen for the best fullscreen experience!', gateSkip: 'Play in the browser for now',
       gateAndroidReady: 'Tap the button below to add “Badminton PK” to your home screen.',
+      iosChromeSteps: '<b>1.</b> Tap the <b>Share</b> button on the right of the address bar (square with an up arrow)<br><b>2.</b> Scroll down, choose “<b>Add to Home Screen</b>”, then “Add”<br><b>3.</b> Open “Badminton PK” from your home screen to play fullscreen',
+      dg: { url: 'poggyrappy.github.io', install: 'Install app', addHome: 'Add to Home Screen', a1: 'New tab', a2: 'Bookmarks', i1: 'Copy', i2: 'Add Bookmark', tap1: '① Tap here', tap2: '② Choose this' },
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
       wGuest: 'Play as a guest', wConnecting: 'Connecting…', wGoogleOff: 'Sign-in unavailable (play as a guest)',
       namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
@@ -1487,7 +1512,9 @@
   const standalone = window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const canInstallHere = !inFrame && !standalone;
   let installEvt = null;
-  if (canInstallHere) window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; updInstallUI(); });
+  if (standalone) store.set('bd_installed', '1'); // 從主畫面打開過＝已安裝（Android 的瀏覽器和 App 共用這個紀錄）
+  // Chrome 還願意提供安裝＝其實沒裝（可能已經解除安裝），把紀錄清掉
+  if (canInstallHere) window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; store.set('bd_installed', ''); updInstallUI(); });
   window.addEventListener('appinstalled', () => { track('pwa_install'); installEvt = null; store.set('bd_installed', '1'); updInstallUI(); });
 
   // ---------- 畫面切換 ----------
@@ -1499,11 +1526,23 @@
   $('noticeOk').addEventListener('click', () => overlayClose('notice'));
 
   // ---------- 安裝畫面 ----------
-  function gateMode() { return inApp ? 'inapp' : isIOS ? 'ios' : 'android'; }
+  const iosOtherBrowser = /CriOS|EdgiOS|FxiOS/.test(UA); // iPhone 上的 Chrome／Edge／Firefox：分享按鈕在網址列
+  function gateMode() { return inApp ? 'inapp' : isIOS ? (iosOtherBrowser ? 'iosChrome' : 'ios') : 'android'; }
+  const SHARE_ICO = '<svg width="12" height="13" viewBox="0 0 12 13" fill="none" stroke="#333" stroke-width="1.6"><path d="M6 1v7M3 3.5L6 1l3 2.5M2.5 6H1.5v6h9V6h-1"/></svg>';
+  // 安裝示意圖：① 點哪個按鈕 → ② 選哪一項
+  function gateDiagram(m) {
+    const d = T().dg;
+    const menu = (a, b, hot) => `<div class="mStep"><div class="mMenu"><div>${a}</div><div>${b}</div><div class="hot">${hot}</div></div><small>${d.tap2}</small></div>`;
+    if (m === 'android') return `<div class="mStep"><div class="mPhone"><div class="mBar"><div class="mUrl">${d.url}</div><div class="mIco hot">⋮</div></div><div class="mBody"></div></div><small>${d.tap1}</small></div><span class="arr">➜</span>${menu(d.a1, d.a2, '📲 ' + d.install)}`;
+    if (m === 'iosChrome') return `<div class="mStep"><div class="mPhone"><div class="mBar"><div class="mUrl">${d.url}</div><div class="mIco hot">${SHARE_ICO}</div></div><div class="mBody"></div></div><small>${d.tap1}</small></div><span class="arr">➜</span>${menu(d.i1, d.i2, '⊕ ' + d.addHome)}`;
+    if (m === 'ios') return `<div class="mStep"><div class="mPhone"><div class="mBody"></div><div class="mBar"><div class="mUrl">${d.url}</div></div><div class="mBottom"><span class="mIco">‹</span><span class="mIco hot">${SHARE_ICO}</span><span class="mIco">⋯</span></div></div><small>${d.tap1}</small></div><span class="arr">➜</span>${menu(d.i1, d.i2, '⊕ ' + d.addHome)}`;
+    return '';
+  }
   function updInstallUI() {
     const t = T(), m = gateMode();
-    $('gateSteps').innerHTML = m === 'inapp' ? t.inappSteps : m === 'ios' ? t.iosInstallSteps : (installEvt ? t.gateAndroidReady : t.gateAndroidSteps);
-    $('gateBtn').textContent = m === 'inapp' ? t.copyUrl : m === 'ios' ? t.gotIt : t.installBtn;
+    $('gateSteps').innerHTML = m === 'inapp' ? t.inappSteps : m === 'ios' ? t.iosInstallSteps : m === 'iosChrome' ? t.iosChromeSteps : (installEvt ? t.gateAndroidReady : t.gateAndroidSteps);
+    $('gateDiag').innerHTML = m === 'inapp' || (m === 'android' && installEvt) ? '' : gateDiagram(m);
+    $('gateBtn').textContent = m === 'inapp' ? t.copyUrl : m === 'ios' || m === 'iosChrome' ? t.gotIt : t.installBtn;
     $('gateBtn').classList.toggle('hidden', m === 'android' && !installEvt);
     $('homeInstall').classList.toggle('hidden', !(canInstallHere && isTouch && store.get('bd_installed', '') !== '1'));
   }
@@ -1512,7 +1551,7 @@
     if (m === 'inapp') {
       try { await navigator.clipboard.writeText(GAME_URL); $('urlToast').textContent = T().urlCopied; }
       catch (e) { const b = $('urlBox'); b.value = GAME_URL; b.classList.remove('hidden'); b.select(); $('urlToast').textContent = T().urlFail; }
-    } else if (m === 'ios') afterGate();
+    } else if (m === 'ios' || m === 'iosChrome') afterGate();
     else if (installEvt) { installEvt.prompt(); try { const r = await installEvt.userChoice; if (r && r.outcome === 'accepted') store.set('bd_installed', '1'); } catch (e) {} installEvt = null; updInstallUI(); }
   });
   $('gateSkip').addEventListener('click', () => { try { sessionStorage.setItem('bd_skip', '1'); } catch (e) {} afterGate(); });
@@ -1524,7 +1563,8 @@
   // ---------- 開場流程：安裝畫面 → 第一次取名 → 主頁 ----------
   function boot() {
     let skipped = false; try { skipped = sessionStorage.getItem('bd_skip') === '1'; } catch (e) {}
-    if (isTouch && canInstallHere && !skipped) { updInstallUI(); showScreen('gate'); }
+    const installed = store.get('bd_installed', '') === '1';
+    if (isTouch && canInstallHere && !skipped && !installed) { updInstallUI(); showScreen('gate'); }
     else afterGate();
   }
   // 還沒選過「Google 登入」或「訪客」→ 先到歡迎頁選；選過就直接到主頁選關
@@ -1870,15 +1910,19 @@
     showScreen(null); drillHud(true); drillBar(); readyT = 0;
     if (tutIdx == null) track('drill_start', { drill: id });
   }
+  function setTut(v) {
+    store.set('bd_tut', v);
+    if (isGoogle()) FB.m.setDoc(FB.m.doc(FB.db, 'users', FB.user.uid), { tut: v }, { merge: true }).catch(() => {});
+  }
   function startTutorial(i = 0) {
-    if (i === 0) { store.set('bd_tut', 'started'); track('tutorial_start', {}); }
+    if (i === 0) { setTut('started'); track('tutorial_start', {}); }
     else track('tutorial_step', { step: i + 1, skill: TUT[i] });
     startDrill(TUT[i], i);
   }
   function leaveDrill(how) {
     const g = G_; if (!g || !g.drill) return;
     const dd = g.drill, dur = Math.round((performance.now() - dd.startT) / 1000);
-    if (g.tut) { store.set('bd_tut', 'skip'); track('tutorial_skip', { step: g.tut.i + 1, action: how }); }
+    if (g.tut) { setTut('skip'); track('tutorial_skip', { step: g.tut.i + 1, action: how }); }
     else track('drill_end', { drill: dd.id, made: dd.made, tries: dd.tries, duration_s: dur });
   }
   function drillHud(on) {
@@ -1971,7 +2015,7 @@
     const g = G_; if (!g || !g.tut) return;
     const i = g.tut.i + 1;
     if (i < TUT.length) { startTutorial(i); return; }
-    store.set('bd_tut', 'done'); track('tutorial_done', {});
+    setTut('done'); track('tutorial_done', {});
     drillHud(false); G_ = null; clearHud();
     const t = T().dr; $('tdT').textContent = t.doneT; $('tdP').textContent = t.done; $('tdPlay').textContent = t.play1; $('tdPractice').textContent = t.toPractice;
     overlayOpen('tutDone');
@@ -2266,7 +2310,13 @@
     if (e && e.code && !['auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/user-cancelled'].includes(e.code))
       notice(`${T().loginFail}<br><small style="opacity:.6">${e.code}</small>`);
   }
-  async function fbLogout() { try { await FB.m.signOut(FB.auth); } catch (e) {} FB.profile = null; updAccountUI(); }
+  // 登出：清掉這支手機上的名字和進度（都存在雲端，再登入就回來），回到歡迎頁
+  async function fbLogout() {
+    try { await FB.m.signOut(FB.auth); } catch (e) {}
+    FB.profile = null;
+    ['bd_rec', 'bd_name', 'bd_tut', 'bd_owner', 'bd_entry'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+    location.reload();
+  }
 
   // ---- 個人資料與紀錄同步 ----
   function mergeRec(a, b) {
@@ -2281,6 +2331,11 @@
     try {
       const ref = m.doc(FB.db, 'users', u.uid), snap = await m.getDoc(ref);
       const d = snap.exists() ? snap.data() : {};
+      // 手機上的紀錄屬於另一個 Google 帳號 → 換成這個帳號自己的，不合併（訪客紀錄第一次登入時才合併）
+      const owner = store.get('bd_owner', '');
+      if (owner && owner !== u.uid) { setRec(Object.assign({}, REC0)); store.set('bd_name', ''); store.set('bd_tut', ''); }
+      store.set('bd_owner', u.uid);
+      if (d.tut) store.set('bd_tut', d.tut); else if (store.get('bd_tut', '')) m.setDoc(ref, { tut: store.get('bd_tut', '') }, { merge: true }).catch(() => {});
       const r = mergeRec(getRec(), d.rec || {}); setRec(r);
       FB.profile = { name: d.name || null };
       if (d.name) { store.set('bd_name', d.name); $('pName').textContent = d.name; }
