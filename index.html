@@ -823,7 +823,7 @@
       wGuest: '以訪客身分玩', wConnecting: '連線中…', wGoogleOff: '目前無法登入（可以用訪客玩）',
       namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`, cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 對戰記錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
-      recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
+      recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histLoading: '正在讀取以前的比賽…', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
       settingsTitle: '設定', setLang: '語言', setVoice: '裁判語音報分', setSound: '擊球音效', setName: '名字', saveBack: '儲存並返回', on: '開', off: '關',
       pauseBtn: '⏸ 暫停', pauseTitle: '暫停中', restart: '重新開始這關', toHome: '回主頁',
       statLongest: '最長來回', statAvg: '平均來回', statShots: '總擊球', techTitle: '技術使用', feintStat: m => `假動作（騙到 ${m}）`,
@@ -979,7 +979,7 @@
       wGuest: 'Play as a guest', wConnecting: 'Connecting…', wGoogleOff: 'Sign-in unavailable (play as a guest)',
       namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`, cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 History', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
-      recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
+      recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histLoading: 'Loading your past matches…', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
       settingsTitle: 'Settings', setLang: 'Language', setVoice: 'Umpire voice', setSound: 'Hit sounds', setName: 'Name', saveBack: 'Save & back', on: 'On', off: 'Off',
       pauseBtn: '⏸ Pause', pauseTitle: 'Paused', restart: 'Restart this stage', toHome: 'Home',
       statLongest: 'Longest rally', statAvg: 'Average rally', statShots: 'Total shots', techTitle: 'Shots used', feintStat: m => `Deception (fooled ${m})`,
@@ -1688,15 +1688,41 @@
     ];
     $('recGrid').innerHTML = cells.map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
     let h = []; try { h = JSON.parse(store.get('bd_hist', '[]')); } catch (e) {}
-    $('histNote').textContent = h.length ? t.histNote : t.histEmpty;
+    h = mergeHist(h, cloudHist && FB.user && cloudHist.uid === FB.user.uid ? cloudHist.list : []);
+    $('histNote').textContent = h.length ? t.histNote : (cloudHist === 'loading' ? t.histLoading : t.histEmpty);
     const pad = n => String(n).padStart(2, '0');
-    $('histList').innerHTML = h.map((m, i) => { const d = new Date(m.d);
+    $('histList').innerHTML = h.map((m, i) => { const d = new Date(m.d || Date.now());
       return `<button data-i="${i}"><span class="hd">${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}</span>`
         + `<span>${t.stage(m.lv + 1)}・${escapeHtml(t.levels[m.lv])}</span><span class="hs">${m.ps} : ${m.as}</span>`
         + `<span class="${m.won ? 'hw' : 'hl'}">${m.champ ? '🏆' : m.won ? t.histWin : t.histLose}</span><span class="ha">›</span></button>`; }).join('');
     $('histList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
       shareRec = h[+b.dataset.i]; shareFile = null; makeShareImage(shareRec); openShareView(); track('history_open', { stage: shareRec.lv + 1 });
     }));
+    if (FB.user && FB.ready && !(cloudHist && cloudHist.uid === FB.user.uid) && cloudHist !== 'loading') loadCloudHist();
+  }
+  // 雲端的對戰記錄：這個帳號以前打過的每一場（更新前打的也有），和手機上的合併，同一場只留一筆
+  let cloudHist = null;
+  async function loadCloudHist() {
+    const uid = FB.user.uid; cloudHist = 'loading';
+    try {
+      const m = FB.m, list = [];
+      const snap = await m.getDocs(m.query(m.collection(FB.db, 'matches'), m.where('uid', '==', uid), m.limit(500)));
+      snap.forEach(doc => {
+        const x = doc.data(), sh = x.shots || {};
+        const d = x.ts && x.ts.toMillis ? x.ts.toMillis() : x.ts && x.ts.seconds ? x.ts.seconds * 1000 : typeof x.ts === 'number' ? x.ts : 0;
+        if (!x.stage) return;
+        list.push({ d, lv: x.stage - 1, won: !!x.won, champ: !!x.won && x.stage === LEVELS.length, ps: x.ps || 0, as: x.as || 0, secs: x.secs || 0,
+          longest: x.longest || 0, avg: x.avgRally || 0, bestSmash: x.bestSmash || 0, feints: x.feints || 0,
+          top: TECH_ORDER.filter(k => sh[k]).sort((a, b) => sh[b] - sh[a]).slice(0, 3), name: (FB.profile && FB.profile.name) || playerName() });
+      });
+      cloudHist = { uid, list };
+    } catch (e) { cloudHist = { uid, list: [] }; }
+    if (!$('records').classList.contains('hidden')) renderRecords();
+  }
+  function mergeHist(local, cloud) {
+    const out = local.slice();
+    cloud.forEach(c => { if (!out.some(l => l.lv === c.lv && l.ps === c.ps && l.as === c.as && Math.abs((l.d || 0) - (c.d || 0)) < 180000)) out.push(c); });
+    return out.sort((a, b) => (b.d || 0) - (a.d || 0)).slice(0, 30);
   }
 
   // ---------- 設定 ----------
