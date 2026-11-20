@@ -436,7 +436,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.11 · 2026/11/20</p>
+    <p class="note">v3.12 · 2026/11/20</p>
   </div>
 </div>
 
@@ -742,7 +742,7 @@
   // tight 切吊擋都貼網、sdBlock／sdDrive 接殺時擋網前／反抽的機率、readHabit 看穿你重複的球路、rush 殺完上網補拍、taichi 你一直進攻就切換成控制打法
   const LEVELS = [
     { style: 'rookie', speed: 3.1, react: 0.36, fault: 0.14, smashP: 0, killP: 0, exploit: 0, recover: 0, driveP: 0, blockP: 0, feintP: 0, feintRead: 0.5, readP: 0, pressFault: 0.3, color: '#ffa45c' },
-    { style: 'captain', speed: 4.0, react: 0.26, fault: 0.05, smashP: 0.35, killP: 0.15, exploit: 0.6, recover: 0.75, driveP: 0.45, blockP: 0.2, feintP: 0.1, feintRead: 0.32, readP: 0.15, pressFault: 0.1, color: '#ff6b8a' },
+    { style: 'captain', speed: 3.9, react: 0.27, fault: 0.058, smashP: 0.32, killP: 0.13, exploit: 0.55, recover: 0.73, driveP: 0.43, blockP: 0.2, feintP: 0.1, feintRead: 0.33, readP: 0.15, pressFault: 0.11, color: '#ff6b8a' }, // v3.12 調簡單（原 speed 4.0 react 0.26 fault 0.05 smashP 0.35 killP 0.15 exploit 0.6 recover 0.75 driveP 0.45 feintRead 0.32 pressFault 0.1）
     { style: 'ace', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.7, killP: 0.55, exploit: 0.75, recover: 1, driveP: 0.45, blockP: 0.3, feintP: 0.2, feintRead: 0.2, readP: 0.4, pressFault: 0.03, precise: 1, splitStep: 1, color: '#b088ff' },
     { style: 'netbully', speed: 4.6, react: 0.2, fault: 0.04, smashP: 0.3, killP: 0.9, exploit: 0.5, recover: 1, driveP: 0.3, blockP: 0.35, feintP: 0.2, feintRead: 0.28, readP: 0.2, pressFault: 0.06, base: 8.9, backSlow: 0.55, softBias: 0.75, deepFault: 0.1, color: '#4fc3f7' },
     { style: 'driver', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.45, killP: 0.45, exploit: 0.6, recover: 1, driveP: 0.88, blockP: 0.04, feintP: 0.1, feintRead: 0.25, readP: 0.25, pressFault: 0.04, base: 9.5, softBias: 0.3, slowFault: 0.07, color: '#ff5252' },
