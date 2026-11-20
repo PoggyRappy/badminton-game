@@ -435,7 +435,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.8 · 2026/11/20</p>
+    <p class="note">v3.9 · 2026/11/20</p>
   </div>
 </div>
 
@@ -2214,7 +2214,7 @@
       : T().callScore(sv, rc, isGameOver(g.ps + 1, g.as) || isGameOver(g.ps, g.as + 1), serviceOver);
     clearTimeout(g.callTimer);
     g.callTimer = setTimeout(() => umpire(call), clean ? 250 : 750);
-    if (w === 'a' && cause) g.stats.lost[cause] = (g.stats.lost[cause] || 0) + 1;
+    if (w === 'a' && cause && cause !== 'serve') g.stats.lost[cause] = (g.stats.lost[cause] || 0) + 1; // 發球太短不記（教練提示照樣會講）
     coachAfterPoint(w, cause);
     pointSound(w === 'p');
     updScore();
@@ -2562,7 +2562,7 @@
       await FB.m.addDoc(FB.m.collection(FB.db, 'matches'), {
         uid: FB.user.uid, stage: g.level + 1, won, ps: g.ps, as: g.as, secs: Math.round(secs),
         rallies: st.rallies.length, avgRally: avg, longest: st.longest, shots: st.shots, feints: st.feints, fooled: st.fooled,
-        bestSmash: st.bestSmash || 0, lost: st.lost, lang: LANG, mobile: isTouch, app: standalone, ts: FB.m.serverTimestamp()
+        bestSmash: st.bestSmash || 0, lost: st.lost, lang: LANG, mobile: isTouch, app: standalone, acct: isGoogle() ? 'google' : 'guest', ts: FB.m.serverTimestamp()
       });
     } catch (e) {}
   }
