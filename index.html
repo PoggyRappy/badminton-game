@@ -424,7 +424,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.6 · 2026/11/19</p>
+    <p class="note">v3.7 · 2026/11/20</p>
   </div>
 </div>
 
@@ -677,19 +677,23 @@
   }
   function tightNet(x, y, tx, margin) {
     let best = null, bm = 99, last = null;
-    for (let a = -8; a <= 84; a += 3) {
+    for (let a = y > 2 ? -30 : -8; a <= 84; a += 3) { // 從高處切下來可以往下打
       const v = solveSpeed(x, y, tx, a); last = v;
-      if (sim(x, y, v.vx, v.vy).netY > NET_H + margin) { const m = peakAfterNet(x, y, v); if (m < bm) { bm = m; best = v; } }
+      const ny = sim(x, y, v.vx, v.vy).netY;
+      if (ny > NET_H + margin) { const m = Math.max(ny, peakAfterNet(x, y, v)); if (m < bm) { bm = m; best = v; } } // 過網高度也算：不能挑一顆超高的吊球
     }
     return best || last;
   }
-  function shot(x, y, tx, type, air, boost = 0) {
+  function shot(x, y, tx, type, air, boost = 0, tight = false) {
     if (type === 'smash' || type === 'kill') {
       const spd = (type === 'kill' ? 22 : air ? 29 : 25) + boost; // 跳殺比原地殺球快
-      for (let k = 0; k < 4; k++) {
-        const t = tx + Math.sign(tx - x) * k * 0.9, v = solveAngle(x, y, t, spd);
-        const r = sim(x, y, v.vx, v.vy);
-        if (r.netY > NET_H + 0.12) return v;
+      const inCourt = r => tx < NET_X ? r.land > 0 && r.land < NET_X : r.land > NET_X && r.land < COURT;
+      for (const sp of [spd, spd - 4, spd - 8, spd - 12]) { // 擊球點太低：殺不了那麼快，降速讓球留在場內
+        for (let k = 0; k < 4; k++) {
+          const t = tx + Math.sign(tx - x) * k * 0.9, v = solveAngle(x, y, t, sp);
+          const r = sim(x, y, v.vx, v.vy);
+          if (r.netY > NET_H + 0.12 && inCourt(r)) return v;
+        }
       }
       return solveSpeed(x, y, tx, 10);
     }
@@ -708,13 +712,13 @@
       flatClear: [28, 24, 32, 36, 40]         // 平高球：比高遠球低、快
     };
     const margin = ['net', 'netUnder', 'dropUnder', 'serve', 'block'].includes(type) ? 0.07 : type === 'drive' ? 0.1 : 0.15;
-    if (type === 'net' || type === 'netUnder') return tightNet(x, y, tx, margin + 0.04);
+    if (type === 'net' || type === 'netUnder' || tight) return tightNet(x, y, tx, margin + 0.04); // 高手的切、吊、擋都貼網過
     let v;
     for (const a of (ANG[type] || ANG.clear)) {
       v = solveSpeed(x, y, tx, a);
       if (sim(x, y, v.vx, v.vy).netY > NET_H + margin) return v;
     }
-    return v;
+    return tightNet(x, y, tx, margin); // 預設角度都過不了網（例如從後場擋、切）：找一條剛好過網的弧線
   }
 
   // ---------- 關卡 ----------
@@ -722,17 +726,18 @@
   // 每位對手的打法參數。新欄位：base 回位點、backSlow 往後退的速度倍率、softBias 偏好輕球的機率、
   // smashGround 原地殺球機率、smashBoost 殺球加速、deepFault／slowFault 接深球／慢球的失誤、tire 會累、
   // precise 落點精準、splitStep 啟動步、lefty 左手持拍、scale 體型
+  // tight 切吊擋都貼網、sdBlock／sdDrive 接殺時擋網前／反抽的機率、readHabit 看穿你重複的球路、rush 殺完上網補拍、taichi 你一直進攻就切換成控制打法
   const LEVELS = [
     { style: 'rookie', speed: 3.1, react: 0.36, fault: 0.14, smashP: 0, killP: 0, exploit: 0, recover: 0, driveP: 0, blockP: 0, feintP: 0, feintRead: 0.5, readP: 0, pressFault: 0.3, color: '#ffa45c' },
     { style: 'captain', speed: 4.0, react: 0.26, fault: 0.05, smashP: 0.35, killP: 0.15, exploit: 0.6, recover: 0.75, driveP: 0.45, blockP: 0.2, feintP: 0.1, feintRead: 0.32, readP: 0.15, pressFault: 0.1, color: '#ff6b8a' },
     { style: 'ace', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.7, killP: 0.55, exploit: 0.75, recover: 1, driveP: 0.45, blockP: 0.3, feintP: 0.2, feintRead: 0.2, readP: 0.4, pressFault: 0.03, precise: 1, splitStep: 1, color: '#b088ff' },
     { style: 'netbully', speed: 4.6, react: 0.2, fault: 0.04, smashP: 0.3, killP: 0.9, exploit: 0.5, recover: 1, driveP: 0.3, blockP: 0.35, feintP: 0.2, feintRead: 0.28, readP: 0.2, pressFault: 0.06, base: 8.9, backSlow: 0.55, softBias: 0.75, deepFault: 0.1, color: '#4fc3f7' },
     { style: 'driver', speed: 5.0, react: 0.14, fault: 0.03, smashP: 0.45, killP: 0.45, exploit: 0.6, recover: 1, driveP: 0.88, blockP: 0.04, feintP: 0.1, feintRead: 0.25, readP: 0.25, pressFault: 0.04, base: 9.5, softBias: 0.3, slowFault: 0.07, color: '#ff5252' },
-    { style: 'wall', speed: 5.2, react: 0.13, fault: 0.014, smashP: 0.12, smashGround: 0.03, killP: 0.3, exploit: 0.4, recover: 1, driveP: 0.4, blockP: 0.45, feintP: 0.05, feintRead: 0.2, readP: 0.45, pressFault: 0.02, softBias: 0.35, precise: 1, color: '#90a4ae' },
-    { style: 'lefty', speed: 5.3, react: 0.12, fault: 0.024, smashP: 0.5, killP: 0.5, exploit: 0.75, recover: 1, driveP: 0.4, blockP: 0.35, feintP: 0.55, feintRead: 0.2, readP: 0.4, pressFault: 0.03, softBias: 0.65, precise: 1, lefty: 1, color: '#f06292' },
-    { style: 'power', speed: 5.4, react: 0.12, fault: 0.018, smashP: 0.95, smashGround: 0.85, smashBoost: 6, killP: 0.6, exploit: 0.6, recover: 0.9, driveP: 0.5, blockP: 0.1, feintP: 0.1, feintRead: 0.2, readP: 0.3, pressFault: 0.03, tire: 1, scale: 1.12, color: '#ff7043' },
-    { style: 'allround', speed: 5.4, react: 0.11, fault: 0.022, smashP: 0.7, killP: 0.6, exploit: 0.8, recover: 1, driveP: 0.5, blockP: 0.3, feintP: 0.3, feintRead: 0.18, readP: 0.5, pressFault: 0.02, precise: 1, splitStep: 1, color: '#26c6da' },
-    { style: 'legend', speed: 5.8, react: 0.08, fault: 0.016, smashP: 0.75, smashBoost: 2, killP: 0.7, exploit: 0.85, recover: 1, driveP: 0.5, blockP: 0.35, feintP: 0.35, feintRead: 0.15, readP: 0.65, pressFault: 0.015, precise: 1, splitStep: 1, color: '#ffd54f' }
+    { style: 'wall', speed: 5.2, react: 0.13, fault: 0.014, smashP: 0.12, smashGround: 0.03, killP: 0.3, exploit: 0.4, recover: 1, driveP: 0.4, blockP: 0.45, feintP: 0.05, feintRead: 0.2, readP: 0.45, pressFault: 0.02, softBias: 0.35, precise: 1, tight: 0.5, sdBlock: 0.6, color: '#90a4ae' },
+    { style: 'lefty', speed: 5.3, react: 0.12, fault: 0.024, smashP: 0.5, killP: 0.5, exploit: 0.75, recover: 1, driveP: 0.4, blockP: 0.35, feintP: 0.55, feintRead: 0.2, readP: 0.4, pressFault: 0.03, softBias: 0.65, precise: 1, lefty: 1, tight: 1, sdBlock: 0.3, sdDrive: 0.15, color: '#f06292' },
+    { style: 'power', speed: 5.4, react: 0.12, fault: 0.007, smashP: 0.95, smashGround: 0.85, smashBoost: 6, killP: 0.6, exploit: 0.6, recover: 0.9, driveP: 0.5, blockP: 0.1, feintP: 0.1, feintRead: 0.2, readP: 0.3, pressFault: 0.016, tire: 1, scale: 1.12, sdBlock: 0.1, sdDrive: 0.6, color: '#ff7043' },
+    { style: 'allround', speed: 5.4, react: 0.11, fault: 0.022, smashP: 0.7, killP: 0.6, exploit: 0.8, recover: 1, driveP: 0.5, blockP: 0.3, feintP: 0.3, feintRead: 0.18, readP: 0.5, pressFault: 0.02, precise: 1, splitStep: 1, tight: 1, sdBlock: 0.3, sdDrive: 0.25, readHabit: 0.7, color: '#26c6da' },
+    { style: 'legend', speed: 5.8, react: 0.08, fault: 0.012, smashP: 0.85, smashGround: 0.5, smashBoost: 5, killP: 0.8, exploit: 0.85, recover: 1, driveP: 0.5, blockP: 0.4, feintP: 0.45, feintRead: 0.15, readP: 0.7, pressFault: 0.012, precise: 1, splitStep: 1, lefty: 1, tight: 1, sdBlock: 0.45, sdDrive: 0.3, readHabit: 0.85, rush: 1, taichi: 1, color: '#ffd54f' }
   ];
   // 各關對手的站姿不同
   const STANCE = {
@@ -819,7 +824,7 @@
       fastSmash: '最快殺球', clearTime: '通關時間', imgSmashSpd: '最快殺球 km/h',
       lbBtn: '🏆 排行', lbTitle: '🏆 排行榜', lbTab_time: '通關時間', lbTab_smash: '最快殺球', lbTab_cleared: '最高關卡',
       loading: '載入中…', lbEmpty: '還沒有人上榜，搶第一名吧！', lbErr: '排行榜暫時載入失敗，請稍後再試',
-      myRank: (n, v) => `你目前第 ${n} 名（${v}）`, lbNoMine: '你在這個項目還沒有成績', loginLb: '🔑 用 Google 登入，上排行榜',
+      myRank: (n, v) => `你目前第 ${n} 名（${v}）`, lbNoMine: '你在這個項目還沒有成績', loginLb: '🔑 用 Google 登入，排行榜就會顯示你的名字',
       nameTitle: '取一個遊戲名字', nameP: '排行榜只會顯示這個名字，不會顯示你的電子郵件。', nameSave: '確定',
       nameLen: '名字要 2～12 個字', nameBad: '這個名字不太適合，換一個吧',
       fbTitle: '喜歡這個遊戲嗎？', fbSend: '送出', fbLater: '下次再說', fbPlaceholder: '想說的話（可以不填）', fbThanks: '謝謝你的評分！🏸',
@@ -875,11 +880,11 @@
         doneT: '新手教學完成！', done: '想再練哪一招，主頁的「🎯 練習」隨時可以進去。', play1: '開始第 1 關', toPractice: '去練習'
       },
       intros: ['🐣 學弟常送半場高球 → 按住▶＋揮拍殺下去！', '🎽 隊長會平抽、打空檔 → 打完記得回中場！', '👑 王牌會跳殺、假動作 → 球要打深，耐心調動！',
-        '🕸️ 小霸王網前很兇、後場退得慢 → 多打後場高遠球！', '⚡ 快槍手平抽又快又密 → 用平擋或挑高打亂他的節奏！', '🧱 銅牆鐵壁幾乎不失誤 → 耐心調四角，等半場球再殺！',
-        '🪄 左手魔術師假動作很多 → 別太早跑，看清楚再動！', '💥 重砲手殺球超快 → 先擋回去，拖長來回讓他累！', '🌟 全能國手沒有弱點 → 把學過的戰術全部用上！', '👑 最終關：傳奇球王會看穿假動作 → 拿出全部實力！'],
+        '🕸️ 小霸王網前很兇、後場退得慢 → 多打後場高遠球！', '⚡ 快槍手平抽又快又密 → 用平擋或挑高打亂他的節奏！', '🧱 銅牆鐵壁接殺都擋網前 → 殺完馬上往前，補一拍！',
+        '🪄 左手魔術師假動作很多 → 別太早跑，看清楚再動！', '💥 重砲手殺球超快，還會反抽你的殺球 → 多切多吊，等好球再殺！', '🌟 全能國手會看穿你的習慣 → 同一招別連用，輪換球路！', '👑 最終關：傳奇球王左手重殺、網前細膩，你越猛攻他越會以柔克剛 → 攻守要有變化！'],
       beatTips: ['💡 等學弟送半場高球，按住▶＋揮拍殺！', '💡 打完記得回中場，別被打空檔', '💡 球打深一點，耐心調動再找機會', '💡 一直打他後場，他退得很慢',
-        '💡 按「輕」平擋放慢節奏，他就容易失誤', '💡 他很少失誤，要靠殺球、撲球主動得分', '💡 他的球常是假動作，晚一點再跑', '💡 來回超過 9 拍他會變慢，撐住！',
-        '💡 高遠球逼後場＋吊網前，前後拉開他', '💡 假動作會被看穿，靠落點和耐心取勝'],
+        '💡 按「輕」平擋放慢節奏，他就容易失誤', '💡 他會把殺球擋到網前：殺完按 ▶ 上網，撲他的擋網', '💡 他的球常是假動作，晚一點再跑', '💡 平平的殺球會被他反抽：多吊網前，等高球再殺',
+        '💡 同一類球連打 3 次會被看穿，高遠、吊、殺輪流用', '💡 一直殺會讓他切換太極：先前後調動，看到空檔再一擊'],
       youServe: '你發球', oppServe: '對手發球', hintTouch: '按「揮拍」發球', hintKey: '按 J 發球',
       shots: { serve: '反手發小球', net: '放網', netUnder: '下手放網', push: '推球', lift: '挑球', smash: '殺球！', kill: '撲球！', slice: '切球', clear: '高遠球', defClear: '防守高球', dropUnder: '下手吊球', drive: '平抽！', block: '平擋', flatClear: '平高球' },
       feintTag: '（假動作）', fooled: '・騙到了！', langTop: 'EN',
@@ -913,6 +918,7 @@
       // 裁判報分
       num: n => ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一'][n] ?? String(n),
       callStart: '零比零，比賽開始',
+      readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
       intro: (p, o) => [`在我右邊，${p}`, `在我左邊，${o}`, `${p} 發球`, '零比零，比賽開始'],
       callScore: (s, r, mp, over) => {
         const N = I18N.zh.num; let t = s === r ? `${N(s)}平` : `${N(s)}比${N(r)}`;
@@ -974,7 +980,7 @@
       fastSmash: 'Fastest smash', clearTime: 'Clear time', imgSmashSpd: 'Top smash km/h',
       lbBtn: '🏆 Ranks', lbTitle: '🏆 Leaderboard', lbTab_time: 'Clear time', lbTab_smash: 'Fastest smash', lbTab_cleared: 'Top stage',
       loading: 'Loading…', lbEmpty: 'No one here yet — be the first!', lbErr: 'Couldn’t load the leaderboard. Please try again later.',
-      myRank: (n, v) => `You’re #${n} (${v})`, lbNoMine: 'You don’t have a record here yet', loginLb: '🔑 Sign in with Google to join',
+      myRank: (n, v) => `You’re #${n} (${v})`, lbNoMine: 'You don’t have a record here yet', loginLb: '🔑 Sign in with Google to show your name',
       nameTitle: 'Pick a player name', nameP: 'Only this name appears on the leaderboard — never your email.', nameSave: 'OK',
       nameLen: 'Names must be 2–12 characters', nameBad: 'Please choose a different name',
       fbTitle: 'Enjoying the game?', fbSend: 'Send', fbLater: 'Maybe later', fbPlaceholder: 'Anything to add? (optional)', fbThanks: 'Thanks for rating! 🏸',
@@ -1030,11 +1036,11 @@
         doneT: 'Tutorial complete!', done: 'Want to drill a shot again? Open “🎯 Practice” on the home screen any time.', play1: 'Play Stage 1', toPractice: 'Practice'
       },
       intros: ['🐣 The Freshman lifts short → hold ▶ + Hit to smash!', '🎽 The Captain drives and finds open space → recover to base!', '👑 The Ace jump-smashes and uses deception → hit deep, be patient!',
-        '🕸️ The Net Bully rules the net but is slow going back → clear deep!', '⚡ The Drive Gunner drives fast and flat → block or lift to break the rhythm!', '🧱 The Wall almost never misses → move all four corners, smash the short lift!',
-        '🪄 The Lefty Magician loves deception → don’t move too early!', '💥 The Heavy Hitter smashes hardest → block it back and make the rallies long!', '🌟 The All-Rounder has no weakness → use every tactic you’ve learned!', '👑 Final stage: The Legend reads your deception → give it everything!'],
+        '🕸️ The Net Bully rules the net but is slow going back → clear deep!', '⚡ The Drive Gunner drives fast and flat → block or lift to break the rhythm!', '🧱 The Wall blocks every smash to the net → after you smash, rush forward!',
+        '🪄 The Lefty Magician loves deception → don’t move too early!', '💥 The Heavy Hitter smashes hardest and drives your smashes back → slice and drop, smash only the good ones!', '🌟 The All-Rounder reads your habits → don’t repeat the same shot!', '👑 Final stage: The Legend is a left-handed power smasher with silky net play, and turns to soft control when you attack too much → mix it up!'],
       beatTips: ['💡 Wait for the short lift, then hold ▶ + Hit to smash', '💡 Recover to base after every shot', '💡 Hit deeper and be patient', '💡 Keep clearing deep — he’s slow going back',
-        '💡 Use Soft to block and slow the tempo — he makes errors', '💡 He rarely misses — win points with smashes and net kills', '💡 Many of his shots are fakes — move a little later', '💡 After 9 shots he slows down — hang in there!',
-        '💡 Clear deep, then drop short to stretch him', '💡 He reads deception — win with placement and patience'],
+        '💡 Use Soft to block and slow the tempo — he makes errors', '💡 He blocks your smash to the net: hold ▶ to rush in and kill it', '💡 Many of his shots are fakes — move a little later', '💡 Flat smashes get driven back: drop short, smash only high balls',
+        '💡 Three of the same shot in a row gets read: rotate clears, drops and smashes', '💡 Nonstop smashing makes him switch to tai chi: move him around first, then strike'],
       youServe: 'Your serve', oppServe: 'Opponent’s serve', hintTouch: 'Tap “Hit” to serve', hintKey: 'Press J to serve',
       shots: { serve: 'Backhand low serve', net: 'Net shot', netUnder: 'Underhand net shot', push: 'Push', lift: 'Lift', smash: 'Smash!', kill: 'Net kill!', slice: 'Slice', clear: 'Clear', defClear: 'Defensive clear', dropUnder: 'Underhand drop', drive: 'Drive!', block: 'Block', flatClear: 'Attacking clear' },
       feintTag: ' (deception)', fooled: ' · Fooled them!', langTop: '中',
@@ -1067,6 +1073,7 @@
       voiceOn: '🔊', voiceOff: '🔇',
       num: n => n === 0 ? 'Love' : String(n),
       callStart: 'Love all, play',
+      readYou: 'Read you!', taichiOn: '☯ Tai chi: soft control', attackOn: '🔥 Full attack!', guestTag: 'Guest',
       intro: (p, o) => [`On my right, ${p}`, `On my left, ${o}`, `${p} to serve`, 'Love all, play'],
       callScore: (s, r, mp, over) => {
         const N = I18N.en.num; let t;
@@ -1166,6 +1173,7 @@
   }
 
   function setupServe() {
+    if (G_ && G_.pFat) G_.pFat *= 0.5; // 每分之間喘口氣
     const g = G_;
     g.p.x = g.server === 'p' ? 4.3 : 3.7; g.a.x = g.server === 'a' ? 9.1 : 9.7;
     g.p.swingT = g.a.swingT = -1; g.p.swingType = g.a.swingType = null;
@@ -1219,7 +1227,7 @@
     const z = zoneOf(pl), h = b.y, air = pl.y > 0.2;
     if (z === 'front') {
       if (soft) return h >= 1.1 ? 'net' : 'netUnder';
-      if (h > 1.9 && (air || fwd)) return 'kill';           // 網前往前壓或跳起來＝撲球
+      if (h > 1.9 && b.vy <= 0.5 && (air || fwd)) return 'kill'; // 網前往前壓或跳起來＝撲球（球還在往上飛就撲不下去）
       return h > 1.3 ? 'push' : 'lift';
     }
     if (air && h > 2.0) return soft ? 'slice' : fwd ? 'smash' : 'flatClear'; // 跳起來：平高球；加往前＝跳殺
@@ -1270,9 +1278,10 @@
     const g = G_, z = zoneOf(a), h = b.y, air = a.y > 0.2, R = Math.random();
     let attack, soft;
     if (z === 'front') {
+      if (['smash', 'kill'].includes(b.type) && (b.kmh || 0) >= 240) return { kind: h >= 1.1 ? 'block' : 'dropUnder' }; // 太快的殺球在網前只能擋，撲不下去
       if (h > 2.0 && b.vy <= 0.5 && (air || Math.random() < L.killP)) return { kind: 'kill' }; // 只撲往下掉或平飛的球
       const tight = Math.abs(b.x - NET_X) < 0.9 && h < NET_H + 0.2; // 貼網、比網帶低的球推不下去，只能放或挑
-      attack = h > 1.3 && !tight ? 'push' : 'lift'; soft = h >= 1.1 ? 'net' : 'netUnder';
+      attack = h > 1.3 && !tight && !isFront(p) ? 'push' : 'lift'; soft = h >= 1.1 ? 'net' : 'netUnder'; // 你也在網前：不推平球給你撲，改挑高
     } else if (air && h > 2.0) {
       return { kind: g.aiRoll < L.smashP ? 'smash' : 'flatClear' };
     } else {
@@ -1286,6 +1295,12 @@
       return { kind: soft };
     }
     let kind;
+    // 接你的殺球：擋網前或反抽，不再只會挑高（太極模式更愛擋）
+    if (['smash', 'kill'].includes(b.type) && z !== 'front' && (L.sdBlock || L.sdDrive)) {
+      const blockP = g.aiMode === 'taichi' ? 0.8 : (L.sdBlock || 0), R2 = Math.random();
+      if (R2 < blockP) return { kind: h >= 1.0 ? 'block' : 'dropUnder' };
+      if (R2 < blockP + (L.sdDrive || 0) && h >= 0.9) return { kind: 'drive' };
+    }
     if (attack === 'drive') kind = R < L.driveP ? 'drive' : R < L.driveP + L.blockP ? 'block' : (p.x < 3.4 ? 'block' : 'defClear');
     else {
       const pBack = p.x < 3.4, pFront = p.x > 4.4;
@@ -1293,6 +1308,11 @@
       else if (R < L.exploit && pFront) kind = attack;    // 你在網前 → 打後場
       else kind = Math.random() < (L.softBias ?? 0.5) ? soft : attack;
       if (L.style === 'netbully' && z === 'front' && kind === attack && Math.random() < 0.5) kind = soft; // 網前一定要跟你比手感
+    }
+    // 太極：不給你能殺的高球，改用吊、放、平高球控制節奏
+    if (g.aiMode === 'taichi' && ['clear', 'defClear', 'lift', 'smash'].includes(kind)) {
+      if (z === 'front') { if (Math.random() < 0.65) kind = soft; }          // 網前：多放網，要挑就挑又高又深
+      else kind = Math.random() < 0.65 ? soft : 'flatClear';                 // 中後場：切、吊或平高球
     }
     // 假動作：同一個架拍，打出相反的球
     let fake = null;
@@ -1321,39 +1341,68 @@
     }
     if (who === 'a') { // 對手失誤：難的球路、或接你的快球時比較容易失誤
       const risk = (L.style === 'power' && kind === 'smash') ? 0.5 : (KIND_RISK[kind] || 1); // 重砲手殺球很穩
-      let pf = L.fault * risk + (FAST.includes(b.type) ? L.pressFault : 0);
+      // 殺得越快壓力越大；累了變慢的殺球就沒什麼威脅。被看穿的球幾乎不會失誤
+      const press = ['smash', 'kill'].includes(b.type) && b.kmh ? Math.max(0.3, Math.min(1.6, (b.kmh - 180) / 140)) : 1;
+      let pf = L.fault * risk + (FAST.includes(b.type) ? L.pressFault * press : 0);
+      if (g.aiRead) pf *= 0.3;
       if (L.deepFault && ['clear', 'lift', 'defClear', 'flatClear'].includes(b.type) && zoneOf(pl) === 'back') pf += L.deepFault; // 被逼到後場
       if (L.slowFault && SHORT.includes(b.type)) pf += L.slowFault;  // 節奏被放慢
-      if (L.tire && g.rally > 9) pf += 0.05 + (g.rally - 9) * 0.01;   // 來回一長就累
+      if (L.tire && g.rally > 20) pf += 0.02 + (g.rally - 20) * 0.004; // 來回一長就累
       if (Math.random() < pf) t = Math.random() < .5 ? COURT + 0.5 + Math.random() * 0.8 : NET_X - 0.5;
     }
     // 你的假動作：對手先往反方向跑（王牌有機會看穿）
     let fooled = false;
     if (who === 'p') { g.stats.shots[kind] = (g.stats.shots[kind] || 0) + 1; if (feint) { g.usedFeint = true; g.stats.feints++; } }
-    if (who === 'p' && feint && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
+    // 看穿習慣：同一類球路最近 4 拍用了 3 次，就可能被預判
+    if (who === 'p') {
+      const grp = ['smash', 'kill'].includes(kind) ? 'atk' : SHORT.includes(kind) ? 'short' : kind === 'drive' ? 'drive' : 'deep';
+      const h = g.pHist || (g.pHist = []);
+      g.aiRead = !!L.readHabit && h.slice(-4).filter(x => x === grp).length >= 3 && Math.random() < L.readHabit;
+      h.push(grp); if (h.length > 8) h.shift();
+      const ag = g.pAgg || (g.pAgg = []); ag.push(['smash', 'kill', 'push', 'drive', 'flatClear'].includes(kind) ? 1 : 0); if (ag.length > 8) ag.shift();
+    }
+    if (who === 'p' && feint && !g.aiRead && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
     else if (who === 'p') g.aiFeintT = 0;
     if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.splitStep && g.a.y === 0) g.a.vy = 1.5; } // 高手：你擊球時啟動步
-    const tx = who === 'p' ? t : COURT - t;
+    let tx = who === 'p' ? t : COURT - t;
     let boost = who === 'a' ? (L.smashBoost || 0) : 0, kmh = 0;
     if (who === 'p' && (kind === 'smash' || kind === 'kill')) {
       // 殺球品質：擊球點剛好在身體前方、打得越高越快
       const cx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
       const q = Math.max(0, 1 - Math.abs(cx - 0.35) / 0.7), hq = Math.max(0, Math.min(1, (b.y - 2.0) / 1.2));
       boost = q * 3 + hq * 2 + (Math.random() - 0.5);
-    }
-    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, boost);
+      // 會累：連續殺球越殺越慢、越容易失誤；從底線殺威力也比較小（不顯示體力條，看球速就知道）
+      const fat = g.drill ? 0 : (g.pFat || 0); // 練習模式不會累
+      boost -= fat * 1.4;
+      if (NET_X - pl.x > 5.0) boost -= 2.5;
+      if (fat > 2.5 && Math.random() < 0.08 * (fat - 2.5)) tx = Math.random() < 0.5 ? COURT + 0.4 : NET_X - 0.4; // 累到殺出界或掛網
+      g.pFat = fat + (pl.y > 0.2 ? 1.4 : 1);
+    } else if (who === 'p') g.pFat = Math.max(0, (g.pFat || 0) - 0.6);
+    const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, boost, (who === 'p' || (!!L.tight && Math.random() < L.tight)) && ['slice', 'dropUnder', 'block'].includes(kind)); // 你的切、吊、擋和高手一樣貼網
     if (kind === 'smash' || kind === 'kill') {
       kmh = Math.round(Math.hypot(v.vx, v.vy) * 11.5); // 換算成接近真實比賽的時速
       if (who === 'p') g.stats.bestSmash = Math.max(g.stats.bestSmash || 0, kmh);
     }
-    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false; b.air = pl.y > 0.2; b.feint = feint;
+    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false; b.air = pl.y > 0.2; b.feint = feint; b.kmh = kmh;
+    // 對手：殺完上網補拍；太極／進攻模式切換
+    let modeMsg = '';
+    if (who === 'a') {
+      if (L.rush && kind === 'smash') g.aiRushT = 1.4;
+      if (L.taichi) {
+        const agg = (g.pAgg || []).reduce((x, y) => x + y, 0);
+        if (g.aiMode !== 'taichi' && agg >= 4) { g.aiMode = 'taichi'; g.taiN = 10; modeMsg = T().taichiOn; }
+        else if (g.aiMode === 'taichi' && (--g.taiN <= 0 || agg <= 1)) { g.aiMode = 'attack'; g.pAgg = []; modeMsg = T().attackOn; }
+      }
+    }
+    const readMsg = who === 'a' && g.aiRead ? T().readYou : '';
+    if (who === 'a') g.aiRead = false;
     pl.swingType = kind; pl.swingT = contactT(kind);
     g.rally++;
-    g.aiDelay = who === 'p' ? L.react : 0; g.aiPlan = null;
+    g.aiDelay = who === 'p' ? (g.aiRead ? 0 : L.react) : 0; g.aiPlan = null; // 被看穿：對手不用反應時間
     const mine = who === 'p';
     const nm = T().shots[kind];
     const label = feint ? (mine ? '' : T().opp('')) + T().feintName(dec.fake, kind) + (mine && fooled ? T().fooled : '') : (mine ? nm : T().opp(nm));
-    showMsg(kmh ? `${label} ${kmh} km/h` : label, (kind === 'smash' || kind === 'kill') ? (mine ? '#ffe066' : '#ff8a8a') : mine ? '#bfe9ff' : '#ffd0b0');
+    showMsg((modeMsg ? modeMsg + '　' : '') + (readMsg ? readMsg + '　' : '') + (kmh ? `${label} ${kmh} km/h` : label), (kind === 'smash' || kind === 'kill') ? (mine ? '#ffe066' : '#ff8a8a') : mine ? '#bfe9ff' : '#ffd0b0');
     hitSound(kind);
   }
 
@@ -1361,7 +1410,8 @@
   function aiThink(dt) {
     const g = G_, a = g.a, b = g.b, L = LEVELS[g.level];
     let target = a.x, sp = L.speed;
-    const wantJump = L.smashP > 0 && g.aiRoll < L.smashP;
+    const wantJump = L.smashP > 0 && g.aiRoll < L.smashP && g.aiMode !== 'taichi';
+    if (g.aiRushT > 0) g.aiRushT -= dt;
     if (b && g.state === 'rally' && b.last === 'p') {
       if (g.aiDelay > 0) g.aiDelay -= dt;
       else {
@@ -1382,7 +1432,7 @@
       }
     } else if (g.state === 'rally' && b && b.last === 'a') {
       // 打完回中場：學弟不回位、隊長慢慢回、王牌馬上回
-      if (L.recover > 0) { target = L.base || 9.8; sp *= L.recover; }
+      if (L.recover > 0) { target = g.aiRushT > 0 ? NET_X + 1.4 : (L.base || 9.8); sp *= L.recover; }
     }
     // 被你的假動作騙：先往反方向跑一下
     if (g.aiFeintT > 0 && b && b.last === 'p') { g.aiFeintT -= dt; target = a.x + g.aiFeintDir * 3; }
@@ -1824,6 +1874,7 @@
     } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
+    if (g.pFat) g.pFat = Math.max(0, g.pFat - dt * 0.12); // 體力慢慢回來
     if (g.drill) { drillUpdate(dt); return; }
 
     if (g.state === 'serve') {
@@ -2349,9 +2400,13 @@
     try { await FB.m.setDoc(FB.m.doc(FB.db, 'users', FB.user.uid), { rec: r, updated: FB.m.serverTimestamp() }, { merge: true }); } catch (e) {}
   }
   // 排行榜：只放名字和成績，不放電子郵件
+  // 訪客也上排行榜，但只顯示代號（帳號代號前 4 碼）；Google 帳號顯示名字
+  const guestCode = () => '#' + (FB.user ? FB.user.uid.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() : '----');
   async function syncLB(r) {
-    if (!isGoogle() || !FB.profile || !FB.profile.name) return;
-    const m = FB.m, d = { name: FB.profile.name, cleared: r.cleared || 0, smash: r.bestSmash || 0, updated: m.serverTimestamp() };
+    if (!FB.user) return;
+    const google = isGoogle();
+    if (google && (!FB.profile || !FB.profile.name)) return;
+    const m = FB.m, d = { name: google ? FB.profile.name : guestCode(), guest: !google, cleared: r.cleared || 0, smash: r.bestSmash || 0, updated: m.serverTimestamp() };
     for (const [k, v] of Object.entries(r.times || {})) if (v >= 15) d['t' + (+k + 1)] = Math.round(v * 1000);
     try { await m.setDoc(m.doc(FB.db, 'lb', FB.user.uid), d, { merge: true }); } catch (e) { console.warn(e); }
   }
@@ -2485,10 +2540,10 @@
       const snap = await m.getDocs(m.query(col, m.where(field, '>', 0), m.orderBy(field, asc ? 'asc' : 'desc'), m.limit(20)));
       if (renderLB.want !== want) return;
       const rows = []; snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
-      $('lbList').innerHTML = rows.length ? rows.map((r, i) => `<div class="lbRow ${FB.user && r.id === FB.user.uid ? 'me' : ''}"><span class="rk">${i + 1}</span><span class="nm">${escapeHtml(r.name || '—')}</span><span class="vl">${fmt(r[field])}</span></div>`).join('')
+      $('lbList').innerHTML = rows.length ? rows.map((r, i) => `<div class="lbRow ${FB.user && r.id === FB.user.uid ? 'me' : ''}"><span class="rk">${i + 1}</span><span class="nm">${escapeHtml(r.guest ? t.guestTag + (r.name || '') : (r.name || '—'))}</span><span class="vl">${fmt(r[field])}</span></div>`).join('')
         : `<div class="lbEmpty">${t.lbEmpty}</div>`;
-      // 我的名次
-      if (isGoogle()) {
+      // 我的名次（訪客也有）
+      if (FB.user) {
         const mine = await m.getDoc(m.doc(FB.db, 'lb', FB.user.uid)), v = mine.exists() ? mine.data()[field] : null;
         if (renderLB.want !== want) return;
         if (v) {
