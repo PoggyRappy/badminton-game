@@ -303,6 +303,7 @@
   .compact.drilling .msg { top: 62px; } .compact .msg.big { font-size: 34px; }
   .compact .prGrid button { font-size: 13px; padding: 6px 2px; }
   .notouch #dbKeys .kc { display: inline-block; animation: spotPulse 1s ease-in-out infinite; box-shadow: 0 0 0 2px #ffe066; }
+  .pauseNote { margin: 0 0 8px; font-size: 13px; color: #ffe066; } .pauseNote:empty { display: none; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -435,7 +436,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.10 · 2026/11/20</p>
+    <p class="note">v3.11 · 2026/11/20</p>
   </div>
 </div>
 
@@ -443,6 +444,7 @@
 <div class="overlay hidden" id="pause" style="z-index:30">
   <div class="card">
     <h2 data-t="pauseTitle"></h2>
+    <p class="note pauseNote" id="pauseNote"></p>
     <button class="btn pri" id="resumeBtn" data-t="resume"></button>
     <button class="btn sec" id="pHelp" data-t="helpHome"></button>
     <button class="btn sec" id="pSet" data-t="settingsBtn"></button>
@@ -848,7 +850,7 @@
       help: {
         tabs: ['操作', '技術', '規則'], leftHand: '左手：移動、跳', rightHand: '右手：擊球',
         keys: [['方向鍵／空白鍵', '也可以用'], ['Esc', '暫停'], ['H', '說明']], kbLeft: '左手：A D 移動、W 跳', kbRight: '右手：J 揮拍、K 輕',
-        opTips: ['球還在飛過來時就可以先按，遊戲會等球到最好的位置才擊出', '打出什麼球，看你<b>站在哪一區</b>和<b>球多高</b>（看「技術」分頁）', '比賽中左上角 ⏸ 可以暫停、回主頁'],
+        opTips: ['球還在飛過來時就可以先按，遊戲會等球到最好的位置才擊出', '打出什麼球，看你<b>站在哪一區</b>和<b>球多高</b>（看「技術」分頁）', '比賽中左上角 ⏸ 可以暫停、回主頁', '手機玩之前建議開<b>勿擾模式</b>，LINE、IG 的通知才不會擋住畫面；切走時遊戲會自動暫停'],
         zones: ['前場', '中場', '後場'], net: '網', zoneNote: '右上角會即時提示你現在在哪一區',
         groups: [
           { title: '前場', items: [['推球', ['swing'], '球在網上方'], ['挑球', ['swing'], '球掉到網下'], ['放網', ['soft'], '輕輕放回網前'], ['撲球', ['fwd', 'swing'], '球在網上方時往下壓']] },
@@ -929,6 +931,7 @@
       // 裁判報分
       num: n => ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一'][n] ?? String(n),
       callStart: '零比零，比賽開始',
+      dndTip: '剛剛切到別的地方，所以先幫你暫停了。<br>不想被通知打斷：玩之前開「勿擾模式」或「專注模式」',
       readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
       intro: (p, o) => [`在我右邊，${p}`, `在我左邊，${o}`, `${p} 發球`, '零比零，比賽開始'],
       callScore: (s, r, mp, over) => {
@@ -1004,7 +1007,7 @@
       help: {
         tabs: ['Controls', 'Shots', 'Rules'], leftHand: 'Left thumb: move & jump', rightHand: 'Right thumb: hit',
         keys: [['Arrows / Space', 'also work'], ['Esc', 'Pause'], ['H', 'Help']], kbLeft: 'Left hand: A D move, W jump', kbRight: 'Right hand: J hit, K soft',
-        opTips: ['You can press early — the game hits when the shuttle reaches the best spot', 'Your shot depends on <b>which zone you’re in</b> and <b>how high the shuttle is</b> (see “Shots”)', 'Tap ⏸ at the top-left to pause or go home'],
+        opTips: ['You can press early — the game hits when the shuttle reaches the best spot', 'Your shot depends on <b>which zone you’re in</b> and <b>how high the shuttle is</b> (see “Shots”)', 'Tap ⏸ at the top-left to pause or go home', 'On a phone, turn on <b>Do Not Disturb</b> so LINE/IG notifications don’t cover the screen; the game pauses automatically when you switch away'],
         zones: ['Front', 'Mid', 'Rear'], net: 'Net', zoneNote: 'The top-right corner shows your current zone',
         groups: [
           { title: 'Front court', items: [['Push', ['swing'], 'shuttle above the net'], ['Lift', ['swing'], 'shuttle below the net'], ['Net shot', ['soft'], 'drop it back over'], ['Net kill', ['fwd', 'swing'], 'hit down from above the net']] },
@@ -1084,6 +1087,7 @@
       voiceOn: '🔊', voiceOff: '🔇',
       num: n => n === 0 ? 'Love' : String(n),
       callStart: 'Love all, play',
+      dndTip: 'You switched away, so we paused the game.<br>To avoid interruptions, turn on Do Not Disturb or Focus mode before playing.',
       readYou: 'Read you!', taichiOn: '☯ Tai chi: soft control', attackOn: '🔥 Full attack!', guestTag: 'Guest',
       intro: (p, o) => [`On my right, ${p}`, `On my left, ${o}`, `${p} to serve`, 'Love all, play'],
       callScore: (s, r, mp, over) => {
@@ -1817,12 +1821,20 @@
   // ---------- 暫停 ----------
   let paused = false;
   const inMatch = () => !!(G_ && !G_.over && $('home').classList.contains('hidden'));
-  function openPause() {
+  function openPause(auto) {
     if (!inMatch()) return;
     paused = true; keys.left = keys.right = false; pendingSwing = null;
     try { speechSynthesis.cancel(); } catch (e) {}
+    // 手機被通知、切到別的 App 而自動暫停：順便提醒可以開勿擾模式
+    $('pauseNote').innerHTML = auto && isTouch ? T().dndTip : '';
     overlayOpen('pause');
+    if (auto) track('auto_pause', { stage: G_ ? G_.level + 1 : 0 });
   }
+  // 切走就自動暫停：點了通知、切到別的 App、拉下通知欄（有些手機會讓頁面失焦）
+  const autoPause = () => { if (inMatch() && !paused) openPause(true); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPause(); });
+  window.addEventListener('blur', autoPause);
+  window.addEventListener('pagehide', autoPause);
   function closePause() { overlayClose('pause'); paused = false; last = performance.now(); }
   $('pauseBtn').addEventListener('click', e => { e.currentTarget.blur(); openPause(); });
   $('resumeBtn').addEventListener('click', closePause);
