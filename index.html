@@ -303,6 +303,20 @@
   .compact.drilling .msg { top: 62px; } .compact .msg.big { font-size: 34px; }
   .compact .prGrid button { font-size: 13px; padding: 6px 2px; }
   .notouch #dbKeys .kc { display: inline-block; animation: spotPulse 1s ease-in-out infinite; box-shadow: 0 0 0 2px #ffe066; }
+  /* 自訂按鍵 */
+  .notouch .touchOnly { display: none; }
+  body.ctlCustom .ctrl button { position: fixed; margin: 0 !important; right: auto !important; bottom: auto !important; }
+  body.editCtl .ctrl { visibility: visible !important; z-index: 72; }
+  body.editCtl .ctrl button { touch-action: none; cursor: grab; transition: box-shadow .15s; }
+  body.editCtl .ctrl button.sel { box-shadow: 0 0 0 4px #ffe066; }
+  body.editCtl .ctrl button.bad { box-shadow: 0 0 0 4px #ff6b6b; }
+  #ctlEdit { position: fixed; inset: 0; z-index: 70; background: rgba(10,16,28,.6); }
+  #ctlBar { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 71; width: min(420px, 70vw); background: rgba(33,43,61,.96); border: 1px solid rgba(92,225,198,.4); border-radius: 16px; padding: 10px 14px; text-align: center; }
+  .cbHint { font-size: 13px; margin-bottom: 6px; opacity: .9; }
+  .cbRow { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 2px 0; } .cbRow input { flex: 1; accent-color: #5ce1c6; } .cbRow b { width: 44px; text-align: right; }
+  .cbWarn { color: #ff9f9f; font-size: 12px; min-height: 0; } .cbWarn:empty { display: none; }
+  .cbBtns { display: flex; gap: 8px; margin-top: 6px; } .cbBtns .btn { margin: 0; padding: 8px; }
+  .compact #ctlBar { padding: 6px 12px; } .compact .cbHint { font-size: 12px; margin-bottom: 2px; }
   .newsStuck { color: #ffe066; font-weight: 700; margin: 4px 0 10px; } .newsStuck:empty { display: none; }
   .pauseNote { margin: 0 0 8px; font-size: 13px; color: #ffe066; } .pauseNote:empty { display: none; }
   .hidden { display: none !important; }
@@ -354,6 +368,16 @@
 
 <div class="ctrl l"><button data-k="jump" class="jump" data-t="btnJump"></button><button data-k="left" class="mv">◀</button><button data-k="right" class="mv">▶</button></div>
 <div class="ctrl r"><button data-k="drop" class="soft" data-t="btnSoft"></button><button data-k="swing" class="hit" data-t="btnSwing"></button></div>
+
+<!-- 自訂按鍵：拖曳位置、調大小 -->
+<div id="ctlEdit" class="hidden"></div>
+<div id="ctlBar" class="hidden">
+  <div class="cbHint" id="cbHint"></div>
+  <div class="cbRow"><label for="cbSize" id="cbSizeL"></label><input type="range" id="cbSize" min="60" max="170" step="5"><b id="cbSizeV"></b></div>
+  <div class="cbRow"><label for="cbAlpha" id="cbAlphaL"></label><input type="range" id="cbAlpha" min="30" max="100" step="5"><b id="cbAlphaV"></b></div>
+  <div class="cbWarn" id="cbWarn"></div>
+  <div class="cbBtns"><button class="btn sec" id="cbReset"></button><button class="btn pri" id="cbDone"></button></div>
+</div>
 
 <!-- 第一次進來：取名字＋玩法介紹 -->
 <div class="overlay hidden" id="menu">
@@ -442,12 +466,13 @@
     <div class="setRow"><span data-t="setRest"></span><button class="toggle" id="restTog"></button></div>
     <div class="setRow"><span data-t="setRestEvery"></span><button class="toggle" id="restEvery"></button></div>
     <div class="setRow"><span data-t="setRestDaily"></span><button class="toggle" id="restDaily"></button></div>
+    <div class="setRow touchOnly"><span data-t="setCtl"></span><button class="toggle" id="ctlEditBtn" data-t="ctlEdit"></button></div>
     <div class="setRow"><span data-t="setName"></span><input id="renameIn" maxlength="12"></div>
     <div class="toast err" id="renameErr"></div>
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.13 · 2026/11/20</p>
+    <p class="note">v3.14 · 2026/11/22</p>
   </div>
 </div>
 
@@ -851,6 +876,7 @@
       myRank: (n, v) => `你目前第 ${n} 名（${v}）`, lbNoMine: '你在這個項目還沒有成績', loginLb: '🔑 用 Google 登入，排行榜就會顯示你的名字',
       nameTitle: '取一個遊戲名字', nameP: '排行榜只會顯示這個名字，不會顯示你的電子郵件。', nameSave: '確定',
       nameLen: '名字要 2～12 個字', nameBad: '這個名字不太適合，換一個吧',
+      fbCtx: { stuck: ['這關是不是有點難？', '卡在哪裡？例如對手太快、不知道怎麼得分…（可以不填）'], clear: ['恭喜過關！🎉 覺得這個遊戲怎麼樣？', '最喜歡或最想改的地方？（可以不填）'], day3: ['第三天見到你了！覺得怎麼樣？', '還想要什麼功能？（可以不填）'] },
       fbTitle: '喜歡這個遊戲嗎？', fbSend: '送出', fbLater: '下次再說', fbPlaceholder: '想說的話（可以不填）', fbThanks: '謝謝你的評分！🏸',
       setAccount: '帳號', setData: '匿名遊玩數據', rateBtn: '⭐ 給個評分', privacyLink: '隱私說明', delData: '刪除我的帳號資料', delConfirm: '再按一次確認刪除',
       deleted: '已刪除你的帳號資料和排行榜紀錄。這台裝置上的遊戲進度還在。', delFail: '刪除失敗，請稍後再試',
@@ -945,6 +971,8 @@
       dndTip: '剛剛切到別的地方，所以先幫你暫停了。<br>不想被通知打斷：玩之前開「勿擾模式」或「專注模式」',
       news: { t: '🆕 更新囉', p: '第 2 關「系隊隊長」調簡單了：他殺球、撲球變少，也比較常自己失誤。<br>另外新增 <b>🎯 練習模式</b>（發球機單項練習）和 <b>📊 對戰記錄</b>（每一場的戰績圖都看得到）。',
         stuck: '你上次停在第 2 關，現在再挑戰一次吧！', retry: '再挑戰第 2 關', ok: '知道了' },
+      setCtl: '按鍵位置', ctlEdit: '🎮 自訂', ctlHint: '拖曳按鈕到順手的位置；點一下按鈕再調大小', ctlSize: '大小', ctlAlpha: '透明度',
+      ctlReset: '恢復預設', ctlDone: '完成', ctlOverlap: '有按鈕重疊了，比賽時可能會誤觸', ctlNames: { jump: '跳', left: '◀', right: '▶', drop: '輕', swing: '揮拍' },
       readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
       intro: (p, o) => [`在我右邊，${p}`, `在我左邊，${o}`, `${p} 發球`, '零比零，比賽開始'],
       callScore: (s, r, mp, over) => {
@@ -1010,6 +1038,7 @@
       myRank: (n, v) => `You’re #${n} (${v})`, lbNoMine: 'You don’t have a record here yet', loginLb: '🔑 Sign in with Google to show your name',
       nameTitle: 'Pick a player name', nameP: 'Only this name appears on the leaderboard — never your email.', nameSave: 'OK',
       nameLen: 'Names must be 2–12 characters', nameBad: 'Please choose a different name',
+      fbCtx: { stuck: ['Is this stage a bit too hard?', 'Where do you get stuck? e.g. too fast, no idea how to score… (optional)'], clear: ['Stage cleared! 🎉 How do you like the game?', 'What do you like most, or want changed? (optional)'], day3: ['Day 3 together! How is it going?', 'Any feature you’d like? (optional)'] },
       fbTitle: 'Enjoying the game?', fbSend: 'Send', fbLater: 'Maybe later', fbPlaceholder: 'Anything to add? (optional)', fbThanks: 'Thanks for rating! 🏸',
       setAccount: 'Account', setData: 'Anonymous play data', rateBtn: '⭐ Rate the game', privacyLink: 'Privacy', delData: 'Delete my account data', delConfirm: 'Tap again to confirm',
       deleted: 'Your account data and leaderboard entries were deleted. Progress on this device is kept.', delFail: 'Couldn’t delete. Please try again later.',
@@ -1103,6 +1132,8 @@
       dndTip: 'You switched away, so we paused the game.<br>To avoid interruptions, turn on Do Not Disturb or Focus mode before playing.',
       news: { t: '🆕 What’s new', p: 'Stage 2 (The Captain) is easier now: fewer smashes and net kills, and he makes more mistakes.<br>Also new: <b>🎯 Practice</b> (drill one shot with a shuttle machine) and <b>📊 Match history</b> (see the result card of every match).',
         stuck: 'You stopped at Stage 2 last time — give it another go!', retry: 'Retry Stage 2', ok: 'Got it' },
+      setCtl: 'Button layout', ctlEdit: '🎮 Customize', ctlHint: 'Drag buttons where they feel right; tap one to resize it', ctlSize: 'Size', ctlAlpha: 'Opacity',
+      ctlReset: 'Reset', ctlDone: 'Done', ctlOverlap: 'Some buttons overlap — you may hit the wrong one', ctlNames: { jump: 'Jump', left: '◀', right: '▶', drop: 'Soft', swing: 'Hit' },
       readYou: 'Read you!', taichiOn: '☯ Tai chi: soft control', attackOn: '🔥 Full attack!', guestTag: 'Guest',
       intro: (p, o) => [`On my right, ${p}`, `On my left, ${o}`, `${p} to serve`, 'Love all, play'],
       callScore: (s, r, mp, over) => {
@@ -1147,6 +1178,7 @@
     document.querySelectorAll('.langBtn').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
     $('ruleLbl').textContent = t.ruleLbl;
     if ($('prBtn')) $('prBtn').textContent = t.dr.practice;
+    if (typeof ctl !== 'undefined' && ctl && document.body.classList.contains('editCtl')) ctlSyncBar();
     if (typeof G_ !== 'undefined' && G_ && G_.drill) drillBar();
     if (G_) { $('aName').textContent = t.levels[G_.level]; $('lvLbl').textContent = t.stage(G_.level + 1); }
     else { $('aName').textContent = t.levels[0]; $('lvLbl').textContent = t.stage(1); }
@@ -1944,7 +1976,7 @@
     const p = g.p;
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     // 已經按了揮拍：站著就打得到就不動；打不到才自動小步對準（按住 ▶ 也不會跑過頭）
-    if (pendingSwing && g.state === 'rally' && g.b && g.b.last !== 'p') {
+    if (pendingSwing && g.state === 'rally' && g.b && g.b.last !== 'p' && !(keys.left && !keys.right)) { // 按住 ◀ 往後退一律照你的意思走
       if (!willReach(p, g.b, pendingT + 0.1)) { const ax = alignX(p, g.b); if (ax !== null) p.x += Math.max(-5.2 * dt, Math.min(5.2 * dt, ax - p.x)); }
     } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
@@ -2149,6 +2181,96 @@
   $('tdPlay').addEventListener('click', () => { overlayClose('tutDone'); playStage(0); });
   $('tdPractice').addEventListener('click', () => { overlayClose('tutDone'); showHome(); openPractice(); });
 
+  // ---------- 自訂按鍵：每顆按鈕的位置（螢幕寬高的比例，換手機也不跑掉）、大小倍率、整體透明度 ----------
+  const CTL_KEYS = ['jump', 'left', 'right', 'drop', 'swing'];
+  const ctlBtn = k => document.querySelector(`.ctrl button[data-k="${k}"]`);
+  let ctl = null; try { ctl = JSON.parse(store.get('bd_ctl', 'null')); } catch (e) {}
+  let ctlSel = 'swing', ctlBackTo = null;
+  // 預設排列（照目前螢幕大小的 CSS 量出來）
+  function ctlDefaults() {
+    const body = document.body, had = body.classList.contains('ctlCustom'), inM = body.classList.contains('inMatch');
+    const saved = CTL_KEYS.map(k => ctlBtn(k).style.cssText);
+    body.classList.remove('ctlCustom'); CTL_KEYS.forEach(k => { ctlBtn(k).style.cssText = ''; });
+    body.classList.add('inMatch');
+    const W = innerWidth, H = innerHeight, d = {};
+    CTL_KEYS.forEach(k => { const b = ctlBtn(k), r = b.getBoundingClientRect();
+      d[k] = { x: (r.left + r.width / 2) / W, y: (r.top + r.height / 2) / H, w: r.width, fs: parseFloat(getComputedStyle(b).fontSize) }; });
+    if (!inM) body.classList.remove('inMatch');
+    if (had) body.classList.add('ctlCustom'); CTL_KEYS.forEach((k, i) => { ctlBtn(k).style.cssText = saved[i]; });
+    return d;
+  }
+  function applyCtl() {
+    const body = document.body;
+    if (!ctl) { body.classList.remove('ctlCustom'); CTL_KEYS.forEach(k => { ctlBtn(k).style.cssText = ''; }); return; }
+    const d = ctlDefaults(), W = innerWidth, H = innerHeight, cs = getComputedStyle(document.documentElement);
+    body.classList.add('ctlCustom');
+    const rects = {};
+    CTL_KEYS.forEach(k => {
+      const c = ctl.b[k] || { x: d[k].x, y: d[k].y, s: 1 }, size = Math.round(d[k].w * c.s), m = 6;
+      const left = Math.max(m, Math.min(W - size - m, c.x * W - size / 2)), top = Math.max(m, Math.min(H - size - m, c.y * H - size / 2));
+      Object.assign(ctlBtn(k).style, { left: left + 'px', top: top + 'px', width: size + 'px', height: size + 'px', fontSize: Math.round(d[k].fs * Math.min(1.3, Math.max(0.8, c.s))) + 'px', opacity: ctl.a ?? 1 });
+      rects[k] = { cx: left + size / 2, cy: top + size / 2, r: size / 2 };
+    });
+    // 重疊檢查（圓形）
+    let bad = false;
+    CTL_KEYS.forEach(k => { const over = CTL_KEYS.some(j => j !== k && Math.hypot(rects[k].cx - rects[j].cx, rects[k].cy - rects[j].cy) < rects[k].r + rects[j].r - 2);
+      ctlBtn(k).classList.toggle('bad', over && body.classList.contains('editCtl')); bad = bad || over; });
+    if (body.classList.contains('editCtl')) $('cbWarn').textContent = bad ? T().ctlOverlap : '';
+    if (G_ && G_.drill) spotlight();
+  }
+  window.addEventListener('resize', () => setTimeout(applyCtl, 60));
+  function ctlSyncBar() {
+    const t = T(), c = ctl.b[ctlSel];
+    $('cbHint').textContent = t.ctlHint + '（' + t.ctlNames[ctlSel] + '）';
+    $('cbSizeL').textContent = t.ctlSize; $('cbAlphaL').textContent = t.ctlAlpha;
+    $('cbSize').value = Math.round(c.s * 100); $('cbSizeV').textContent = Math.round(c.s * 100) + '%';
+    $('cbAlpha').value = Math.round((ctl.a ?? 1) * 100); $('cbAlphaV').textContent = Math.round((ctl.a ?? 1) * 100) + '%';
+    $('cbReset').textContent = t.ctlReset; $('cbDone').textContent = t.ctlDone;
+    CTL_KEYS.forEach(k => ctlBtn(k).classList.toggle('sel', k === ctlSel));
+  }
+  function ctlFromDefaults() { const d = ctlDefaults(), b = {}; CTL_KEYS.forEach(k => { b[k] = { x: d[k].x, y: d[k].y, s: 1 }; }); return { v: 1, b, a: 1 }; }
+  function openCtlEdit() {
+    ctlBackTo = !$('settings').classList.contains('hidden') ? 'settings' : null;
+    overlayClose('settings');
+    if (!ctl) ctl = ctlFromDefaults();
+    document.body.classList.add('editCtl'); $('ctlEdit').classList.remove('hidden'); $('ctlBar').classList.remove('hidden');
+    applyCtl(); ctlSyncBar(); track('ctl_edit_open', {});
+  }
+  function closeCtlEdit() {
+    document.body.classList.remove('editCtl'); $('ctlEdit').classList.add('hidden'); $('ctlBar').classList.add('hidden');
+    CTL_KEYS.forEach(k => ctlBtn(k).classList.remove('sel', 'bad'));
+    // 跟預設一樣就不存（之後換手機尺寸仍跟著預設走）
+    const d = ctlFromDefaults(), same = (ctl.a ?? 1) === 1 && CTL_KEYS.every(k => Math.abs(ctl.b[k].x - d.b[k].x) < 0.005 && Math.abs(ctl.b[k].y - d.b[k].y) < 0.005 && ctl.b[k].s === 1);
+    if (same) { ctl = null; store.set('bd_ctl', ''); } else store.set('bd_ctl', JSON.stringify(ctl));
+    applyCtl();
+    track('ctl_edit_save', { mode: same ? 'default' : 'custom' });
+    if (ctlBackTo) overlayOpen(ctlBackTo);
+  }
+  $('ctlEditBtn').addEventListener('click', openCtlEdit);
+  $('cbDone').addEventListener('click', closeCtlEdit);
+  $('cbReset').addEventListener('click', () => { ctl = ctlFromDefaults(); applyCtl(); ctlSyncBar(); });
+  $('cbSize').addEventListener('input', e => { ctl.b[ctlSel].s = +e.target.value / 100; applyCtl(); ctlSyncBar(); });
+  $('cbAlpha').addEventListener('input', e => { ctl.a = +e.target.value / 100; applyCtl(); ctlSyncBar(); });
+  // 拖曳：在最前面攔截，不讓比賽的按鍵功能收到
+  let drag = null;
+  window.addEventListener('pointerdown', e => {
+    if (!document.body.classList.contains('editCtl')) return;
+    const b = e.target.closest && e.target.closest('.ctrl button'); if (!b) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    ctlSel = b.dataset.k; ctlSyncBar();
+    const r = b.getBoundingClientRect();
+    drag = { k: ctlSel, id: e.pointerId, dx: e.clientX - (r.left + r.width / 2), dy: e.clientY - (r.top + r.height / 2) };
+  }, true);
+  window.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    e.preventDefault();
+    const c = ctl.b[drag.k];
+    c.x = Math.max(0, Math.min(1, (e.clientX - drag.dx) / innerWidth)); c.y = Math.max(0, Math.min(1, (e.clientY - drag.dy) / innerHeight));
+    applyCtl();
+  }, { passive: false });
+  ['pointerup', 'pointercancel'].forEach(ev => window.addEventListener(ev, () => { drag = null; }));
+  setTimeout(applyCtl, 0);
+
   // 更新公告：玩過的人回來時看一次；卡在第 2 關的人直接給「再挑戰」按鈕
   const NEWS_ID = 'v3.12-stage2';
   function maybeNews() {
@@ -2208,7 +2330,7 @@
     if (!document.body.classList.contains('compact')) return;
     const l = document.querySelector('.ctrl.l').getBoundingClientRect(), r = document.querySelector('.ctrl.r').getBoundingClientRect();
     const gap = r.left - l.right - 24;
-    if (l.width && r.width && gap >= 230) {
+    if (l.width && r.width && gap >= 230 && !document.body.classList.contains('ctlCustom')) { // 自訂按鍵時位置不固定：改放上方
       st.left = (l.right + r.left) / 2 + 'px'; st.maxWidth = gap + 'px';
       st.top = 'auto'; st.bottom = 'calc(10px + env(safe-area-inset-bottom))';
     } else {
@@ -2321,7 +2443,7 @@
     try { const h = JSON.parse(store.get('bd_hist', '[]')); h.unshift(Object.assign({ d: Date.now(), name: playerName() }, lastResult)); store.set('bd_hist', JSON.stringify(h.slice(0, 30))); } catch (e) {}
     shareRec = lastResult; shareFile = null; makeShareImage();
     setTimeout(() => { if (G_ === g) showScreen('over'); }, 900);
-    if (!checkRest()) maybeAskFeedback(won, r.matches);
+    if (!checkRest()) maybeAskFeedback(won, r.matches, lv);
   }
   $('ovHome').addEventListener('click', showHome);
 
@@ -2655,7 +2777,10 @@
   // ---- 星級回饋 ----
   let fbStars = 0, fbFrom = '';
   function openFeedback(from) {
-    fbFrom = from; fbStars = 0; $('fbText').value = ''; $('fbText').placeholder = T().fbPlaceholder;
+    fbFrom = from; fbStars = 0; $('fbText').value = '';
+    const t = T(), ctx = from.startsWith('stuck') ? 'stuck' : from.startsWith('clear') ? 'clear' : from;
+    $('fbDlg').querySelector('[data-t="fbTitle"]').textContent = (t.fbCtx[ctx] || [t.fbTitle])[0];
+    $('fbText').placeholder = (t.fbCtx[ctx] || [0, t.fbPlaceholder])[1];
     $('stars').querySelectorAll('button').forEach(b => b.classList.remove('on')); $('fbSend').disabled = true;
     overlayOpen('fbDlg'); track('feedback_prompt', { from });
   }
@@ -2680,13 +2805,30 @@
   $('fbLater').addEventListener('click', () => { overlayClose('fbDlg'); track('feedback_later', { from: fbFrom }); });
   $('rateBtn').addEventListener('click', () => { overlayClose('settings'); openFeedback('settings'); });
   // 自動詢問：第一次贏球、第 3 場結束，最多兩次；評過分就不再問
-  function maybeAskFeedback(won, matches) {
-    if (store.get('bd_rated', '') === '1') return false;
-    const asked = +store.get('bd_fbAsked', '0'); if (asked >= 2) return false;
-    const key = won && !store.get('bd_fbWin', '') ? 'win' : matches === 3 ? 'm3' : '';
+  // 什麼時候請玩家評分：評過就不再問；沒評的人一天最多問一次；每種情況只問一次
+  //   stuckN：同一關連輸 3 場（問是不是太難）／clear5、clear10：通過第 5、第 10 關
+  //   day3：第三天回來玩／win：第一次贏／m3：打滿 3 場
+  function maybeAskFeedback(won, matches, lv) {
+    const today = new Date().toDateString();
+    // 記錄連輸、遊玩天數（不管今天會不會問，都要記）
+    let ls = {}; try { ls = JSON.parse(store.get('bd_loseRun', '{}')); } catch (e) {}
+    if (won) ls = {}; else ls = ls.lv === lv ? { lv, n: ls.n + 1 } : { lv, n: 1 };
+    store.set('bd_loseRun', JSON.stringify(ls));
+    let days = []; try { days = JSON.parse(store.get('bd_days', '[]')); } catch (e) {}
+    if (!days.includes(today)) { days.push(today); store.set('bd_days', JSON.stringify(days.slice(-10))); }
+    if (store.get('bd_rated', '') === '1' || store.get('bd_fbDay', '') === today) return false;
+    let done = {}; try { done = JSON.parse(store.get('bd_fbDone', '{}')); } catch (e) {}
+    const cands = [
+      !won && ls.n >= 3 && 'stuck' + (lv + 1),
+      won && lv === 9 && 'clear10',
+      won && lv === 4 && 'clear5',
+      days.length >= 3 && 'day3',
+      won && 'win',
+      matches === 3 && 'm3'
+    ];
+    const key = cands.find(k => k && !done[k]);
     if (!key) return false;
-    if (key === 'win') store.set('bd_fbWin', '1');
-    store.set('bd_fbAsked', String(asked + 1));
+    done[key] = 1; store.set('bd_fbDone', JSON.stringify(done)); store.set('bd_fbDay', today);
     setTimeout(() => openFeedback(key), 1600);
     return true;
   }
@@ -2729,6 +2871,7 @@
   document.querySelectorAll('.ctrl button').forEach(btn => {
     const k = btn.dataset.k;
     const down = e => {
+      if (document.body.classList.contains('editCtl')) return; // 正在自訂按鍵：只拖曳，不打球
       e.preventDefault(); btn.classList.add('on');
       if (k === 'left' || k === 'right') keys[k] = true;
       else if (k === 'jump') playerJump();
@@ -2738,12 +2881,17 @@
     const up = e => { btn.classList.remove('on'); if (k === 'left' || k === 'right') keys[k] = false; };
     btn.addEventListener('pointerdown', down);
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, up));
+    // ◀ ▶：手指不放開直接滑到另一顆也能換方向（手機預設會把手指「黏」在第一顆按鈕上）
+    if (k === 'left' || k === 'right') {
+      btn.addEventListener('pointerdown', e => { try { btn.releasePointerCapture(e.pointerId); } catch (err) {} });
+      btn.addEventListener('pointerenter', e => { if (document.body.classList.contains('editCtl')) return; if (e.buttons || e.pointerType === 'touch') { btn.classList.add('on'); keys[k] = true; } });
+    }
     if (k === 'swing' || k === 'drop') {
       let cur = null;
       btn.addEventListener('pointerdown', e => { cur = k; try { btn.releasePointerCapture(e.pointerId); } catch (err) {} });
       // 手指沒放開、滑到另一顆＝假動作
       const other = document.querySelector(`.ctrl button[data-k="${k === 'swing' ? 'drop' : 'swing'}"]`);
-      other.addEventListener('pointerenter', e => { if (e.buttons && cur === k) { cur = null; other.classList.add('on'); playerSwing(other.dataset.k); setTimeout(() => other.classList.remove('on'), 150); } });
+      other.addEventListener('pointerenter', e => { if (document.body.classList.contains('editCtl')) return; if (e.buttons && cur === k) { cur = null; other.classList.add('on'); playerSwing(other.dataset.k); setTimeout(() => other.classList.remove('on'), 150); } });
       window.addEventListener('pointerup', () => { cur = null; });
     }
   });
