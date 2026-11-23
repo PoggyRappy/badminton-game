@@ -167,6 +167,7 @@
   @keyframes coin { 0% { transform: scaleX(1); } 50% { transform: scaleX(.1); } 100% { transform: scaleX(1); } }
   .rmMsg { min-height: 1.2em; margin: 6px 0 0; } .rmMsg.warn { color: #ff9f9f; }
   .compact .rmCode { font-size: 28px; } .compact .rmSlots { margin: 6px 0; } .compact .rmSlot { min-height: 54px; padding: 6px; }
+  .prLogin { display: flex; align-items: center; gap: 8px; font-size: 13px; text-align: left; border: 1px dashed rgba(255,224,102,.5); border-radius: 12px; padding: 6px 10px; margin: 4px 0 8px; } .prLogin .btn { width: auto; margin: 0; padding: 6px 12px; font-size: 13px; white-space: nowrap; }
   #pvpBanner { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 25; background: rgba(20,26,40,.92); border: 1px solid #ffe066; color: #ffe066; border-radius: 99px; padding: 6px 16px; font-weight: 700; font-size: 14px; pointer-events: none; white-space: nowrap; }
   .prScore { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 6px 0; } .prScore div { display: flex; flex-direction: column; min-width: 90px; }
   .prScore b { font-size: 44px; line-height: 1.1; } .prScore small { opacity: .8; } .prScore span { font-size: 30px; opacity: .6; }
@@ -511,7 +512,8 @@
     <h2 id="prT"></h2>
     <div class="prScore"><div><small id="prMeN"></small><b id="prMeS"></b></div><span>:</span><div><small id="prOpN"></small><b id="prOpS"></b></div></div>
     <p class="note" id="prNote"></p>
-    <button class="btn pri" id="prRoom"></button><button class="btn sec" id="prHome"></button>
+    <div class="prLogin hidden" id="prLogin"><span id="prLoginTxt"></span><button class="btn sec" id="prLoginBtn"></button></div>
+    <button class="btn pri" id="prRoom"></button><button class="btn sec" id="prShare"></button><button class="btn sec" id="prHome"></button>
   </div>
 </div>
 
@@ -573,7 +575,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.16β · 2026/11/23</p>
+    <p class="note">v3.17β · 2026/11/23</p>
   </div>
 </div>
 
@@ -984,7 +986,8 @@
         backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
         quitT: '要離開比賽嗎？', quitP: '現在離開會直接判輸喔。', stay: '繼續比賽', quit: '離開（判輸）', win: '🏆 你贏了！', lose: '這場輸了，再來一場！',
-        oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
+        oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', loginTip: '登入 Google，對戰記錄換手機也不會不見', histVs: n => `🤝 vs ${n}`, imgTime: '比賽時間', imgCta: '找朋友來場好友對戰！',
+        shareTxtPvp: (n, sc, w, u) => w ? `剛剛在羽球PK好友對戰 ${sc} 贏了 ${n}！🏸 你也來挑戰：${u}` : `剛剛在羽球PK跟 ${n} 好友對戰 ${sc}，下次一定贏回來！🏸 一起來玩：${u}`, loginBtn: 'Google 登入', share: '📤 分享戰績圖', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
         offline: '連不上伺服器，請檢查網路', hostLeft: '房主已經離開，房間關閉了', wait: '連線準備中，再按一次' }, frBadCode: '房號是 2 個英文字＋2 個數字，例如 KB37', cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 對戰記錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histLoading: '正在讀取以前的比賽…', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
@@ -1161,7 +1164,8 @@
         backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
         quitT: 'Leave the match?', quitP: 'Leaving now counts as a loss.', stay: 'Keep playing', quit: 'Leave (lose)', win: '🏆 You win!', lose: 'You lost this one — run it back!',
-        oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
+        oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', loginTip: 'Sign in with Google to keep your match history on any phone', histVs: n => `🤝 vs ${n}`, imgTime: 'Match time', imgCta: 'Grab a friend for a Friend Battle!',
+        shareTxtPvp: (n, sc, w, u) => w ? `Just beat ${n} ${sc} in a Badminton PK Friend Battle! 🏸 Your turn: ${u}` : `Lost ${sc} to ${n} in a Badminton PK Friend Battle — rematch soon! 🏸 Play: ${u}`, loginBtn: 'Sign in', share: '📤 Share result', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
         offline: 'Can’t reach the server — check your connection', hostLeft: 'The host left, so the room closed', wait: 'Still connecting — tap again' }, frBadCode: 'Room codes are 2 letters + 2 numbers, e.g. KB37', cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 History', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histLoading: 'Loading your past matches…', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
@@ -1863,7 +1867,7 @@
     setTimeout(maybeNews, 700);
     // 好友對戰：在房間裡（例如剛做完新手教學）就回到房間；從邀請連結進來就加入
     if (room) { if (!needTut && room.me().st === 'tut') rmSet({ st: 'in' }); if (!needTut) openRoomUI(); }
-    else if (pendingRoom && FB.ready) { const c = pendingRoom; pendingRoom = ''; joinRoom(c); }
+    else if (pendingRoom && FB.ready) { const c = pendingRoom; pendingRoom = ''; joinRoom(c, 'link'); }
     if (needTut && !store.get('bd_tut', '') && !pendingRoom) setTimeout(() => { if (!G_ && !$('home').classList.contains('hidden') && $('nameDlg') && $('nameDlg').classList.contains('hidden')) startTutorial(); }, 400);
   }
   function clearHud() {
@@ -1922,10 +1926,10 @@
     const pad = n => String(n).padStart(2, '0');
     $('histList').innerHTML = h.map((m, i) => { const d = new Date(m.d || Date.now());
       return `<button data-i="${i}"><span class="hd">${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}</span>`
-        + `<span>${t.stage(m.lv + 1)}・${escapeHtml(t.levels[m.lv])}</span><span class="hs">${m.ps} : ${m.as}</span>`
+        + `<span>${m.pvp ? t.rm.histVs(escapeHtml(m.opp || '?')) : t.stage(m.lv + 1) + '・' + escapeHtml(t.levels[m.lv])}</span><span class="hs">${m.ps} : ${m.as}</span>`
         + `<span class="${m.won ? 'hw' : 'hl'}">${m.champ ? '🏆' : m.won ? t.histWin : t.histLose}</span><span class="ha">›</span></button>`; }).join('');
     $('histList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-      shareRec = h[+b.dataset.i]; shareFile = null; makeShareImage(shareRec); openShareView(); track('history_open', { stage: shareRec.lv + 1 });
+      shareRec = h[+b.dataset.i]; shareFile = null; makeShareImage(shareRec); openShareView(); track('history_open', shareRec.pvp ? { pvp: 1 } : { stage: shareRec.lv + 1 });
     }));
     if (FB.user && FB.ready && !(cloudHist && cloudHist.uid === FB.user.uid) && cloudHist !== 'loading') loadCloudHist();
   }
@@ -1944,13 +1948,25 @@
           longest: x.longest || 0, avg: x.avgRally || 0, bestSmash: x.bestSmash || 0, feints: x.feints || 0,
           top: TECH_ORDER.filter(k => sh[k]).sort((a, b) => sh[b] - sh[a]).slice(0, 3), name: (FB.profile && FB.profile.name) || playerName() });
       });
+      // 好友對戰：雙方都看得到（players 裡有自己）
+      try {
+        const ps = await m.getDocs(m.query(m.collection(FB.db, COL('pvp')), m.where('players', 'array-contains', uid), m.limit(200)));
+        ps.forEach(doc => {
+          const x = doc.data(), myCol = x.red && x.red.uid === uid ? 'red' : 'black', opCol = myCol === 'red' ? 'black' : 'red';
+          const d = x.ts && x.ts.toMillis ? x.ts.toMillis() : x.ts && x.ts.seconds ? x.ts.seconds * 1000 : typeof x.ts === 'number' ? x.ts : 0;
+          const me = x[(x.players || [])[0] === uid ? 'host' : 'guest'] || {}, sh = me.shots || {}; // players[0] 是房主
+          list.push({ pvp: 1, d, opp: (x[opCol] || {}).name || '?', myCol, won: x.winner === myCol, ps: (x[myCol] || {}).score || 0, as: (x[opCol] || {}).score || 0,
+            secs: x.secs || 0, longest: x.longest || 0, avg: x.avgRally || 0, bestSmash: me.bestSmash || 0, feints: me.feints || 0,
+            top: TECH_ORDER.filter(k => sh[k]).sort((a, b) => sh[b] - sh[a]).slice(0, 3), aiPts: me.aiPts || 0, why: me.why || '', name: (x[myCol] || {}).name || playerName() });
+        });
+      } catch (e) {}
       cloudHist = { uid, list };
     } catch (e) { cloudHist = { uid, list: [] }; }
     if (!$('records').classList.contains('hidden')) renderRecords();
   }
   function mergeHist(local, cloud) {
     const out = local.slice();
-    cloud.forEach(c => { if (!out.some(l => l.lv === c.lv && l.ps === c.ps && l.as === c.as && Math.abs((l.d || 0) - (c.d || 0)) < 180000)) out.push(c); });
+    cloud.forEach(c => { if (!out.some(l => !!l.pvp === !!c.pvp && l.lv === c.lv && l.ps === c.ps && l.as === c.as && Math.abs((l.d || 0) - (c.d || 0)) < 180000)) out.push(c); });
     return out.sort((a, b) => (b.d || 0) - (a.d || 0)).slice(0, 30);
   }
 
@@ -2637,6 +2653,7 @@
   try { iconImg = new Image(); iconImg.src = 'icon-512.png'; } catch (e) {}
   function shareText() {
     const r = shareRec || lastResult, t = T();
+    if (r.pvp) return t.rm.shareTxtPvp(r.opp || '', `${r.ps}:${r.as}`, r.won, GAME_URL);
     return r.champ ? t.shareChamp(GAME_URL) : t.shareMid(r.won ? Math.min(r.lv + 2, LEVELS.length) : r.lv + 1, t.levels[r.lv], `${r.ps}:${r.as}`, GAME_URL);
   }
   function makeShareImage(r = shareRec || lastResult) {
@@ -2649,16 +2666,19 @@
     x.textAlign = 'center';
     if (iconImg && iconImg.complete && iconImg.naturalWidth) { x.save(); x.beginPath(); x.roundRect ? x.roundRect(80, 70, 150, 150, 34) : x.rect(80, 70, 150, 150); x.clip(); x.drawImage(iconImg, 80, 70, 150, 150); x.restore(); }
     x.fillStyle = '#5ce1c6'; x.font = `900 76px ${F}`; x.textAlign = 'left'; x.fillText(t.gameName, 260, 150);
-    x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `700 38px ${F}`; x.fillText(`${t.stage(r.lv + 1)} · ${t.levels[r.lv]}`, 262, 205);
+    x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `700 38px ${F}`; x.fillText(r.pvp ? t.rm.pvLbl : `${t.stage(r.lv + 1)} · ${t.levels[r.lv]}`, 262, 205);
     x.textAlign = 'center';
     // 勝敗
     const badge = r.champ ? t.imgChamp : r.won ? t.imgWin : t.imgLose;
     x.fillStyle = r.won ? '#ffe066' : '#ff9f9f'; x.font = `900 64px ${F}`; x.fillText(badge, N / 2, 330);
     // 比分
     x.fillStyle = '#fff'; x.font = `900 210px ${F}`; x.fillText(`${r.ps} : ${r.as}`, N / 2, 540);
-    x.font = `700 40px ${F}`; x.fillStyle = '#5ce1c6'; x.fillText(r.name || playerName(), N / 2 - 230, 600); x.fillStyle = '#ffa45c'; x.fillText(t.levels[r.lv], N / 2 + 230, 600);
+    const dot = c => r.pvp ? (c === 'red' ? '🔴 ' : '⚫ ') : '';
+    x.font = `700 40px ${F}`; x.fillStyle = '#5ce1c6'; x.fillText(dot(r.myCol) + (r.name || playerName()), N / 2 - 230, 600);
+    x.fillStyle = '#ffa45c'; x.fillText(r.pvp ? dot(r.myCol === 'red' ? 'black' : 'red') + (r.opp || '') : t.levels[r.lv], N / 2 + 230, 600);
     // 數據
-    const boxes = [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.bestSmash || '–', t.imgSmashSpd], [r.won ? fmtTime(r.secs) : r.feints, r.won ? t.clearTime : t.imgFeint]];
+    const boxes = r.pvp ? [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.bestSmash || '–', t.imgSmashSpd], [fmtTime(r.secs || 0), t.rm.imgTime]]
+      : [[r.longest, t.statLongest], [r.avg.toFixed(1), t.statAvg], [r.bestSmash || '–', t.imgSmashSpd], [r.won ? fmtTime(r.secs) : r.feints, r.won ? t.clearTime : t.imgFeint]];
     boxes.forEach(([v, l], i) => {
       const bx = 90 + i * 232, by = 650;
       x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.roundRect ? x.roundRect(bx, by, 212, 170, 22) : x.rect(bx, by, 212, 170); x.fill();
@@ -2667,7 +2687,7 @@
     });
     if (r.top.length) { x.fillStyle = 'rgba(255,255,255,.85)'; x.font = `700 36px ${F}`; x.fillText(t.imgTop + r.top.map(k => t.shots[k].replace(/[！!]/, '')).join('・'), N / 2, 890); }
     // 網址
-    x.fillStyle = '#5ce1c6'; x.font = `900 44px ${F}`; x.fillText(t.imgChallenge, N / 2, 980);
+    x.fillStyle = '#5ce1c6'; x.font = `900 44px ${F}`; x.fillText(r.pvp ? t.rm.imgCta : t.imgChallenge, N / 2, 980);
     x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `500 30px ${F}`; x.fillText(GAME_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''), N / 2, 1030);
     c.toBlob(b => {
       if (!b) return;
@@ -2728,7 +2748,7 @@
         FB.ready = true;
         if (!u.isAnonymous) { await loadProfile(); welcomeDone(); } else FB.profile = null; // 跳轉登入回來時也會走這裡
         updAccountUI(); flushPending();
-        if (pendingRoom && !G_ && !room && !$('home').classList.contains('hidden')) { const c = pendingRoom; pendingRoom = ''; joinRoom(c); } // 邀請連結：連上線後再進房
+        if (pendingRoom && !G_ && !room && !$('home').classList.contains('hidden')) { const c = pendingRoom; pendingRoom = ''; joinRoom(c, 'link'); } // 邀請連結：連上線後再進房
       });
     } catch (e) { console.warn('Firebase 無法連線', e); FB.err = true; updAccountUI(); }
   }
@@ -2738,7 +2758,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.16';
+  const GAME_VER = '3.17';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2773,15 +2793,20 @@
           if (cur && Date.now() - (cur.created || 0) < 2 * 3600e3) return; // 房號正在用，換一個
           return { v: GAME_VER, created: Date.now(), state: 'wait', host: rmMe('in') };
         });
-        if (res.committed) { track('room_create', {}); enterRoom(code, 'host'); return; }
+        if (res.committed) {
+          track('room_create', {}); enterRoom(code, 'host');
+          const cr = res.snapshot.val().created;
+          room.rid = code + '-' + cr; fsRoom({ host: FB.user.uid, created: FB.m.serverTimestamp(), joined: false, started: 0, finished: 0, ver: GAME_VER });
+          return;
+        }
       }
     } catch (e) { console.warn(e); }
     $('frToast').textContent = t.offline;
   }
-  async function joinRoom(code) {
+  async function joinRoom(code, via0) {
     const t = T().rm, el = $('home').classList.contains('hidden') ? $('rmMsg') : $('frToast');
     overlayOpen('friend'); openFriendTexts(); $('frCode').value = code; $('frToast').textContent = t.joining;
-    if (!await rtReady($('frToast'))) { pendingRoom = code; return; }
+    if (!await rtReady($('frToast'))) { if (via0 === 'link') pendingRoom = code; return; }
     let why = '', role = 'guest';
     try {
       const snap = await RT.m.get(rref(code)); const seen = snap.val();
@@ -2798,8 +2823,11 @@
         cur.guest = rmMe(needTutorial() ? 'tut' : (keep === 'tut' ? 'in' : keep)); return cur;
       });
       if (!res.committed) { $('frToast').textContent = t[why] || t.notFound; track('room_join_fail', { why: why || 'notfound' }); return; }
-      track('room_join', { via: el === $('rmMsg') ? 'link' : 'code' });
+      const via = via0 || 'code', isNew = needTutorial();
+      track('room_join', { via });
       enterRoom(code, role);
+      const cur = res.snapshot.val(); room.rid = code + '-' + cur.created;
+      if (role === 'guest') fsRoom({ joined: true, via, newPlayer: isNew, guest: FB.user.uid }); // 給 Sheet 算漏斗：有人加入、從連結還是房號、是不是新玩家
     } catch (e) { console.warn(e); $('frToast').textContent = t.offline; }
   }
   function enterRoom(code, role) {
@@ -2853,14 +2881,14 @@
       let n = 3; $('rmCoin').textContent = n; $('rmTossTxt').textContent = t.go; speak(t.go);
       const tick = () => { n--; if (n > 0) { $('rmCoin').textContent = n; rmTimer = setTimeout(tick, 1000); }
         else { $('rmCoin').textContent = '🏸'; $('rmTossTxt').textContent = t.stage3;
-          if (room && room.role === 'host') RT.m.update(rref(room.code), { state: 'play', score: { red: 0, black: 0, server: d.serve } }); } };
+          if (room && room.role === 'host') { RT.m.update(rref(room.code), { state: 'play', startAt: Date.now(), score: { red: 0, black: 0, server: d.serve } }); fsRoom({ started: FB.m.increment(1) }); } } };
       rmTimer = setTimeout(tick, 1000);
     } else if (d.state === 'wait') { $('rmCoin').textContent = '🪙'; }
     else if (d.state === 'play') { if (!(G_ && G_.pvp && !G_.over)) startPvp(d); }
   }
   function backToLobby() {
     if (!room || room.role !== 'host') return;
-    const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, score: null, 'host/st': 'in' };
+    const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, score: null, startAt: null, 'host/st': 'in' };
     if (d.guest) up['guest/st'] = d.guest.st === 'tut' ? 'tut' : 'in';
     RT.m.update(rref(room.code), up);
   }
@@ -3081,11 +3109,41 @@
     $('prRoom').textContent = t.toRoom; $('prHome').textContent = t.toHome;
     $('prRoom').classList.toggle('hidden', !room);
     overlayOpen('pvpRes');
-    if (room && room.role === 'host') setTimeout(() => backToLobby(), 800);
+    if (room && room.role === 'host') { setTimeout(() => backToLobby(), 800); fsRoom({ finished: FB.m.increment(1) }); }
     g.pvpResult = { won, why: why || '', ps: g.ps, as: g.as };
+    // 對戰記錄：存一份在手機（對戰記錄頁可以點開看戰績圖），雲端存一份兩個人都看得到
+    const st = g.stats, rallies = st.rallies.length ? st.rallies : [0], secs = Math.round((Date.now() - v.startedAt) / 1000);
+    const top = TECH_ORDER.filter(k => st.shots[k]).sort((a, b) => st.shots[b] - st.shots[a]).slice(0, 3);
+    const rec = { pvp: 1, d: Date.now(), name: playerName(), opp: v.opp, myCol: v.myCol, won, why: why || '', ps: g.ps, as: g.as, secs, aiPts: v.aiPts,
+      longest: st.longest, avg: rallies.reduce((a, b) => a + b, 0) / rallies.length, bestSmash: st.bestSmash || 0, feints: st.feints, top };
+    try { const h = JSON.parse(store.get('bd_hist', '[]')); h.unshift(rec); store.set('bd_hist', JSON.stringify(h.slice(0, 30))); } catch (e) {}
+    shareRec = rec; shareFile = null; makeShareImage(rec);
+    pvpSave(v, rec, st);
+    // 訪客：提醒登入 Google 保存記錄
+    $('prLogin').classList.toggle('hidden', isGoogle()); $('prLoginTxt').textContent = t.loginTip; $('prLoginBtn').textContent = t.loginBtn; $('prShare').textContent = t.share;
+    if (!isGoogle()) track('login_prompt', { from: 'pvp' });
     track('pvp_end', { won: won ? 1 : 0, why: why || 'done', score: `${g.ps}-${g.as}`, ai_pts: v.aiPts, lag_ms: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0 });
   }
   $('prRoom').addEventListener('click', () => { overlayClose('pvpRes'); G_ = null; showHome(); });
+  $('prShare').addEventListener('click', () => { if (shareRec && shareRec.pvp) { track('share_open', { from: 'pvp' }); openShareView(); } });
+  $('prLoginBtn').addEventListener('click', async () => { track('login_click', { from: 'pvp' }); await fbLogin(); $('prLogin').classList.toggle('hidden', isGoogle()); });
+  // 雲端：pvp／房號-開打時間（兩個人寫同一筆，各自寫自己那一半；players 決定誰能讀）
+  function pvpSave(v, rec, st) {
+    if (!FB.ready || !FB.user || !room || !room.data) return;
+    const d = room.data, H = d.host || {}, Gs = d.guest || {}, id = v.code + '-' + (d.startAt || v.startedAt);
+    const sc = { [v.myCol]: rec.ps, [v.opCol]: rec.as };
+    const side = c => { const who = d.colors && d.colors[c] === 'host' ? H : Gs; return { uid: who.uid || '', name: who.name || '', acct: who.acct || '', score: sc[c] }; };
+    const mine = { shots: st.shots, smash: st.smash, bestSmash: st.bestSmash || 0, feints: st.feints, lagMs: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0, maxLagMs: Math.round(v.maxLag * 1000),
+      aiPts: v.aiPts, mobile: isTouch, app: standalone, lang: LANG, why: rec.why };
+    const doc = { players: [H.uid, Gs.uid].filter(Boolean), code: v.code, ver: GAME_VER, red: side('red'), black: side('black'),
+      winner: rec.won ? v.myCol : v.opCol, secs: rec.secs, longest: rec.longest, avgRally: +rec.avg.toFixed(2), [v.role]: mine, ts: FB.m.serverTimestamp() };
+    if (doc.players.length !== 2) return;
+    FB.m.setDoc(FB.m.doc(FB.db, COL('pvp'), id), doc, { merge: true }).catch(e => console.warn('對戰記錄存不進去', e));
+  }
+  function fsRoom(obj) {
+    if (!FB.ready || !room || !room.rid) return;
+    FB.m.setDoc(FB.m.doc(FB.db, COL('pvpRooms'), room.rid), obj, { merge: true }).catch(() => {});
+  }
   $('prHome').addEventListener('click', () => { overlayClose('pvpRes'); leaveRoom(); G_ = null; showHome(); });
 
   function track(name, params) {
