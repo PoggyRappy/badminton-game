@@ -987,7 +987,7 @@
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
         quitT: '要離開比賽嗎？', quitP: '現在離開會直接判輸喔。', stay: '繼續比賽', quit: '離開（判輸）', win: '🏆 你贏了！', lose: '這場輸了，再來一場！',
         oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', loginTip: '登入 Google，對戰記錄換手機也不會不見', histVs: n => `🤝 vs ${n}`, imgTime: '比賽時間', imgCta: '找朋友來場好友對戰！',
-        shareTxtPvp: (n, sc, w, u) => w ? `剛剛在羽球PK好友對戰 ${sc} 贏了 ${n}！🏸 你也來挑戰：${u}` : `剛剛在羽球PK跟 ${n} 好友對戰 ${sc}，下次一定贏回來！🏸 一起來玩：${u}`, loginBtn: 'Google 登入', share: '📤 分享戰績圖', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
+        shareTxtPvp: (n, sc, w, u) => w ? `剛剛在羽球PK好友對戰 ${sc} 贏了 ${n}！🏸 你也來挑戰：${u}` : `剛剛在羽球PK跟 ${n} 好友對戰 ${sc}，下次一定贏回來！🏸 一起來玩：${u}`, loginBtn: 'Google 登入', shareRes: '📤 分享戰績圖', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
         offline: '連不上伺服器，請檢查網路', hostLeft: '房主已經離開，房間關閉了', wait: '連線準備中，再按一次' }, frBadCode: '房號是 2 個英文字＋2 個數字，例如 KB37', cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 對戰記錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histLoading: '正在讀取以前的比賽…', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
@@ -1165,7 +1165,7 @@
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
         quitT: 'Leave the match?', quitP: 'Leaving now counts as a loss.', stay: 'Keep playing', quit: 'Leave (lose)', win: '🏆 You win!', lose: 'You lost this one — run it back!',
         oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', loginTip: 'Sign in with Google to keep your match history on any phone', histVs: n => `🤝 vs ${n}`, imgTime: 'Match time', imgCta: 'Grab a friend for a Friend Battle!',
-        shareTxtPvp: (n, sc, w, u) => w ? `Just beat ${n} ${sc} in a Badminton PK Friend Battle! 🏸 Your turn: ${u}` : `Lost ${sc} to ${n} in a Badminton PK Friend Battle — rematch soon! 🏸 Play: ${u}`, loginBtn: 'Sign in', share: '📤 Share result', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
+        shareTxtPvp: (n, sc, w, u) => w ? `Just beat ${n} ${sc} in a Badminton PK Friend Battle! 🏸 Your turn: ${u}` : `Lost ${sc} to ${n} in a Badminton PK Friend Battle — rematch soon! 🏸 Play: ${u}`, loginBtn: 'Sign in', shareRes: '📤 Share result', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
         offline: 'Can’t reach the server — check your connection', hostLeft: 'The host left, so the room closed', wait: 'Still connecting — tap again' }, frBadCode: 'Room codes are 2 letters + 2 numbers, e.g. KB37', cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 History', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histLoading: 'Loading your past matches…', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
@@ -3120,7 +3120,7 @@
     shareRec = rec; shareFile = null; makeShareImage(rec);
     pvpSave(v, rec, st);
     // 訪客：提醒登入 Google 保存記錄
-    $('prLogin').classList.toggle('hidden', isGoogle()); $('prLoginTxt').textContent = t.loginTip; $('prLoginBtn').textContent = t.loginBtn; $('prShare').textContent = t.share;
+    $('prLogin').classList.toggle('hidden', isGoogle()); $('prLoginTxt').textContent = t.loginTip; $('prLoginBtn').textContent = t.loginBtn; $('prShare').textContent = t.shareRes;
     if (!isGoogle()) track('login_prompt', { from: 'pvp' });
     track('pvp_end', { won: won ? 1 : 0, why: why || 'done', score: `${g.ps}-${g.as}`, ai_pts: v.aiPts, lag_ms: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0 });
   }
