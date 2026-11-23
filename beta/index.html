@@ -149,6 +149,24 @@
   #frCode { font: 900 24px "Noto Sans TC", monospace; letter-spacing: 6px; text-align: center; text-transform: uppercase; border-radius: 12px; border: 1px solid rgba(255,255,255,.3); background: rgba(0,0,0,.25); color: #fff; padding: 6px; width: 100%; box-sizing: border-box; }
   .compact .modes { gap: 6px; margin: 2px 0 6px; } .compact .mode { padding: 7px; gap: 4px; } .compact .mTitle { font-size: 14px; } .compact .mode .btn { padding: 8px 4px; font-size: 13px; }
   .compact .mSub { font-size: 11px; } .compact .tutGate { padding: 8px 12px; margin: 2px 0 6px; }
+  .card.rmCard { width: min(560px, 100%); text-align: center; }
+  .rmHead { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .rmCode { font: 900 34px "Noto Sans TC", monospace; letter-spacing: 6px; color: #ffe066; }
+  .rmShare { width: auto !important; margin: 0 !important; padding: 8px 14px !important; font-size: 14px !important; }
+  .rmSlots { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin: 10px 0; }
+  .rmSlot { border-radius: 16px; padding: 10px; background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.18); display: flex; flex-direction: column; gap: 3px; min-height: 66px; justify-content: center; }
+  .rmSlot.me { border-color: rgba(92,225,198,.6); }
+  .rmSlot.red { background: rgba(230,57,70,.22); } .rmSlot.black { background: rgba(0,0,0,.45); }
+  .rmSlot small { opacity: .7; font-size: 12px; } .rmSlot b { font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rmSt { font-size: 13px; } .rmSt.ok { color: #5ce1c6; } .rmSt.off { color: #ff9f9f; } .rmSt.tut { color: #ffe066; }
+  .rmVs { font-weight: 900; opacity: .6; }
+  .rmBtns { display: flex; gap: 8px; } .rmBtns .btn { margin: 0; flex: 1; }
+  .btn.rmRed { background: #e63946; color: #fff; } .btn.rmBlack { background: #111; color: #fff; border: 1px solid rgba(255,255,255,.4); }
+  .rmQ { font-weight: 700; margin: 4px 0 8px; }
+  .rmCoin { font-size: 46px; line-height: 1.1; } .rmCoin.spin { animation: coin .25s linear infinite; }
+  @keyframes coin { 0% { transform: scaleX(1); } 50% { transform: scaleX(.1); } 100% { transform: scaleX(1); } }
+  .rmMsg { min-height: 1.2em; margin: 6px 0 0; } .rmMsg.warn { color: #ff9f9f; }
+  .compact .rmCode { font-size: 28px; } .compact .rmSlots { margin: 6px 0; } .compact .rmSlot { min-height: 54px; padding: 6px; }
   .homeRow { display: flex; gap: 6px; } .homeRow .btn { font-size: 14px; padding: 10px 4px; }
   .recGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0 6px; }
   .recCard { width: min(720px, 94vw); }
@@ -456,6 +474,26 @@
       <div class="frBox"><b id="frJoinT"></b><input id="frCode" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="AB12"><button class="btn sec" id="frJoin"></button></div>
     </div>
     <div class="toast" id="frToast"></div>
+  </div>
+</div>
+
+<!-- 好友對戰：房間 -->
+<div class="overlay hidden" id="room" style="z-index:32">
+  <div class="card rmCard">
+    <div class="rmHead"><span id="rmCodeL"></span><b class="rmCode" id="rmCode"></b><button class="btn sec rmShare" id="rmShare"></button></div>
+    <div class="rmSlots">
+      <div class="rmSlot" id="rmSlotH"><small id="rmRoleH"></small><b id="rmNameH"></b><span class="rmSt" id="rmStH"></span></div>
+      <div class="rmVs">VS</div>
+      <div class="rmSlot" id="rmSlotG"><small id="rmRoleG"></small><b id="rmNameG"></b><span class="rmSt" id="rmStG"></span></div>
+    </div>
+    <!-- 大廳：準備／開始 -->
+    <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div></div>
+    <!-- 選顏色 -->
+    <div id="rmPick" class="hidden"><p class="rmQ" id="rmPickQ"></p><div class="rmBtns"><button class="btn rmRed" id="rmRed"></button><button class="btn rmBlack" id="rmBlack"></button></div></div>
+    <!-- 抽發球 -->
+    <div id="rmToss" class="hidden"><div class="rmCoin" id="rmCoin">🪙</div><p class="rmQ" id="rmTossTxt"></p></div>
+    <p class="note rmMsg" id="rmMsg"></p>
+    <button class="linkBtn" id="rmLeave"></button>
   </div>
 </div>
 
@@ -919,7 +957,14 @@
       mParty: '🎉 Party Mode', mPartyS: '更多好玩的對戰方式', soon: '即將推出',
       tutGateTxt: '先花 1 分鐘學會基本動作，完成後就能開始闖關和好友對戰！', tutGateBtn: '▶ 開始新手教學', tutGateCont: n => `▶ 繼續新手教學（第 ${n} 步）`,
       frTitle: '🤝 好友對戰', frSub: '跟朋友一對一，7 分制、最多 11 分，不計入排行榜。', frCreateT: '開房間', frCreateS: '拿到房號和連結，傳給朋友', frCreate: '開一間房',
-      frJoinT: '加入房間', frJoin: '加入', frSoon: '連線功能下一步開通，敬請期待！', frBadCode: '房號是 2 個英文字＋2 個數字，例如 KB37', cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
+      frJoinT: '加入房間', frJoin: '加入', frSoon: '連線功能下一步開通，敬請期待！',
+      rm: { code: '房號', share: '🔗 邀請朋友', shareTxt: c => `來跟我打一場羽球PK！房號 ${c}，點連結直接進房：`, copied: '已複製邀請連結，貼給朋友吧！', host: '房主', guest: '對手',
+        waiting: '等待朋友加入…', st: { in: '已進房', ready: '✅ 已準備', tut: '📘 新手教學中…', off: '⚠️ 離線' }, you: '（你）',
+        ready: '準備', unready: '取消準備', start: '▶ 開始', needBoth: '雙方都按「準備」後，房主就能開始', waitHost: '都準備好了，等房主按開始', tutWait: '對方正在完成新手教學，稍等一下',
+        pickQ: '選一個顏色（先選先贏）', red: '🔴 紅方', black: '⚫ 黑方', youAre: c => `你是 ${c}`, waitPick: '等對方選…',
+        toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
+        backRoom: '🤝 回到房間對戰', leave: '離開房間', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
+        offline: '連不上伺服器，請檢查網路', hostLeft: '房主已經離開，房間關閉了', wait: '連線準備中，再按一次' }, frBadCode: '房號是 2 個英文字＋2 個數字，例如 KB37', cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 對戰記錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histLoading: '正在讀取以前的比賽…', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
       settingsTitle: '設定', setLang: '語言', setVoice: '裁判語音報分', setSound: '擊球音效', setName: '名字', saveBack: '儲存並返回', on: '開', off: '關',
@@ -1086,7 +1131,14 @@
       mParty: '🎉 Party Mode', mPartyS: 'More fun ways to play', soon: 'Coming soon',
       tutGateTxt: 'Take a minute to learn the basics — then Challenge and Friend Battle unlock!', tutGateBtn: '▶ Start tutorial', tutGateCont: n => `▶ Continue tutorial (step ${n})`,
       frTitle: '🤝 Friend Battle', frSub: '1-on-1 with a friend. First to 7, capped at 11. Not ranked.', frCreateT: 'Open a room', frCreateS: 'Get a room code and link to send', frCreate: 'Open room',
-      frJoinT: 'Join a room', frJoin: 'Join', frSoon: 'Online play is coming in the next update!', frBadCode: 'Room codes are 2 letters + 2 numbers, e.g. KB37', cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
+      frJoinT: 'Join a room', frJoin: 'Join', frSoon: 'Online play is coming in the next update!',
+      rm: { code: 'Room', share: '🔗 Invite a friend', shareTxt: c => `Play Badminton PK with me! Room ${c} — tap the link to join:`, copied: 'Invite link copied — send it to your friend!', host: 'Host', guest: 'Opponent',
+        waiting: 'Waiting for a friend…', st: { in: 'In the room', ready: '✅ Ready', tut: '📘 Doing the tutorial…', off: '⚠️ Offline' }, you: ' (you)',
+        ready: 'Ready', unready: 'Not ready', start: '▶ Start', needBoth: 'Once both players are ready, the host can start', waitHost: 'All set — waiting for the host to start', tutWait: 'Your friend is finishing the tutorial — hang on',
+        pickQ: 'Pick a color (first come, first served)', red: '🔴 Red', black: '⚫ Black', youAre: c => `You are ${c}`, waitPick: 'Waiting for your friend…',
+        toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
+        backRoom: '🤝 Back to the room', leave: 'Leave room', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
+        offline: 'Can’t reach the server — check your connection', hostLeft: 'The host left, so the room closed', wait: 'Still connecting — tap again' }, frBadCode: 'Room codes are 2 letters + 2 numbers, e.g. KB37', cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 History', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histLoading: 'Loading your past matches…', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
       settingsTitle: 'Settings', setLang: 'Language', setVoice: 'Umpire voice', setSound: 'Hit sounds', setName: 'Name', saveBack: 'Save & back', on: 'On', off: 'Off',
@@ -1782,7 +1834,10 @@
     showScreen('home');
     // 第一次進來（還沒打過比賽、也沒看過教學）：直接開始新手教學
     setTimeout(maybeNews, 700);
-    if (needTut && !store.get('bd_tut', '')) setTimeout(() => { if (!G_ && !$('home').classList.contains('hidden') && $('nameDlg') && $('nameDlg').classList.contains('hidden')) startTutorial(); }, 400);
+    // 好友對戰：在房間裡（例如剛做完新手教學）就回到房間；從邀請連結進來就加入
+    if (room) { if (!needTut && room.me().st === 'tut') rmSet({ st: 'in' }); if (!needTut) openRoomUI(); }
+    else if (pendingRoom && FB.ready) { const c = pendingRoom; pendingRoom = ''; joinRoom(c); }
+    if (needTut && !store.get('bd_tut', '') && !pendingRoom) setTimeout(() => { if (!G_ && !$('home').classList.contains('hidden') && $('nameDlg') && $('nameDlg').classList.contains('hidden')) startTutorial(); }, 400);
   }
   function clearHud() {
     ['msg', 'hint'].forEach(id => $(id).textContent = '');
@@ -1808,17 +1863,17 @@
   $('pickBtn').addEventListener('click', () => overlayOpen('stages'));
   $('stClose').addEventListener('click', () => overlayClose('stages'));
   // 好友對戰頁（連線在第 2 階段接上）
-  function openFriend() {
+  function openFriend() { openFriendTexts(); $('frToast').textContent = ''; overlayOpen('friend'); track('friend_open', {}); }
+  function openFriendTexts() {
     const t = T();
     [['frTitle', t.frTitle], ['frSub', t.frSub], ['frCreateT', t.frCreateT], ['frCreateS', t.frCreateS], ['frCreate', t.frCreate], ['frJoinT', t.frJoinT], ['frJoin', t.frJoin]].forEach(([id, v]) => { $(id).textContent = v; });
-    $('frToast').textContent = ''; overlayOpen('friend'); track('friend_open', {});
   }
   const codeOk = c => /^[A-HJ-NP-Z]{2}[0-9]{2}$/.test(c); // 房號：2 英文（不含 I、O）＋2 數字
   $('friendBtn').addEventListener('click', openFriend);
   $('frClose').addEventListener('click', () => overlayClose('friend'));
   $('frCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });
-  $('frCreate').addEventListener('click', () => { $('frToast').textContent = T().frSoon; });
-  $('frJoin').addEventListener('click', () => { const c = $('frCode').value; $('frToast').textContent = codeOk(c) ? T().frSoon : T().frBadCode; });
+  $('frCreate').addEventListener('click', () => { unlockSpeech(); createRoom(); });
+  $('frJoin').addEventListener('click', () => { unlockSpeech(); const c = $('frCode').value; if (!codeOk(c)) { $('frToast').textContent = T().frBadCode; return; } joinRoom(c); });
   $('recBtn').addEventListener('click', () => { renderRecords(); overlayOpen('records'); });
   $('recClose').addEventListener('click', () => overlayClose('records'));
   $('setBtn').addEventListener('click', openSettings);
@@ -2271,9 +2326,11 @@
     setTut('done'); store.set('bd_tutAt', '0'); track('tutorial_done', {});
     drillHud(false); G_ = null; clearHud();
     const t = T().dr; $('tdT').textContent = t.doneT; $('tdP').textContent = t.done; $('tdPlay').textContent = t.play1; $('tdPractice').textContent = t.toPractice;
+    if (room) $('tdPlay').textContent = T().rm.backRoom; // 從邀請連結來的：教學完直接回房間
+    $('tdPractice').classList.toggle('hidden', !!room);
     overlayOpen('tutDone');
   }
-  $('tdPlay').addEventListener('click', () => { overlayClose('tutDone'); playStage(0); });
+  $('tdPlay').addEventListener('click', () => { overlayClose('tutDone'); if (room) showHome(); else playStage(0); });
   $('tdPractice').addEventListener('click', () => { overlayClose('tutDone'); showHome(); openPractice(); });
 
   // ---------- 自訂按鍵：每顆按鈕的位置（螢幕寬高的比例，換手機也不跑掉）、大小倍率、整體透明度 ----------
@@ -2638,9 +2695,188 @@
         FB.ready = true;
         if (!u.isAnonymous) { await loadProfile(); welcomeDone(); } else FB.profile = null; // 跳轉登入回來時也會走這裡
         updAccountUI(); flushPending();
+        if (pendingRoom && !G_ && !room && !$('home').classList.contains('hidden')) { const c = pendingRoom; pendingRoom = ''; joinRoom(c); } // 邀請連結：連上線後再進房
       });
     } catch (e) { console.warn('Firebase 無法連線', e); FB.err = true; updAccountUI(); }
   }
+
+  // ---------- 好友對戰：房間（Realtime Database，伺服器在新加坡） ----------
+  // 房間存在 rooms/房號（測試版在 beta/rooms/房號）：{ v 版本, created, state, host, guest, colors, serve }
+  //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
+  //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
+  const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
+  const GAME_VER = '3.15';
+  const RT = { m: null, db: null };
+  const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
+  let room = null, pendingRoom = '';
+  // 從邀請連結進來（…?room=KB37）：先記住，登入／教學後再加入
+  try { const q = new URLSearchParams(location.search).get('room'); if (q) { pendingRoom = q.toUpperCase(); history.replaceState(null, '', location.pathname + location.hash); } } catch (e) {}
+  async function rtInit() {
+    if (RT.db) return true;
+    try {
+      RT.m = window.__RTMOCK || await import(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-database.js`);
+      RT.db = RT.m.getDatabase(FB.app, RT_URL); return true;
+    } catch (e) { console.warn('Realtime Database 無法連線', e); return false; }
+  }
+  const rref = p => RT.m.ref(RT.db, RT_ROOT + p);
+  function rmMe(st) { return { uid: FB.user.uid, name: playerName().slice(0, 12), acct: isGoogle() ? 'google' : 'guest', on: true, st }; }
+  function genCode() {
+    const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ', r = new Uint32Array(4); crypto.getRandomValues(r);
+    return L[r[0] % 24] + L[r[1] % 24] + (r[2] % 10) + (r[3] % 10);
+  }
+  async function rtReady(msgEl) {
+    if (!FB.ready || !FB.user) { msgEl.textContent = FB.err ? T().rm.offline : T().rm.wait; return false; }
+    if (!await rtInit()) { msgEl.textContent = T().rm.offline; return false; }
+    return true;
+  }
+  async function createRoom() {
+    const t = T().rm; $('frToast').textContent = t.creating;
+    if (!await rtReady($('frToast'))) return;
+    try {
+      for (let i = 0; i < 8; i++) {
+        const code = genCode();
+        const res = await RT.m.runTransaction(rref(code), cur => {
+          if (cur && Date.now() - (cur.created || 0) < 2 * 3600e3) return; // 房號正在用，換一個
+          return { v: GAME_VER, created: Date.now(), state: 'wait', host: rmMe('in') };
+        });
+        if (res.committed) { track('room_create', {}); enterRoom(code, 'host'); return; }
+      }
+    } catch (e) { console.warn(e); }
+    $('frToast').textContent = t.offline;
+  }
+  async function joinRoom(code) {
+    const t = T().rm, el = $('home').classList.contains('hidden') ? $('rmMsg') : $('frToast');
+    overlayOpen('friend'); openFriendTexts(); $('frCode').value = code; $('frToast').textContent = t.joining;
+    if (!await rtReady($('frToast'))) { pendingRoom = code; return; }
+    let why = '', role = 'guest';
+    try {
+      const snap = await RT.m.get(rref(code)); const seen = snap.val();
+      if (!seen) { $('frToast').textContent = t.notFound; track('room_join_fail', { why: 'notfound' }); return; }
+      const res = await RT.m.runTransaction(rref(code), cur => {
+        cur = cur || seen; why = '';
+        if (!cur || !cur.host) { why = 'notfound'; return; }
+        if (cur.v !== GAME_VER) { why = 'ver'; return; }
+        const uid = FB.user.uid;
+        if (cur.host.uid === uid) { role = 'host'; cur.host.on = true; return cur; }
+        if (cur.guest && cur.guest.uid !== uid && cur.guest.on) { why = 'full'; return; }
+        role = 'guest';
+        const keep = cur.guest && cur.guest.uid === uid ? cur.guest.st : 'in';
+        cur.guest = rmMe(needTutorial() ? 'tut' : (keep === 'tut' ? 'in' : keep)); return cur;
+      });
+      if (!res.committed) { $('frToast').textContent = t[why] || t.notFound; track('room_join_fail', { why: why || 'notfound' }); return; }
+      track('room_join', { via: el === $('rmMsg') ? 'link' : 'code' });
+      enterRoom(code, role);
+    } catch (e) { console.warn(e); $('frToast').textContent = t.offline; }
+  }
+  function enterRoom(code, role) {
+    if (room) leaveRoom(true);
+    room = { code, role, data: null, unsub: null, other: role === 'host' ? 'guest' : 'host', me() { return (this.data && this.data[this.role]) || {}; } };
+    const m = RT.m;
+    m.onDisconnect(rref(code + '/' + role + '/on')).set(false); // 斷線（關掉、沒網路）就標成離線
+    m.set(rref(code + '/' + role + '/on'), true);
+    room.unsub = m.onValue(rref(code), snap => onRoom(snap.val()));
+    overlayClose('friend');
+    if (needTutorial()) { if (!G_) startTutorial(Math.min(+store.get('bd_tutAt', '0'), TUT.length - 1)); } // 新人先教學，房間會顯示「新手教學中」
+    else openRoomUI();
+  }
+  function rmSet(obj) { if (!room) return; RT.m.update(rref(room.code + '/' + room.role), obj); }
+  function leaveRoom(silent) {
+    if (!room) return;
+    const r = room; room = null;
+    try { r.unsub && r.unsub(); RT.m.onDisconnect(rref(r.code + '/' + r.role + '/on')).cancel(); } catch (e) {}
+    if (r.role === 'host') RT.m.remove(rref(r.code)); else RT.m.set(rref(r.code + '/guest'), null);
+    clearTimeout(rmTimer); overlayClose('room');
+    if (!silent) track('room_leave', { state: (r.data && r.data.state) || '' });
+  }
+  function openRoomUI() { overlayOpen('room'); renderRoom(); }
+  let rmTimer = 0, lastState = '';
+  function onRoom(d) {
+    if (!room) return;
+    if (!d) { const was = room.role; leaveRoom(true); if (was === 'guest') notice(T().rm.hostLeft); return; }
+    room.data = d;
+    if (d.state !== lastState) { lastState = d.state; onState(d); }
+    // 房主：雙方都選好顏色 → 抽發球
+    if (room.role === 'host' && d.state === 'pick' && d.colors && d.colors.red && d.colors.black) {
+      const r = new Uint8Array(1); crypto.getRandomValues(r);
+      RT.m.update(rref(room.code), { state: 'toss', serve: (r[0] & 1) ? 'red' : 'black' }); // 一半一半
+    }
+    renderRoom();
+  }
+  function colorName(c) { return c === 'red' ? T().rm.red : T().rm.black; }
+  function onState(d) {
+    const t = T().rm; clearTimeout(rmTimer);
+    if (d.state === 'toss') {
+      $('rmCoin').classList.add('spin'); $('rmTossTxt').textContent = t.toss;
+      rmTimer = setTimeout(() => {
+        $('rmCoin').classList.remove('spin'); $('rmCoin').textContent = d.serve === 'red' ? '🔴' : '⚫';
+        $('rmTossTxt').textContent = t.serves(colorName(d.serve)); speak(t.serveSay(colorName(d.serve).replace(/^\S+\s/, '')));
+        if (room && room.role === 'host') rmTimer = setTimeout(() => RT.m.update(rref(room.code), { state: 'count' }), 2600);
+      }, 1800);
+    } else if (d.state === 'count') {
+      let n = 3; $('rmCoin').textContent = n; $('rmTossTxt').textContent = t.go; speak(t.go);
+      const tick = () => { n--; if (n > 0) { $('rmCoin').textContent = n; rmTimer = setTimeout(tick, 1000); }
+        else { $('rmCoin').textContent = '🏸'; $('rmTossTxt').textContent = t.stage3;
+          // 第 3 階段才真的開打；現在先回到大廳
+          if (room && room.role === 'host') rmTimer = setTimeout(() => backToLobby(), 2200); } };
+      rmTimer = setTimeout(tick, 1000);
+    } else if (d.state === 'wait') { $('rmCoin').textContent = '🪙'; }
+  }
+  function backToLobby() {
+    if (!room || room.role !== 'host') return;
+    const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, 'host/st': 'in' };
+    if (d.guest) up['guest/st'] = d.guest.st === 'tut' ? 'tut' : 'in';
+    RT.m.update(rref(room.code), up);
+  }
+  function renderRoom() {
+    if (!room) return;
+    const t = T().rm, d = room.data || {}, me = room.role, H = d.host, Gs = d.guest;
+    $('rmCodeL').textContent = t.code; $('rmCode').textContent = room.code; $('rmShare').textContent = t.share; $('rmLeave').textContent = t.leave;
+    const slot = (who, P, sfx) => {
+      $('rmRole' + sfx).textContent = (who === 'host' ? t.host : t.guest) + (who === me ? t.you : '');
+      $('rmName' + sfx).textContent = P ? P.name : t.waiting;
+      const stKey = !P ? '' : !P.on ? 'off' : P.st;
+      $('rmSt' + sfx).textContent = stKey ? t.st[stKey] : ''; $('rmSt' + sfx).className = 'rmSt ' + ({ ready: 'ok', off: 'off', tut: 'tut' }[stKey] || '');
+      const col = d.colors ? (d.colors.red === who ? 'red' : d.colors.black === who ? 'black' : '') : '';
+      $('rmSlot' + sfx).className = 'rmSlot' + (who === me ? ' me' : '') + (col ? ' ' + col : '');
+    };
+    slot('host', H, 'H'); slot('guest', Gs, 'G');
+    const st = d.state || 'wait';
+    $('rmLobby').classList.toggle('hidden', st !== 'wait'); $('rmPick').classList.toggle('hidden', st !== 'pick'); $('rmToss').classList.toggle('hidden', st !== 'toss' && st !== 'count');
+    $('rmShare').classList.toggle('hidden', !!Gs && st !== 'wait');
+    let msg = '', warn = false;
+    if (st === 'wait') {
+      const mine = room.me(), other = d[room.other], both = H && Gs && H.st === 'ready' && Gs.st === 'ready' && H.on && Gs.on;
+      $('rmReady').textContent = mine.st === 'ready' ? t.unready : t.ready; $('rmReady').disabled = mine.st === 'tut';
+      $('rmStart').textContent = t.start; $('rmStart').classList.toggle('hidden', me !== 'host'); $('rmStart').disabled = !both;
+      msg = other && other.st === 'tut' ? t.tutWait : both ? (me === 'host' ? '' : t.waitHost) : Gs ? t.needBoth : '';
+      if (other && !other.on) { msg = t.st.off; warn = true; }
+    } else if (st === 'pick') {
+      $('rmPickQ').textContent = t.pickQ; $('rmRed').textContent = t.red; $('rmBlack').textContent = t.black;
+      const myCol = d.colors ? (d.colors.red === me ? 'red' : d.colors.black === me ? 'black' : '') : '';
+      $('rmRed').disabled = $('rmBlack').disabled = !!myCol;
+      msg = myCol ? t.youAre(colorName(myCol)) : '';
+    }
+    $('rmMsg').textContent = msg; $('rmMsg').classList.toggle('warn', warn);
+  }
+  $('rmReady').addEventListener('click', () => { if (!room) return; rmSet({ st: room.me().st === 'ready' ? 'in' : 'ready' }); });
+  $('rmStart').addEventListener('click', () => { if (!room || room.role !== 'host') return; unlockSpeech(); RT.m.update(rref(room.code), { state: 'pick', colors: null, serve: null }); track('room_start', {}); });
+  // 選顏色：先選先贏，另一個顏色自動給對方
+  function pickColor(c) {
+    if (!room) return; unlockSpeech();
+    const other = c === 'red' ? 'black' : 'red';
+    RT.m.runTransaction(rref(room.code + '/colors'), cur => { if (cur && cur.red) return; return { [c]: room.role, [other]: room.other }; });
+  }
+  $('rmRed').addEventListener('click', () => pickColor('red'));
+  $('rmBlack').addEventListener('click', () => pickColor('black'));
+  $('rmLeave').addEventListener('click', () => leaveRoom());
+  $('rmShare').addEventListener('click', async () => {
+    if (!room) return;
+    const t = T().rm, url = GAME_URL.split('?')[0] + '?room=' + room.code, txt = t.shareTxt(room.code);
+    track('room_share', {});
+    try { if (navigator.share) { await navigator.share({ title: T().gameName, text: txt, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(txt + ' ' + url); $('rmMsg').textContent = t.copied; }
+    catch (e) { $('rmMsg').textContent = url; }
+  });
 
   function track(name, params) {
     if (!FB.an || !consent) return;
