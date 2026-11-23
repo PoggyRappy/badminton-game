@@ -167,6 +167,9 @@
   @keyframes coin { 0% { transform: scaleX(1); } 50% { transform: scaleX(.1); } 100% { transform: scaleX(1); } }
   .rmMsg { min-height: 1.2em; margin: 6px 0 0; } .rmMsg.warn { color: #ff9f9f; }
   .compact .rmCode { font-size: 28px; } .compact .rmSlots { margin: 6px 0; } .compact .rmSlot { min-height: 54px; padding: 6px; }
+  #pvpBanner { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 25; background: rgba(20,26,40,.92); border: 1px solid #ffe066; color: #ffe066; border-radius: 99px; padding: 6px 16px; font-weight: 700; font-size: 14px; pointer-events: none; white-space: nowrap; }
+  .prScore { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 6px 0; } .prScore div { display: flex; flex-direction: column; min-width: 90px; }
+  .prScore b { font-size: 44px; line-height: 1.1; } .prScore small { opacity: .8; } .prScore span { font-size: 30px; opacity: .6; }
   .homeRow { display: flex; gap: 6px; } .homeRow .btn { font-size: 14px; padding: 10px 4px; }
   .recGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0 6px; }
   .recCard { width: min(720px, 94vw); }
@@ -497,6 +500,21 @@
   </div>
 </div>
 
+<!-- 好友對戰：連線狀態橫幅、離開確認、結果 -->
+<div id="pvpBanner" class="hidden"></div>
+<div class="overlay hidden" id="pvpQuit" style="z-index:40">
+  <div class="card"><h2 id="pqT"></h2><p class="note" id="pqP"></p>
+    <button class="btn pri" id="pqStay"></button><button class="btn sec" id="pqLeave"></button></div>
+</div>
+<div class="overlay hidden" id="pvpRes" style="z-index:40">
+  <div class="card prCard">
+    <h2 id="prT"></h2>
+    <div class="prScore"><div><small id="prMeN"></small><b id="prMeS"></b></div><span>:</span><div><small id="prOpN"></small><b id="prOpS"></b></div></div>
+    <p class="note" id="prNote"></p>
+    <button class="btn pri" id="prRoom"></button><button class="btn sec" id="prHome"></button>
+  </div>
+</div>
+
 <!-- 練習模式 -->
 <div class="overlay hidden" id="practice" style="z-index:30">
   <div class="card prCard">
@@ -555,7 +573,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.15β · 2026/11/23</p>
+    <p class="note">v3.16β · 2026/11/23</p>
   </div>
 </div>
 
@@ -963,7 +981,10 @@
         ready: '準備', unready: '取消準備', start: '▶ 開始', needBoth: '雙方都按「準備」後，房主就能開始', waitHost: '都準備好了，等房主按開始', tutWait: '對方正在完成新手教學，稍等一下',
         pickQ: '選一個顏色（先選先贏）', red: '🔴 紅方', black: '⚫ 黑方', youAre: c => `你是 ${c}`, waitPick: '等對方選…',
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
-        backRoom: '🤝 回到房間對戰', leave: '離開房間', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
+        backRoom: '🤝 回到房間對戰', leave: '離開房間',
+        pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
+        quitT: '要離開比賽嗎？', quitP: '現在離開會直接判輸喔。', stay: '繼續比賽', quit: '離開（判輸）', win: '🏆 你贏了！', lose: '這場輸了，再來一場！',
+        oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', creating: '開房中…', joining: '進房中…', notFound: '找不到這個房間，確認房號再試一次', full: '這個房間已經有兩個人了', ver: '你們的遊戲版本不同，請兩個人都重新整理（或重開 App）再試',
         offline: '連不上伺服器，請檢查網路', hostLeft: '房主已經離開，房間關閉了', wait: '連線準備中，再按一次' }, frBadCode: '房號是 2 個英文字＋2 個數字，例如 KB37', cont: (st, n) => `▶ 繼續：第 ${st} 關・${n}`, contChamp: '▶ 再挑戰傳奇球王',
       recordsBtn: '📊 對戰記錄', settingsBtn: '⚙️ 設定', helpHome: '📖 說明', installHome: '📲 安裝到手機', exitGame: '離開遊戲',
       recordsTitle: '對戰記錄', histNote: '最近 30 場・點一場就能看那場的戰績圖、分享出去', histEmpty: '還沒有對戰記錄，打完一場就會出現在這裡', histLoading: '正在讀取以前的比賽…', histWin: '勝', histLose: '敗', recMatches: '比賽場數', recWins: '勝場', recRate: '勝率', recBest: '目前關卡', recSmash: '殺球得分', recLongest: '最長來回', recPoints: '總得分', recFav: '最常用球路', back: '返回',
@@ -1137,7 +1158,10 @@
         ready: 'Ready', unready: 'Not ready', start: '▶ Start', needBoth: 'Once both players are ready, the host can start', waitHost: 'All set — waiting for the host to start', tutWait: 'Your friend is finishing the tutorial — hang on',
         pickQ: 'Pick a color (first come, first served)', red: '🔴 Red', black: '⚫ Black', youAre: c => `You are ${c}`, waitPick: 'Waiting for your friend…',
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
-        backRoom: '🤝 Back to the room', leave: 'Leave room', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
+        backRoom: '🤝 Back to the room', leave: 'Leave room',
+        pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
+        quitT: 'Leave the match?', quitP: 'Leaving now counts as a loss.', stay: 'Keep playing', quit: 'Leave (lose)', win: '🏆 You win!', lose: 'You lost this one — run it back!',
+        oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', creating: 'Opening a room…', joining: 'Joining…', notFound: 'Room not found — check the code and try again', full: 'This room already has two players', ver: 'You’re on different game versions — both of you please refresh (or reopen the app) and try again',
         offline: 'Can’t reach the server — check your connection', hostLeft: 'The host left, so the room closed', wait: 'Still connecting — tap again' }, frBadCode: 'Room codes are 2 letters + 2 numbers, e.g. KB37', cont: (st, n) => `▶ Continue: Stage ${st} · ${n}`, contChamp: '▶ Challenge The Legend again',
       recordsBtn: '📊 History', settingsBtn: '⚙️ Settings', helpHome: '📖 Controls', installHome: '📲 Install on your phone', exitGame: 'Exit game',
       recordsTitle: 'Match history', histNote: 'Last 30 matches · tap one to see and share its result card', histEmpty: 'No matches yet. Finish one and it will show up here.', histLoading: 'Loading your past matches…', histWin: 'W', histLose: 'L', recMatches: 'Matches', recWins: 'Wins', recRate: 'Win rate', recBest: 'Current stage', recSmash: 'Smash winners', recLongest: 'Longest rally', recPoints: 'Total points', recFav: 'Favourite shot', back: 'Back',
@@ -1373,7 +1397,7 @@
       g.b = null; pl.swingType = 'serve'; pl.swingT = contactT('serve');
       showMsg(bad === who ? T().svFault : T().rcvFault, '#ff8a8a', 1400); netSound();
       $('hint').textContent = '';
-      scorePoint(bad === 'p' ? 'a' : 'p', false, bad === who ? 'svline' : 'rcvline');
+      decidePoint(bad === 'p' ? 'a' : 'p', false, bad === who ? 'svline' : 'rcvline');
       return;
     }
     const fx = pl.x + (who === 'p' ? 0.45 : -0.45), fy = 1.0;
@@ -1388,6 +1412,7 @@
     g.state = 'rally'; $('hint').textContent = '';
     g.aiDelay = LEVELS[g.level].react; g.aiPlan = null;
     hitSound('serve');
+    if (who === 'p' && pvpRemote()) pvpSendHit('serve');
   }
 
   // ---------- 擊球 ----------
@@ -1541,9 +1566,9 @@
       h.push(grp); if (h.length > 8) h.shift();
       const ag = g.pAgg || (g.pAgg = []); ag.push(['smash', 'kill', 'push', 'drive', 'flatClear'].includes(kind) ? 1 : 0); if (ag.length > 8) ag.shift();
     }
-    if (who === 'p' && feint && !g.aiRead && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
+    if (who === 'p' && feint && !g.pvp && !g.aiRead && Math.random() >= L.readP) { fooled = true; g.stats.fooled++; g.aiFeintT = L.feintRead; g.aiFeintDir = SHORT.includes(kind) ? 1 : -1; }
     else if (who === 'p') g.aiFeintT = 0;
-    if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.splitStep && g.a.y === 0) g.a.vy = 1.5; } // 高手：你擊球時啟動步
+    if (who === 'p') { g.aiRoll = Math.random(); g.aiJumped = false; if (L.splitStep && g.a.y === 0 && !pvpRemote()) g.a.vy = 1.5; } // 高手：你擊球時啟動步
     let tx = who === 'p' ? t : COURT - t;
     let boost = who === 'a' ? (L.smashBoost || 0) : 0, kmh = 0;
     if (who === 'p' && (kind === 'smash' || kind === 'kill')) {
@@ -1584,6 +1609,7 @@
     const label = feint ? (mine ? '' : T().opp('')) + T().feintName(dec.fake, kind) + (mine && fooled ? T().fooled : '') : (mine ? nm : T().opp(nm));
     showMsg((modeMsg ? modeMsg + '　' : '') + (readMsg ? readMsg + '　' : '') + (kmh ? `${label} ${kmh} km/h` : label), (kind === 'smash' || kind === 'kill') ? (mine ? '#ffe066' : '#ff8a8a') : mine ? '#bfe9ff' : '#ffd0b0');
     hitSound(kind);
+    if (mine && pvpRemote()) pvpSendHit(kind, dec.fake); // 好友對戰：把這一拍傳給對方
   }
 
   // ---------- AI ----------
@@ -1681,11 +1707,12 @@
     // 按下就立刻判定，球已經在拍子範圍就馬上擊出（這時來不及做假動作）
     if (g.b && g.state === 'rally' && inZone(p, g.b)) { hit('p', soft, { fwd: keys.right }); return; }
     p.swingT = 0; p.swingType = g.b ? chooseKind(p, g.b, soft, keys.right) : 'clear';
+    if (pvpRemote()) pvpEv({ k: 'sw', ty: p.swingType }); // 讓對方看到你的揮拍動作（假動作也看得到）
     swishSound(p.swingType === 'smash' || p.swingType === 'kill');
     const smashIntent = keys.right && g.b && g.b.y > 1.7 && !isFront(p); // 按住 ▶ 準備殺高球：可以更早按
     pendingSwing = type; pendingT = smashIntent ? 0.65 : 0.4; pendingFeint = false; pendingFwd = keys.right; // 早按一點也沒關係，球一進範圍就擊出
   }
-  function playerJump() { if (paused || readyT > 0) return; const p = G_ && G_.p; if (p && p.y === 0) p.vy = 4.3; }
+  function playerJump() { if (paused || readyT > 0) return; const p = G_ && G_.p; if (p && p.y === 0) { p.vy = 4.3; if (pvpRemote()) pvpEv({ k: 'jp' }); } }
 
   // ---------- 全螢幕（Android Chrome 等支援的瀏覽器） ----------
   const fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
@@ -2029,12 +2056,12 @@
     if (auto) track('auto_pause', { stage: G_ ? G_.level + 1 : 0 });
   }
   // 切走就自動暫停：點了通知、切到別的 App、拉下通知欄（有些手機會讓頁面失焦）
-  const autoPause = () => { if (inMatch() && !paused) openPause(true); };
+  const autoPause = () => { if (inMatch() && !paused && !G_.pvp) openPause(true); }; // 好友對戰不能單方面暫停
   document.addEventListener('visibilitychange', () => { if (document.hidden) autoPause(); });
   window.addEventListener('blur', autoPause);
   window.addEventListener('pagehide', autoPause);
   function closePause() { overlayClose('pause'); paused = false; last = performance.now(); }
-  $('pauseBtn').addEventListener('click', e => { e.currentTarget.blur(); openPause(); });
+  $('pauseBtn').addEventListener('click', e => { e.currentTarget.blur(); if (G_ && G_.pvp && !G_.over) { pvpQuitAsk(); return; } openPause(); });
   $('resumeBtn').addEventListener('click', closePause);
   $('pHelp').addEventListener('click', () => openHelp());
   $('pSet').addEventListener('click', openSettings);
@@ -2131,14 +2158,16 @@
     } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
+    if (g.pvp && pvpTick(dt)) return; // 好友對戰：傳送位置、等斷線的對方
     if (g.pFat) g.pFat = Math.max(0, g.pFat - dt * 0.12); // 體力慢慢回來
     if (g.drill) { drillUpdate(dt); return; }
 
     if (g.state === 'serve') {
-      if (g.server === 'a') { g.timer += dt; if (g.timer > 1.1) doServe('a'); }
+      if (g.server === 'a' && !pvpRemote()) { g.timer += dt; if (g.timer > 1.1) doServe('a'); }
       return;
     }
     if (g.state === 'point') { g.timer += dt; if (g.timer > 2.0) afterPoint(); return; }
+    if (g.state === 'await') { g.timer += dt; return; } // 好友對戰：球落在對方那邊，等對方判定
 
     const b = g.b;
     if (pendingSwing) {
@@ -2147,7 +2176,7 @@
       if (inZone(p, b) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
       else if (pendingT <= 0) { pendingSwing = null; pendingFeint = false; }
     }
-    aiThink(dt);
+    if (!pvpRemote()) aiThink(dt);
 
     const prevX = b.x;
     for (let i = 0; i < 4; i++) step(b, dt / 4);
@@ -2169,7 +2198,9 @@
       let cause = null;
       if (b.last === 'p') cause = b.net ? 'net' : shortSv ? 'serve' : !inside ? 'out' : 'net';
       else cause = (b.type === 'smash' || b.type === 'kill') ? 'smash' : (b.x > G_.p.x ? 'front' : 'deep');
-      scorePoint(winner, inside && !b.net && !shortSv, cause);
+      // 好友對戰：你打過去的球由對方判定（避免兩邊判得不一樣），你先等結果
+      if (pvpRemote() && b.last === 'p') { g.state = 'await'; g.timer = 0; return; }
+      decidePoint(winner, inside && !b.net && !shortSv, cause);
     }
   }
 
@@ -2502,6 +2533,7 @@
   }
   $('coach').addEventListener('click', () => $('coach').classList.add('hidden'));
   function coachAfterPoint(w, cause) {
+    if (G_ && G_.pvp) return; // 好友對戰不出教練提示
     const g = G_, c = g.coach;
     if (w === 'a' && g.as - g.ps >= 3 && !c.shown.beat) { c.shown.beat = 1; coachSay(T().beatTips[g.level], 5000); return; }
     // 第二關開始教一次假動作
@@ -2539,9 +2571,10 @@
     updScore();
   }
 
+  function decidePoint(w, clean, cause) { if (G_.pvp && G_.pvp.ai) G_.pvp.aiPts++; scorePoint(w, clean, cause); if (pvpRemote()) pvpSendPoint(w, clean, cause); }
   function afterPoint() {
     const g = G_;
-    if (isGameOver(g.ps, g.as)) { endMatch(g.ps > g.as); return; }
+    if (isGameOver(g.ps, g.as)) { if (g.pvp) pvpEnd(g.ps > g.as); else endMatch(g.ps > g.as); return; }
     setupServe();
   }
 
@@ -2705,7 +2738,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.15';
+  const GAME_VER = '3.16';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2719,6 +2752,7 @@
     } catch (e) { console.warn('Realtime Database 無法連線', e); return false; }
   }
   const rref = p => RT.m.ref(RT.db, RT_ROOT + p);
+  const lref = (code, role) => RT.m.ref(RT.db, (BETA ? 'beta/' : '') + 'live/' + code + '/' + role); // 比賽中的即時位置另外放，房間資料才不會一秒更新幾十次
   function rmMe(st) { return { uid: FB.user.uid, name: playerName().slice(0, 12), acct: isGoogle() ? 'google' : 'guest', on: true, st }; }
   function genCode() {
     const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ', r = new Uint32Array(4); crypto.getRandomValues(r);
@@ -2788,7 +2822,10 @@
     clearTimeout(rmTimer); overlayClose('room');
     if (!silent) track('room_leave', { state: (r.data && r.data.state) || '' });
   }
-  function openRoomUI() { overlayOpen('room'); renderRoom(); }
+  function openRoomUI() {
+    if (room && room.data && room.data.state === 'play' && !(G_ && G_.pvp)) { startPvp(room.data, true); return; } // 比賽中重新進房：接回比賽
+    overlayOpen('room'); renderRoom();
+  }
   let rmTimer = 0, lastState = '';
   function onRoom(d) {
     if (!room) return;
@@ -2816,14 +2853,14 @@
       let n = 3; $('rmCoin').textContent = n; $('rmTossTxt').textContent = t.go; speak(t.go);
       const tick = () => { n--; if (n > 0) { $('rmCoin').textContent = n; rmTimer = setTimeout(tick, 1000); }
         else { $('rmCoin').textContent = '🏸'; $('rmTossTxt').textContent = t.stage3;
-          // 第 3 階段才真的開打；現在先回到大廳
-          if (room && room.role === 'host') rmTimer = setTimeout(() => backToLobby(), 2200); } };
+          if (room && room.role === 'host') RT.m.update(rref(room.code), { state: 'play', score: { red: 0, black: 0, server: d.serve } }); } };
       rmTimer = setTimeout(tick, 1000);
     } else if (d.state === 'wait') { $('rmCoin').textContent = '🪙'; }
+    else if (d.state === 'play') { if (!(G_ && G_.pvp && !G_.over)) startPvp(d); }
   }
   function backToLobby() {
     if (!room || room.role !== 'host') return;
-    const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, 'host/st': 'in' };
+    const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, score: null, 'host/st': 'in' };
     if (d.guest) up['guest/st'] = d.guest.st === 'tut' ? 'tut' : 'in';
     RT.m.update(rref(room.code), up);
   }
@@ -2877,6 +2914,179 @@
     try { await navigator.clipboard.writeText(txt + ' ' + url); $('rmMsg').textContent = t.copied; }
     catch (e) { $('rmMsg').textContent = url; }
   });
+
+  // ---------- 好友對戰：即時對打 ----------
+  // 做法：兩邊都把「自己」畫在左邊（對方的座標左右翻轉）。
+  //   位置每秒傳 15 次；揮拍、跳、擊球、得分是「事件」，每次傳最近 8 個，漏掉一兩次也補得回來。
+  //   擊球：誰打的就由誰算出球的路線傳過去，對方再依網路延遲把球往前快轉，兩邊看到的球幾乎同步。
+  //   得分：球打過去後，由「接球的那一方」判定（他有沒有接到、落在哪），避免兩邊判得不一樣。
+  //   斷線：先暫停等 20 秒；還沒回來就電腦代打；回來後由一直在線的那一方重新同步比分，從這一分重新開始。
+  const pvpRemote = () => !!(G_ && G_.pvp && !G_.pvp.ai);
+  const mir = x => COURT - x;
+  let rtOffset = 0, rtConnected = true, rtInfoOn = false;
+  const srvNow = () => Date.now() + rtOffset;
+  function rtInfo() {
+    if (rtInfoOn || !RT.m) return; rtInfoOn = true;
+    try {
+      RT.m.onValue(RT.m.ref(RT.db, '.info/serverTimeOffset'), s => { rtOffset = +s.val() || 0; });
+      RT.m.onValue(RT.m.ref(RT.db, '.info/connected'), s => { const was = rtConnected; rtConnected = s.val() !== false; if (was && !rtConnected) pvpAway(true); });
+    } catch (e) {}
+  }
+  function startPvp(d, rejoin) {
+    if (!room) return;
+    rtInfo();
+    const t = T().rm, myCol = d.colors.red === room.role ? 'red' : 'black', opCol = myCol === 'red' ? 'black' : 'red';
+    const oppP = d[room.other] || {}, sc = d.score || { red: 0, black: 0, server: d.serve };
+    overlayClose('room'); overlayClose('tutDone');
+    audio(); if (isTouch && !appMode) goFull();
+    $('pName').textContent = (myCol === 'red' ? '🔴 ' : '⚫ ') + playerName();
+    showScreen(null); newMatch(4, false, true); // 電腦代打時用第 5 關的實力
+    const g = G_;
+    g.pvp = { code: room.code, role: room.role, myCol, opCol, opp: oppP.name || '', oppAcct: oppP.acct || '', seq: 0, evs: [], lastN: 0, lastRecv: Date.now(), sendT: 0, tx: g.a.x,
+      ai: false, hold: '', holdT: 0, aiPts: 0, maxLag: 0, lagSum: 0, lagN: 0, startedAt: Date.now() };
+    g.a.lefty = false; g.a.scale = 1;
+    g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
+    $('aName').textContent = (opCol === 'red' ? '🔴 ' : '⚫ ') + (oppP.name || '');
+    $('lvLbl').textContent = t.pvLbl;
+    updScore(); setupServe(); pvpServeHint();
+    keys.left = keys.right = false; pendingSwing = null; introLines = null; readyT = rejoin ? 0.1 : 1.2;
+    // 接收對方的資料
+    g.pvp.unsub = RT.m.onValue(lref(room.code, room.other), s => pvpRecv(s.val()));
+    pvpPush(true);
+    if (rejoin) pvpAway();
+    track('pvp_start', { rejoin: rejoin ? 1 : 0 });
+  }
+  function pvpServeHint() { const g = G_; if (g && g.pvp && g.state === 'serve' && g.server === 'a' && !g.pvp.ai) $('hint').textContent = T().rm.waitSv; }
+  // 傳送：位置＋最近的事件
+  function pvpEv(e) { const v = G_.pvp; e.n = ++v.seq; e.t = srvNow(); v.evs.push(e); if (v.evs.length > 8) v.evs.shift(); pvpPush(true); }
+  function pvpPush(now) {
+    const g = G_, v = g && g.pvp; if (!v || !room) return;
+    if (!now && performance.now() - v.sendT < 66) return; // 一秒 15 次
+    v.sendT = performance.now();
+    RT.m.set(lref(v.code, v.role), { t: srvNow(), x: +g.p.x.toFixed(3), ev: v.evs });
+  }
+  function pvpSendHit(kind, fake) {
+    const b = G_.b;
+    pvpEv({ k: 'hit', ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
+  }
+  function pvpSendPoint(w, clean, cause) {
+    const g = G_, v = g.pvp, sc = { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol };
+    pvpEv({ k: 'pt', w: w === 'p' ? v.myCol : v.opCol, cl: !!clean, ca: cause || '', sc });
+    RT.m.update(rref(v.code), { score: sc }); // 房間記住比分，斷線重進可以接回
+  }
+  // 讓球依延遲往前快轉（中間碰到網一樣會掛網）
+  function ffBall(b, T) {
+    for (let t = 0; t < T && b.y > 0; t += 1 / 120) {
+      const px = b.x; step(b, 1 / 120);
+      if (!b.net && (px - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) { b.net = true; b.x = NET_X + (px < NET_X ? -0.05 : 0.05); b.vx = -b.vx * 0.08; b.vy = Math.min(b.vy, 0) * 0.3; }
+    }
+    if (b.y < 0.01) b.y = 0.01;
+  }
+  function pvpRecv(d) {
+    const g = G_, v = g && g.pvp; if (!v || g.over || !d) return;
+    v.lastRecv = Date.now();
+    if (typeof d.x === 'number') v.tx = mir(d.x);
+    const lag = Math.max(0, srvNow() - (d.t || srvNow())) / 1000; v.lagSum += lag; v.lagN++; v.maxLag = Math.max(v.maxLag, lag);
+    (d.ev || []).filter(e => e.n > v.lastN).sort((a, b) => a.n - b.n).forEach(e => { v.lastN = e.n; pvpOnEv(e); });
+  }
+  function pvpOnEv(e) {
+    const g = G_, v = g.pvp, a = g.a, t = T();
+    if (e.k === 'sync' || e.k === 'needSync' || e.k === 'quit') { pvpCtl(e); return; }
+    if (v.hold || v.ai) return;
+    if (e.k === 'sw') { a.swingType = e.ty; a.swingT = 0; }
+    else if (e.k === 'jp') { if (a.y === 0) a.vy = 4.3; }
+    else if (e.k === 'hit') {
+      const B = e.b, kind = e.ty;
+      const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh };
+      ffBall(b, Math.min(0.3, Math.max(0, (srvNow() - e.t) / 1000)));
+      g.b = b; g.trail = []; g.state = 'rally'; g.rally++; $('hint').textContent = '';
+      a.swingType = kind; a.swingT = contactT(kind);
+      const nm = kind === 'serve' ? t.shots.serve : t.shots[kind];
+      const label = B.ft && e.fk ? t.opp('') + t.feintName(e.fk, kind) : t.opp(nm);
+      showMsg(B.kmh ? `${label} ${B.kmh} km/h` : label, (kind === 'smash' || kind === 'kill') ? '#ff8a8a' : '#ffd0b0');
+      hitSound(kind);
+    } else if (e.k === 'pt') {
+      if (g.state === 'point') return;
+      const w = e.w === v.myCol ? 'p' : 'a';
+      if (e.ca === 'svline' || e.ca === 'rcvline') showMsg(e.ca === 'svline' ? t.svFault : t.rcvFault, '#ff8a8a', 1400);
+      else if (g.b && g.b.y > 0.05 && !g.b.net) { /* 對方判定時，你這邊的球可能還在飛：讓它停在地上 */ g.b.y = 0; }
+      scorePoint(w, e.cl, w === 'a' ? e.ca : null);
+      g.ps = e.sc[v.myCol]; g.as = e.sc[v.opCol]; g.server = e.sc.server === v.myCol ? 'p' : 'a'; updScore();
+    }
+  }
+  // 每一幀：傳位置、對方位置平滑移動、偵測斷線
+  function pvpTick(dt) {
+    const g = G_, v = g.pvp, t = T().rm;
+    if (!v.ai) { g.a.x += (v.tx - g.a.x) * Math.min(1, dt * 14); g.a.x = Math.max(NET_X + 0.2, Math.min(COURT - 0.1, g.a.x)); }
+    pvpPush(false);
+    if (g.state === 'serve') pvpServeHint();
+    const oppOn = room && room.data && room.data[room.other] ? room.data[room.other].on !== false : false;
+    const silent = Date.now() - v.lastRecv > 3000 || !oppOn;
+    if (v.hold === 'self') { banner(t.selfOff); if (rtConnected) { pvpEv({ k: 'needSync' }); v.hold = 'sync'; v.holdT = Date.now(); } return true; }
+    if (v.hold === 'sync') {
+      banner(t.selfOff);
+      if (silent && Date.now() - v.holdT > 20000) { v.hold = ''; v.ai = true; replayPoint(); track('pvp_ai_sub', {}); return false; } // 對方也不在了：電腦代打
+      if (!silent && Date.now() - (v.askT || 0) > 3000) { pvpEv({ k: 'needSync' }); v.askT = Date.now(); }
+      return true;
+    }
+    if (!rtConnected) { v.hold = 'self'; v.holdT = Date.now(); return true; }
+    if (silent && !v.ai) {
+      if (!v.hold) { v.hold = 'wait'; v.holdT = Date.now(); pendingSwing = null; }
+      const left = 20 - Math.floor((Date.now() - v.holdT) / 1000);
+      banner(t.oppOff(Math.max(0, left)));
+      if (left <= 0) { v.ai = true; v.hold = ''; banner(t.aiOn); replayPoint(); track('pvp_ai_sub', {}); }
+      return true;
+    }
+    if (!silent && (v.hold === 'wait' || v.ai)) { // 對方回來了：我一直在線，由我同步
+      v.hold = ''; v.ai = false; banner('');
+      pvpEv({ k: 'sync', sc: { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol } });
+      replayPoint(); showMsg(t.resync, '#ffe066', 1600);
+    }
+    if (v.ai) banner(t.aiOn);
+    return false;
+  }
+  function replayPoint() { const g = G_; pendingSwing = null; if (!isGameOver(g.ps, g.as)) { setupServe(); pvpServeHint(); } }
+  function pvpAway(selfDrop) { // 我這邊斷線或切走回來：先停住，等重新連線後跟對方要比分
+    const v = G_ && G_.pvp; if (!v || G_.over) return;
+    v.hold = selfDrop ? 'self' : 'sync'; v.holdT = Date.now(); v.ai = false;
+    if (!selfDrop) pvpEv({ k: 'needSync' });
+  }
+  function pvpCtl(e) {
+    const g = G_, v = g.pvp, t = T().rm;
+    if (e.k === 'quit') { pvpEnd(true, 'oppQuit'); return; }
+    if (e.k === 'needSync') { // 對方剛回來：照我的比分重新開始這一分
+      v.hold = ''; v.ai = false; banner('');
+      pvpEv({ k: 'sync', sc: { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol } });
+      replayPoint(); return;
+    }
+    if (e.k === 'sync') {
+      // 房主不接受房客的同步（除非是房主自己斷線在等）；其他情況照對方的比分
+      if (v.role === 'host' && v.hold !== 'sync' && v.hold !== 'self') return;
+      g.ps = e.sc[v.myCol]; g.as = e.sc[v.opCol]; g.server = e.sc.server === v.myCol ? 'p' : 'a'; updScore();
+      v.hold = ''; v.ai = false; banner(''); replayPoint(); showMsg(t.resync, '#ffe066', 1600);
+    }
+  }
+  function banner(txt) { const el = $('pvpBanner'); if (el.textContent !== txt) el.textContent = txt; el.classList.toggle('hidden', !txt); }
+  function pvpQuitAsk() { const t = T().rm; $('pqT').textContent = t.quitT; $('pqP').textContent = t.quitP; $('pqStay').textContent = t.stay; $('pqLeave').textContent = t.quit; overlayOpen('pvpQuit'); }
+  $('pqStay').addEventListener('click', () => overlayClose('pvpQuit'));
+  $('pqLeave').addEventListener('click', () => { overlayClose('pvpQuit'); if (G_ && G_.pvp) { pvpEv({ k: 'quit' }); pvpEnd(false, 'youQuit'); } });
+  function pvpEnd(won, why) {
+    const g = G_, v = g && g.pvp; if (!v || g.over) return;
+    g.over = true; banner(''); try { v.unsub && v.unsub(); RT.m.remove(lref(v.code, v.role)); } catch (e) {}
+    const t = T().rm;
+    $('prT').textContent = won ? t.win : t.lose;
+    $('prMeN').textContent = (v.myCol === 'red' ? '🔴 ' : '⚫ ') + playerName(); $('prOpN').textContent = (v.opCol === 'red' ? '🔴 ' : '⚫ ') + v.opp;
+    $('prMeS').textContent = g.ps; $('prOpS').textContent = g.as;
+    $('prNote').textContent = [why ? t[why] : '', v.aiPts ? t.aiNote(v.aiPts) : ''].filter(Boolean).join('　');
+    $('prRoom').textContent = t.toRoom; $('prHome').textContent = t.toHome;
+    $('prRoom').classList.toggle('hidden', !room);
+    overlayOpen('pvpRes');
+    if (room && room.role === 'host') setTimeout(() => backToLobby(), 800);
+    g.pvpResult = { won, why: why || '', ps: g.ps, as: g.as };
+    track('pvp_end', { won: won ? 1 : 0, why: why || 'done', score: `${g.ps}-${g.as}`, ai_pts: v.aiPts, lag_ms: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0 });
+  }
+  $('prRoom').addEventListener('click', () => { overlayClose('pvpRes'); G_ = null; showHome(); });
+  $('prHome').addEventListener('click', () => { overlayClose('pvpRes'); leaveRoom(); G_ = null; showHome(); });
 
   function track(name, params) {
     if (!FB.an || !consent) return;
@@ -3556,6 +3766,7 @@
 
   let last = performance.now();
   function loop(now) {
+    if (G_ && G_.pvp && now - last > 2000) pvpAway(); // 手機切走回來（畫面停了很久）：要跟對方重新同步
     const dt = Math.min(0.033, (now - last) / 1000); last = now;
     update(dt); camera(dt); draw(now / 1000, dt);
     requestAnimationFrame(loop);
