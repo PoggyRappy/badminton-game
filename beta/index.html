@@ -2195,7 +2195,11 @@
     if (!pvpRemote()) aiThink(dt);
 
     const prevX = b.x;
-    for (let i = 0; i < 4; i++) step(b, dt / 4);
+    let bdt = dt;
+    // 好友對戰：我打過去的球，過網後放慢一點點，讓對方的回球傳回來時剛好接上（不會看到球穿過對方的拍子再跳回來）
+    if (pvpRemote() && b.last === 'p' && b.x > NET_X && g.pvp.debt > 0) { const sl = Math.min(g.pvp.debt, dt * 0.35); bdt = dt - sl; g.pvp.debt -= sl; }
+    if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; }
+    for (let i = 0; i < 4; i++) step(b, bdt / 4);
     if (b.type === 'smash' || Math.hypot(b.vx, b.vy) > 14) g.trail.push({ x: b.x, y: b.y, life: 0.25 });
     // 掛網
     if (!b.net && (prevX - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) {
@@ -2995,7 +2999,8 @@
   }
   function pvpSendHit(kind, fake) {
     const b = G_.b;
-    pvpEv({ k: 'hit', ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
+    const v = G_.pvp; v.debt = Math.min(0.5, 2 * (v.lagEma || 0.08)); // 對方晚 1 個延遲才看到、回球再晚 1 個延遲才傳回來
+    pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
   }
   function pvpSendPoint(w, clean, cause) {
     const g = G_, v = g.pvp, sc = { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol };
@@ -3015,6 +3020,7 @@
     v.lastRecv = Date.now();
     if (typeof d.x === 'number') v.tx = mir(d.x);
     const lag = Math.max(0, srvNow() - (d.t || srvNow())) / 1000; v.lagSum += lag; v.lagN++; v.maxLag = Math.max(v.maxLag, lag);
+    v.lagEma = v.lagEma == null ? lag : v.lagEma * 0.85 + Math.min(0.4, lag) * 0.15; // 最近的延遲
     (d.ev || []).filter(e => e.n > v.lastN).sort((a, b) => a.n - b.n).forEach(e => { v.lastN = e.n; pvpOnEv(e); });
   }
   function pvpOnEv(e) {
@@ -3025,8 +3031,11 @@
     else if (e.k === 'jp') { if (a.y === 0) a.vy = 4.3; }
     else if (e.k === 'hit') {
       const B = e.b, kind = e.ty;
+      // 不快轉：從對方擊球那一刻開始，完整、等速地飛過來（你看到的軌跡跟真的一模一樣，預判才準）
       const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh };
-      ffBall(b, Math.min(0.3, Math.max(0, (srvNow() - e.t) / 1000)));
+      const old = g.b; // 你這邊畫面上的舊球可能已經飛過對方的拍子一點點：用 0.12 秒把畫面接回擊球點，不要瞬移
+      if (old && g.state === 'rally') g.bOff = { x: old.x - b.x, y: old.y - b.y, t: 0.12, T: 0.12 };
+      if (typeof e.px === 'number') { a.x = mir(e.px); v.tx = a.x; } // 對方人物對齊擊球位置
       g.b = b; g.trail = []; g.state = 'rally'; g.rally++; $('hint').textContent = '';
       a.swingType = kind; a.swingT = contactT(kind);
       const nm = kind === 'serve' ? t.shots.serve : t.shots[kind];
@@ -3815,7 +3824,7 @@
     if (g.drill) drawDrill(t);
     drawPlayer(g.p, '#5ce1c6', t, dt);
     if (!g.drill) drawPlayer(g.a, LEVELS[g.level].color, t, dt);
-    if (g.b) drawShuttle(g.b);
+    if (g.b) drawShuttle(g.bOff ? Object.assign({}, g.b, { x: g.b.x + g.bOff.x * g.bOff.t / g.bOff.T, y: g.b.y + g.bOff.y * g.bOff.t / g.bOff.T }) : g.b);
     else if (g.state === 'serve') {
       const sv = g[g.server];
       drawShuttle({ x: sv.x + (g.server === 'p' ? 0.45 : -0.45), y: 1.0, vx: 0, vy: -1 });
