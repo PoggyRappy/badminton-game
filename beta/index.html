@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body, canvas { touch-action: manipulation; } /* 手機瀏覽器：點兩下不會放大 */
+  body.inMatch, body.inMatch canvas { touch-action: none; }
   html, body { overscroll-behavior: none; margin: 0; height: 100%; overflow: hidden; background: #1d2433; font-family: "Noto Sans TC", system-ui, sans-serif; color: #fff; user-select: none; -webkit-user-select: none; touch-action: none; }
   canvas { display: block; width: 100vw; height: 100vh; }
   .score { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; background: rgba(10,16,28,.72); padding: 8px 18px; border-radius: 16px; pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
@@ -1718,6 +1720,16 @@
   }
   function playerJump() { if (paused || readyT > 0) return; const p = G_ && G_.p; if (p && p.y === 0) { p.vy = 4.3; if (pvpRemote()) pvpEv({ k: 'jp' }); } }
 
+  // ---------- 防止手機瀏覽器誤觸放大（iPhone 不理 user-scalable=no，要另外擋）----------
+  ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false })); // 兩指縮放
+  let lastTap = 0;
+  document.addEventListener('touchend', e => { // 連點兩下空白處：不放大（按鈕、輸入框照常）
+    const now = Date.now(), tgt = e.target;
+    if (now - lastTap < 350 && !(tgt.closest && tgt.closest('button, input, textarea, select, a, label, .ctrl'))) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+  document.addEventListener('dblclick', e => e.preventDefault());
+
   // ---------- 全螢幕（Android Chrome 等支援的瀏覽器） ----------
   const fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
   const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -2196,8 +2208,11 @@
 
     const prevX = b.x;
     let bdt = dt;
-    // 好友對戰：我打過去的球，過網後放慢一點點，讓對方的回球傳回來時剛好接上（不會看到球穿過對方的拍子再跳回來）
-    if (pvpRemote() && b.last === 'p' && b.x > NET_X && g.pvp.debt > 0) { const sl = Math.min(g.pvp.debt, dt * 0.35); bdt = dt - sl; g.pvp.debt -= sl; }
+    // 好友對戰：我打過去的球用 k 倍速飛（見 pvpSendHit）；快落地時對方的結果還沒傳來，就再放慢一點等一下（最多 0.4 秒），不會先在你這邊落地、結果對方卻接起來
+    if (pvpRemote() && b.last === 'p') {
+      const v = g.pvp; bdt = dt * (v.k || 1);
+      if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < 0.4) { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
+    }
     if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; }
     for (let i = 0; i < 4; i++) step(b, bdt / 4);
     if (b.type === 'smash' || Math.hypot(b.vx, b.vy) > 14) g.trail.push({ x: b.x, y: b.y, life: 0.25 });
@@ -2999,7 +3014,11 @@
   }
   function pvpSendHit(kind, fake) {
     const b = G_.b;
-    const v = G_.pvp; v.debt = Math.min(0.5, 2 * (v.lagEma || 0.08)); // 對方晚 1 個延遲才看到、回球再晚 1 個延遲才傳回來
+    // 你的畫面要等「對方看到球（1 個延遲）＋他回球傳回來（再 1 個延遲）」：把這段時間平均分到整段飛行，球在你畫面上稍微慢一點飛，
+    // 對方回球時你看到的球剛好在他拍子上；就算他沒接到，你看到球落地的時間也跟他那邊判定的時間差不多
+    const v = G_.pvp, D = Math.min(0.5, 2 * (v.lagEma || 0.08)), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
+    let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 120); T += 1 / 120; }
+    v.k = T > 0 ? Math.max(0.6, T / (T + D)) : 1; v.hover = 0;
     pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
   }
   function pvpSendPoint(w, clean, cause) {
