@@ -164,12 +164,29 @@
   .rmVs { font-weight: 900; opacity: .6; }
   .rmBtns { display: flex; gap: 8px; } .rmBtns .btn { margin: 0; flex: 1; }
   .btn.rmRed { background: #e63946; color: #fff; } .btn.rmBlack { background: #111; color: #fff; border: 1px solid rgba(255,255,255,.4); }
+  .nwSteps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 2px 0 6px; }
+  .nwStep { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12.5px; }
+  .nwStep i { font-style: normal; opacity: .55; font-size: 11px; }
+  .nwIc { width: 100%; max-width: 120px; height: 64px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; gap: 4px; position: relative; }
+  .nwCode { font: 900 18px "Noto Sans TC", monospace; letter-spacing: 2px; color: #ffe066; }
+  .nwBtn { font-size: 10px; padding: 2px 6px; border-radius: 99px; background: #5ce1c6; color: #1d2433; font-weight: 900; }
+  .nwBub { font-size: 10.5px; background: #fff; color: #1d2433; border-radius: 10px 10px 10px 2px; padding: 4px 7px; line-height: 1.3; text-align: left; }
+  .nwBub b { color: #1d9e88; }
+  .nwSc { font: 900 20px "Noto Sans TC", sans-serif; } .nwSc .r { color: #ff6b6b; } .nwSc .k { color: #ddd; }
+  .compact .nwIc { height: 50px; } .compact .nwSteps { margin: 0 0 4px; }
+  .rmTip { font-size: 11.5px; opacity: .65; margin: 6px 0 0; line-height: 1.5; }
   .rmQ { font-weight: 700; margin: 4px 0 8px; }
   .rmCoin { font-size: 46px; line-height: 1.1; } .rmCoin.spin { animation: coin .25s linear infinite; }
   @keyframes coin { 0% { transform: scaleX(1); } 50% { transform: scaleX(.1); } 100% { transform: scaleX(1); } }
   .rmMsg { min-height: 1.2em; margin: 6px 0 0; } .rmMsg.warn { color: #ff9f9f; }
   .compact .rmCode { font-size: 28px; } .compact .rmSlots { margin: 6px 0; } .compact .rmSlot { min-height: 54px; padding: 6px; }
   .prLogin { display: flex; align-items: center; gap: 8px; font-size: 13px; text-align: left; border: 1px dashed rgba(255,224,102,.5); border-radius: 12px; padding: 6px 10px; margin: 4px 0 8px; } .prLogin .btn { width: auto; margin: 0; padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+  #updBar { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 60; border: 0; border-radius: 99px; padding: 8px 18px; font: 700 14px "Noto Sans TC", sans-serif; background: #ffe066; color: #1d2433; box-shadow: 0 4px 16px rgba(0,0,0,.35); cursor: pointer; }
+  body.inMatch #updBar { display: none; }
+  #inappBar { position: fixed; top: 0; left: 0; right: 0; z-index: 61; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #ffe066; color: #1d2433; font-size: 13px; font-weight: 700; line-height: 1.4; }
+  #inappBar.hidden { display: none; } #inappBar span { flex: 1; }
+  #inappBar button { border: 0; border-radius: 99px; padding: 6px 12px; font: 700 13px "Noto Sans TC", sans-serif; background: #1d2433; color: #fff; white-space: nowrap; }
+  #inappX { background: transparent !important; color: #1d2433 !important; padding: 4px 6px !important; }
   #pvpBanner { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 25; background: rgba(20,26,40,.92); border: 1px solid #ffe066; color: #ffe066; border-radius: 99px; padding: 6px 16px; font-weight: 700; font-size: 14px; pointer-events: none; white-space: nowrap; }
   .prScore { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 6px 0; } .prScore div { display: flex; flex-direction: column; min-width: 90px; }
   .prScore b { font-size: 44px; line-height: 1.1; } .prScore small { opacity: .8; } .prScore span { font-size: 30px; opacity: .6; }
@@ -486,14 +503,14 @@
 <!-- 好友對戰：房間 -->
 <div class="overlay hidden" id="room" style="z-index:32">
   <div class="card rmCard">
-    <div class="rmHead"><span id="rmCodeL"></span><b class="rmCode" id="rmCode"></b><button class="btn sec rmShare" id="rmShare"></button></div>
+    <div class="rmHead"><span id="rmCodeL"></span><b class="rmCode" id="rmCode"></b><button class="btn sec rmShare" id="rmCopy"></button><button class="btn sec rmShare" id="rmShare"></button></div>
     <div class="rmSlots">
       <div class="rmSlot" id="rmSlotH"><small id="rmRoleH"></small><b id="rmNameH"></b><span class="rmSt" id="rmStH"></span></div>
       <div class="rmVs">VS</div>
       <div class="rmSlot" id="rmSlotG"><small id="rmRoleG"></small><b id="rmNameG"></b><span class="rmSt" id="rmStG"></span></div>
     </div>
     <!-- 大廳：準備／開始 -->
-    <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div></div>
+    <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div><p class="rmTip" id="rmTip"></p></div>
     <!-- 選顏色 -->
     <div id="rmPick" class="hidden"><p class="rmQ" id="rmPickQ"></p><div class="rmBtns"><button class="btn rmRed" id="rmRed"></button><button class="btn rmBlack" id="rmBlack"></button></div></div>
     <!-- 抽發球 -->
@@ -502,6 +519,11 @@
     <button class="linkBtn" id="rmLeave"></button>
   </div>
 </div>
+
+<!-- 有新版本 -->
+<button id="updBar" class="hidden"></button>
+<!-- 在 IG／LINE／FB 裡打開：建議改用瀏覽器 -->
+<div id="inappBar" class="hidden"><span id="inappTxt"></span><button id="inappCopy"></button><button id="inappX" aria-label="close">✕</button></div>
 
 <!-- 好友對戰：連線狀態橫幅、離開確認、結果 -->
 <div id="pvpBanner" class="hidden"></div>
@@ -534,6 +556,8 @@
   <div class="card">
     <h2 id="newsT"></h2>
     <p id="newsP" style="text-align:left;line-height:1.7"></p>
+    <div class="nwSteps" id="nwSteps"></div>
+    <p class="rmTip" id="nwTip" style="text-align:left"></p>
     <p id="newsStuck" class="newsStuck"></p>
     <button class="btn pri" id="newsRetry"></button>
     <button class="btn sec" id="newsOk"></button>
@@ -577,7 +601,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.17β · 2026/11/23</p>
+    <p class="note">v3.19 · 2026/11/24 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -975,17 +999,19 @@
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
       wGuest: '以訪客身分玩', wConnecting: '連線中…', wGoogleOff: '目前無法登入（可以用訪客玩）',
       namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`,
+      updCheck: '檢查更新', updNew: v => `🆕 有新版本 v${v}，點一下更新`, updLatest: v => `已經是最新版（v${v}）`, updFail: '暫時連不上，等一下再試',
+      inappTip: '你正在 App 裡的小瀏覽器開啟，連線容易中斷。建議點右上角「⋯」→「用瀏覽器開啟」', inappCopy: '複製連結', inappCopied: '已複製 ✓',
       mChal: '🏆 闖關之路', pickStage: '選擇關卡 ›', stSub: '已經過的關卡隨時可以再挑戰', mFriend: '🤝 好友對戰', mFriendS: '開房間，傳連結找朋友對打', friendGo: '進入',
       mParty: '🎉 Party Mode', mPartyS: '更多好玩的對戰方式', soon: '即將推出',
       tutGateTxt: '先花 1 分鐘學會基本動作，完成後就能開始闖關和好友對戰！', tutGateBtn: '▶ 開始新手教學', tutGateCont: n => `▶ 繼續新手教學（第 ${n} 步）`,
       frTitle: '🤝 好友對戰', frSub: '跟朋友一對一，7 分制、最多 11 分，不計入排行榜。', frCreateT: '開房間', frCreateS: '拿到房號和連結，傳給朋友', frCreate: '開一間房',
       frJoinT: '加入房間', frJoin: '加入', frSoon: '連線功能下一步開通，敬請期待！',
       rm: { code: '房號', share: '🔗 邀請朋友', shareTxt: c => `來跟我打一場羽球PK！房號 ${c}，點連結直接進房：`, copied: '已複製邀請連結，貼給朋友吧！', host: '房主', guest: '對手',
-        waiting: '等待朋友加入…', st: { in: '已進房', ready: '✅ 已準備', tut: '📘 新手教學中…', off: '⚠️ 離線' }, you: '（你）',
+        waiting: '等待朋友加入…', st: { in: '已進房', ready: '✅ 已準備', tut: '📘 新手教學中…', off: '⚠️ 離線（可能切到別的 App）', back: '🔄 重新連線中…' }, you: '（你）',
         ready: '準備', unready: '取消準備', start: '▶ 開始', needBoth: '雙方都按「準備」後，房主就能開始', waitHost: '都準備好了，等房主按開始', tutWait: '對方正在完成新手教學，稍等一下',
         pickQ: '選一個顏色（先選先贏）', red: '🔴 紅方', black: '⚫ 黑方', youAre: c => `你是 ${c}`, waitPick: '等對方選…',
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
-        backRoom: '🤝 回到房間對戰', leave: '離開房間',
+        lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
         quitT: '要離開比賽嗎？', quitP: '現在離開會直接判輸喔。', stay: '繼續比賽', quit: '離開（判輸）', win: '🏆 你贏了！', lose: '這場輸了，再來一場！',
         oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', loginTip: '登入 Google，對戰記錄換手機也不會不見', histVs: n => `🤝 vs ${n}`, imgTime: '比賽時間', imgCta: '找朋友來場好友對戰！',
@@ -1100,8 +1126,8 @@
       num: n => ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一'][n] ?? String(n),
       callStart: '零比零，比賽開始',
       dndTip: '剛剛切到別的地方，所以先幫你暫停了。<br>不想被通知打斷：玩之前開「勿擾模式」或「專注模式」',
-      news: { t: '🆕 更新囉', p: '第 2 關「系隊隊長」調簡單了：他殺球、撲球變少，也比較常自己失誤。<br>另外新增 <b>🎯 練習模式</b>（發球機單項練習）和 <b>📊 對戰記錄</b>（每一場的戰績圖都看得到）。',
-        stuck: '你上次停在第 2 關，現在再挑戰一次吧！', retry: '再挑戰第 2 關', ok: '知道了' },
+      news: { t: '🆕 好友對戰上線了！', p: '首頁改成三種玩法：<b>🏆 闖關之路</b>（進度都還在）、<b>🤝 好友對戰</b>，還有之後會開放的 <b>🎉 Party Mode</b>。<br>現在可以跟朋友一對一連線 PK，三步就能開打：',
+        s1: '開一間房', s2: '傳連結給朋友', s3: '打完看戰績', bub: '來跟我打一場！', go: '🤝 去開房間', ok: '知道了' },
       setCtl: '按鍵位置', ctlEdit: '🎮 自訂', ctlHint: '拖曳按鈕到順手的位置；點一下按鈕再調大小', ctlSize: '大小', ctlAlpha: '透明度',
       ctlReset: '恢復預設', ctlDone: '完成', ctlOverlap: '有按鈕重疊了，比賽時可能會誤觸', ctlNames: { jump: '跳', left: '◀', right: '▶', drop: '輕', swing: '揮拍' },
       readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
@@ -1153,17 +1179,19 @@
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
       wGuest: 'Play as a guest', wConnecting: 'Connecting…', wGoogleOff: 'Sign-in unavailable (play as a guest)',
       namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`,
+      updCheck: 'Check for updates', updNew: v => `🆕 Version ${v} is out — tap to update`, updLatest: v => `You’re on the latest version (v${v})`, updFail: 'Can’t check right now — try again later',
+      inappTip: 'You’re in an in-app browser, so the connection may drop. Tap “⋯” at the top right → “Open in browser”', inappCopy: 'Copy link', inappCopied: 'Copied ✓',
       mChal: '🏆 Challenge', pickStage: 'Pick a stage ›', stSub: 'Replay any stage you’ve already cleared', mFriend: '🤝 Friend Battle', mFriendS: 'Open a room and send the link to a friend', friendGo: 'Enter',
       mParty: '🎉 Party Mode', mPartyS: 'More fun ways to play', soon: 'Coming soon',
       tutGateTxt: 'Take a minute to learn the basics — then Challenge and Friend Battle unlock!', tutGateBtn: '▶ Start tutorial', tutGateCont: n => `▶ Continue tutorial (step ${n})`,
       frTitle: '🤝 Friend Battle', frSub: '1-on-1 with a friend. First to 7, capped at 11. Not ranked.', frCreateT: 'Open a room', frCreateS: 'Get a room code and link to send', frCreate: 'Open room',
       frJoinT: 'Join a room', frJoin: 'Join', frSoon: 'Online play is coming in the next update!',
       rm: { code: 'Room', share: '🔗 Invite a friend', shareTxt: c => `Play Badminton PK with me! Room ${c} — tap the link to join:`, copied: 'Invite link copied — send it to your friend!', host: 'Host', guest: 'Opponent',
-        waiting: 'Waiting for a friend…', st: { in: 'In the room', ready: '✅ Ready', tut: '📘 Doing the tutorial…', off: '⚠️ Offline' }, you: ' (you)',
+        waiting: 'Waiting for a friend…', st: { in: 'In the room', ready: '✅ Ready', tut: '📘 Doing the tutorial…', off: '⚠️ Offline (maybe in another app)', back: '🔄 Reconnecting…' }, you: ' (you)',
         ready: 'Ready', unready: 'Not ready', start: '▶ Start', needBoth: 'Once both players are ready, the host can start', waitHost: 'All set — waiting for the host to start', tutWait: 'Your friend is finishing the tutorial — hang on',
         pickQ: 'Pick a color (first come, first served)', red: '🔴 Red', black: '⚫ Black', youAre: c => `You are ${c}`, waitPick: 'Waiting for your friend…',
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
-        backRoom: '🤝 Back to the room', leave: 'Leave room',
+        lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
         quitT: 'Leave the match?', quitP: 'Leaving now counts as a loss.', stay: 'Keep playing', quit: 'Leave (lose)', win: '🏆 You win!', lose: 'You lost this one — run it back!',
         oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', loginTip: 'Sign in with Google to keep your match history on any phone', histVs: n => `🤝 vs ${n}`, imgTime: 'Match time', imgCta: 'Grab a friend for a Friend Battle!',
@@ -1277,8 +1305,8 @@
       num: n => n === 0 ? 'Love' : String(n),
       callStart: 'Love all, play',
       dndTip: 'You switched away, so we paused the game.<br>To avoid interruptions, turn on Do Not Disturb or Focus mode before playing.',
-      news: { t: '🆕 What’s new', p: 'Stage 2 (The Captain) is easier now: fewer smashes and net kills, and he makes more mistakes.<br>Also new: <b>🎯 Practice</b> (drill one shot with a shuttle machine) and <b>📊 Match history</b> (see the result card of every match).',
-        stuck: 'You stopped at Stage 2 last time — give it another go!', retry: 'Retry Stage 2', ok: 'Got it' },
+      news: { t: '🆕 Friend Battle is here!', p: 'The home screen now has three ways to play: <b>🏆 Challenge</b> (your progress is safe), <b>🤝 Friend Battle</b>, and <b>🎉 Party Mode</b> coming later.<br>Play a friend 1-on-1 online in three steps:',
+        s1: 'Open a room', s2: 'Send the link', s3: 'See the result', bub: 'Play me!', go: '🤝 Open a room', ok: 'Got it' },
       setCtl: 'Button layout', ctlEdit: '🎮 Customize', ctlHint: 'Drag buttons where they feel right; tap one to resize it', ctlSize: 'Size', ctlAlpha: 'Opacity',
       ctlReset: 'Reset', ctlDone: 'Done', ctlOverlap: 'Some buttons overlap — you may hit the wrong one', ctlNames: { jump: 'Jump', left: '◀', right: '▶', drop: 'Soft', swing: 'Hit' },
       readYou: 'Read you!', taichiOn: '☯ Tai chi: soft control', attackOn: '🔥 Full attack!', guestTag: 'Guest',
@@ -1425,7 +1453,8 @@
   function reach(pl) { return 2.35 + pl.y; }
   function inZone(pl, b) {
     const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
-    return dx > -0.65 && dx < 1.05 && b.y > 0.12 && b.y < reach(pl) &&
+    const back = pl.side === 'p' && G_ && G_.pvp ? -0.35 : -0.65; // 好友對戰：球過了身體 0.35 公尺就打不到（闖關維持 0.65，手機比較好打）
+    return dx > back && dx < 1.05 && b.y > 0.12 && b.y < reach(pl) &&
       (pl.side === 'p' ? b.x < NET_X : b.x > NET_X) && b.last !== pl.side;
   }
 
@@ -1837,7 +1866,7 @@
   function boot() {
     let skipped = false; try { skipped = sessionStorage.getItem('bd_skip') === '1'; } catch (e) {}
     const installed = store.get('bd_installed', '') === '1';
-    if (isTouch && canInstallHere && !skipped && !installed) { updInstallUI(); showScreen('gate'); }
+    if (isTouch && canInstallHere && !skipped && !installed && !pendingRoom && !inApp) { updInstallUI(); showScreen('gate'); } // 朋友邀請來的、或在 IG 裡開的：先玩，之後首頁還有安裝按鈕
     else afterGate();
   }
   // 還沒選過「Google 登入」或「訪客」→ 先到歡迎頁選；選過就直接到主頁選關
@@ -1877,9 +1906,11 @@
     showScreen('home');
     // 第一次進來（還沒打過比賽、也沒看過教學）：直接開始新手教學
     setTimeout(maybeNews, 700);
+    checkUpdate(false);
     // 好友對戰：在房間裡（例如剛做完新手教學）就回到房間；從邀請連結進來就加入
     if (room) { if (!needTut && room.me().st === 'tut') rmSet({ st: 'in' }); if (!needTut) openRoomUI(); }
     else if (pendingRoom && FB.ready) { const c = pendingRoom; pendingRoom = ''; joinRoom(c, 'link'); }
+    else if (FB.ready) resumeRoom();
     if (needTut && !store.get('bd_tut', '') && !pendingRoom) setTimeout(() => { if (!G_ && !$('home').classList.contains('hidden') && $('nameDlg') && $('nameDlg').classList.contains('hidden')) startTutorial(); }, 400);
   }
   function clearHud() {
@@ -2085,7 +2116,10 @@
   }
   // 切走就自動暫停：點了通知、切到別的 App、拉下通知欄（有些手機會讓頁面失焦）
   const autoPause = () => { if (inMatch() && !paused && !G_.pvp) openPause(true); }; // 好友對戰不能單方面暫停
-  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPause(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) autoPause();
+    else { if (room) rmOnline(); checkUpdate(false); } // 切回來：房間報到、順便檢查新版本
+  });
   window.addEventListener('blur', autoPause);
   window.addEventListener('pagehide', autoPause);
   function closePause() { overlayClose('pause'); paused = false; last = performance.now(); }
@@ -2211,7 +2245,7 @@
     // 好友對戰：我打過去的球用 k 倍速飛（見 pvpSendHit）；快落地時對方的結果還沒傳來，就再放慢一點等一下（最多 0.4 秒），不會先在你這邊落地、結果對方卻接起來
     if (pvpRemote() && b.last === 'p') {
       const v = g.pvp; bdt = dt * (v.k || 1);
-      if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < 0.4) { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
+      if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < 0.5) { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
     }
     if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; }
     for (let i = 0; i < 4; i++) step(b, bdt / 4);
@@ -2490,22 +2524,27 @@
   setTimeout(applyCtl, 0);
 
   // 更新公告：玩過的人回來時看一次；卡在第 2 關的人直接給「再挑戰」按鈕
-  const NEWS_ID = 'v3.12-stage2';
+  const NEWS_ID = 'v3.18-friend';
   function maybeNews() {
     const r = getRec();
     if (store.get('bd_news', '') === NEWS_ID || !r.matches || G_ || $('home').classList.contains('hidden')) return;
     if ([...document.querySelectorAll('.overlay:not(.hidden)')].some(o => o.id !== 'home')) return; // 有其他視窗開著就下次再說
-    const t = T().news, stuck = (r.cleared || 0) === 1;
+    const t = T().news;
     $('newsT').textContent = t.t; $('newsP').innerHTML = t.p;
-    $('newsStuck').textContent = stuck ? t.stuck : '';
-    $('newsRetry').textContent = t.retry; $('newsRetry').classList.toggle('hidden', !stuck);
+    // 三個小圖：開房間 → 傳連結 → 打完看戰績
+    $('nwSteps').innerHTML = `<div class="nwStep"><div class="nwIc"><span class="nwCode">KB37</span><span class="nwBtn">🔗</span></div>${t.s1}<i>①</i></div>`
+      + `<div class="nwStep"><div class="nwIc"><span class="nwBub">${t.bub}<br><b>…/?room=KB37</b></span></div>${t.s2}<i>②</i></div>`
+      + `<div class="nwStep"><div class="nwIc"><span class="nwSc"><span class="r">7</span> <span class="k">:</span> 4</span>&nbsp;🏆</div>${t.s3}<i>③</i></div>`;
+    $('nwTip').textContent = T().rm.lagTip;
+    $('newsStuck').textContent = '';
+    $('newsRetry').textContent = t.go; $('newsRetry').classList.remove('hidden');
     $('newsOk').textContent = t.ok;
     store.set('bd_news', NEWS_ID);
     overlayOpen('newsDlg');
-    track('news_shown', { mode: stuck ? 'stuck2' : 'other' });
+    track('news_shown', { id: NEWS_ID });
   }
   $('newsOk').addEventListener('click', () => overlayClose('newsDlg'));
-  $('newsRetry').addEventListener('click', () => { overlayClose('newsDlg'); track('news_retry', {}); playStage(1); });
+  $('newsRetry').addEventListener('click', () => { overlayClose('newsDlg'); track('news_go', { id: NEWS_ID }); openFriend(); });
   function openPractice() {
     const t = T().dr;
     $('prTitle').textContent = t.title; $('prSub').textContent = t.sub; $('tutAgain').textContent = t.tutAgain;
@@ -2768,6 +2807,7 @@
         if (!u.isAnonymous) { await loadProfile(); welcomeDone(); } else FB.profile = null; // 跳轉登入回來時也會走這裡
         updAccountUI(); flushPending();
         if (pendingRoom && !G_ && !room && !$('home').classList.contains('hidden')) { const c = pendingRoom; pendingRoom = ''; joinRoom(c, 'link'); } // 邀請連結：連上線後再進房
+        else if (!G_ && !room && !$('home').classList.contains('hidden')) resumeRoom();
       });
     } catch (e) { console.warn('Firebase 無法連線', e); FB.err = true; updAccountUI(); }
   }
@@ -2777,7 +2817,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.17';
+  const GAME_VER = '3.19';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2829,7 +2869,7 @@
     let why = '', role = 'guest';
     try {
       const snap = await RT.m.get(rref(code)); const seen = snap.val();
-      if (!seen) { $('frToast').textContent = t.notFound; track('room_join_fail', { why: 'notfound' }); return; }
+      if (!seen) { if (via0 === 'resume') { store.set('bd_room', ''); overlayClose('friend'); return; } $('frToast').textContent = t.notFound; track('room_join_fail', { why: 'notfound' }); return; }
       const res = await RT.m.runTransaction(rref(code), cur => {
         cur = cur || seen; why = '';
         if (!cur || !cur.host) { why = 'notfound'; return; }
@@ -2846,8 +2886,14 @@
       track('room_join', { via });
       enterRoom(code, role);
       const cur = res.snapshot.val(); room.rid = code + '-' + cur.created;
-      if (role === 'guest') fsRoom({ joined: true, via, newPlayer: isNew, guest: FB.user.uid }); // 給 Sheet 算漏斗：有人加入、從連結還是房號、是不是新玩家
+      if (role === 'guest' && via !== 'resume') fsRoom({ joined: true, via, newPlayer: isNew, guest: FB.user.uid }); // 給 Sheet 算漏斗：有人加入、從連結還是房號、是不是新玩家
     } catch (e) { console.warn(e); $('frToast').textContent = t.offline; }
+  }
+  // 回到房間的報到：重新連上伺服器、或從 IG／LINE 切回來時，把自己改回「在線」
+  function rmOnline() {
+    if (!room || !RT.m) return;
+    RT.m.onDisconnect(rref(room.code + '/' + room.role + '/on')).set(false);
+    RT.m.set(rref(room.code + '/' + room.role + '/on'), true);
   }
   function enterRoom(code, role) {
     if (room) leaveRoom(true);
@@ -2856,14 +2902,24 @@
     m.onDisconnect(rref(code + '/' + role + '/on')).set(false); // 斷線（關掉、沒網路）就標成離線
     m.set(rref(code + '/' + role + '/on'), true);
     room.unsub = m.onValue(rref(code), snap => onRoom(snap.val()));
+    rtInfo(); // 斷線重連時自動報到
+    store.set('bd_room', JSON.stringify({ code, t: Date.now() })); // 記住房號：遊戲被手機關掉，重開也能回到這間房
     overlayClose('friend');
     if (needTutorial()) { if (!G_) startTutorial(Math.min(+store.get('bd_tutAt', '0'), TUT.length - 1)); } // 新人先教學，房間會顯示「新手教學中」
     else openRoomUI();
   }
+  // 剛剛在房間裡、遊戲被手機關掉（例如切到 IG 太久）：15 分鐘內重開，直接回到同一間房
+  let resumed = false;
+  function resumeRoom() {
+    if (resumed || room) return; resumed = true;
+    let r = null; try { r = JSON.parse(store.get('bd_room', '') || 'null'); } catch (e) {}
+    if (!r || !r.code || Date.now() - r.t > 15 * 60e3) return;
+    track('room_resume', {}); joinRoom(r.code, 'resume');
+  }
   function rmSet(obj) { if (!room) return; RT.m.update(rref(room.code + '/' + room.role), obj); }
   function leaveRoom(silent) {
     if (!room) return;
-    const r = room; room = null;
+    const r = room; room = null; store.set('bd_room', '');
     try { r.unsub && r.unsub(); RT.m.onDisconnect(rref(r.code + '/' + r.role + '/on')).cancel(); } catch (e) {}
     if (r.role === 'host') RT.m.remove(rref(r.code)); else RT.m.set(rref(r.code + '/guest'), null);
     clearTimeout(rmTimer); overlayClose('room');
@@ -2914,11 +2970,11 @@
   function renderRoom() {
     if (!room) return;
     const t = T().rm, d = room.data || {}, me = room.role, H = d.host, Gs = d.guest;
-    $('rmCodeL').textContent = t.code; $('rmCode').textContent = room.code; $('rmShare').textContent = t.share; $('rmLeave').textContent = t.leave;
+    $('rmTip').textContent = t.lagTip; $('rmCodeL').textContent = t.code; if (!rmCopied) $('rmCopy').textContent = t.copyCode; $('rmCode').textContent = room.code; $('rmShare').textContent = t.share; $('rmLeave').textContent = t.leave;
     const slot = (who, P, sfx) => {
       $('rmRole' + sfx).textContent = (who === 'host' ? t.host : t.guest) + (who === me ? t.you : '');
       $('rmName' + sfx).textContent = P ? P.name : t.waiting;
-      const stKey = !P ? '' : !P.on ? 'off' : P.st;
+      const stKey = !P ? '' : !P.on ? (who === me ? 'back' : 'off') : P.st;
       $('rmSt' + sfx).textContent = stKey ? t.st[stKey] : ''; $('rmSt' + sfx).className = 'rmSt ' + ({ ready: 'ok', off: 'off', tut: 'tut' }[stKey] || '');
       const col = d.colors ? (d.colors.red === who ? 'red' : d.colors.black === who ? 'black' : '') : '';
       $('rmSlot' + sfx).className = 'rmSlot' + (who === me ? ' me' : '') + (col ? ' ' + col : '');
@@ -2926,7 +2982,7 @@
     slot('host', H, 'H'); slot('guest', Gs, 'G');
     const st = d.state || 'wait';
     $('rmLobby').classList.toggle('hidden', st !== 'wait'); $('rmPick').classList.toggle('hidden', st !== 'pick'); $('rmToss').classList.toggle('hidden', st !== 'toss' && st !== 'count');
-    $('rmShare').classList.toggle('hidden', !!Gs && st !== 'wait');
+    $('rmShare').classList.toggle('hidden', !!Gs); $('rmCopy').classList.toggle('hidden', !!Gs); // 朋友進來了就收起來
     let msg = '', warn = false;
     if (st === 'wait') {
       const mine = room.me(), other = d[room.other], both = H && Gs && H.st === 'ready' && Gs.st === 'ready' && H.on && Gs.on;
@@ -2942,6 +2998,11 @@
     }
     $('rmMsg').textContent = msg; $('rmMsg').classList.toggle('warn', warn);
   }
+  let rmCopied = false;
+  $('rmCopy').addEventListener('click', async () => {
+    if (!room) return; track('room_copy', {});
+    try { await navigator.clipboard.writeText(room.code); $('rmCopy').textContent = T().rm.codeCopied; rmCopied = true; setTimeout(() => { rmCopied = false; renderRoom(); }, 1800); } catch (e) { $('rmMsg').textContent = T().rm.code + ' ' + room.code; }
+  });
   $('rmReady').addEventListener('click', () => { if (!room) return; rmSet({ st: room.me().st === 'ready' ? 'in' : 'ready' }); });
   $('rmStart').addEventListener('click', () => { if (!room || room.role !== 'host') return; unlockSpeech(); RT.m.update(rref(room.code), { state: 'pick', colors: null, serve: null }); track('room_start', {}); });
   // 選顏色：先選先贏，另一個顏色自動給對方
@@ -2955,7 +3016,7 @@
   $('rmLeave').addEventListener('click', () => leaveRoom());
   $('rmShare').addEventListener('click', async () => {
     if (!room) return;
-    const t = T().rm, url = GAME_URL.split('?')[0] + '?room=' + room.code, txt = t.shareTxt(room.code);
+    const t = T().rm, url = GAME_URL.split('?')[0] + '?room=' + room.code + '&openExternalBrowser=1', txt = t.shareTxt(room.code); // openExternalBrowser：LINE 會改用手機的瀏覽器開，比較穩
     track('room_share', {});
     try { if (navigator.share) { await navigator.share({ title: T().gameName, text: txt, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
     try { await navigator.clipboard.writeText(txt + ' ' + url); $('rmMsg').textContent = t.copied; }
@@ -2976,7 +3037,11 @@
     if (rtInfoOn || !RT.m) return; rtInfoOn = true;
     try {
       RT.m.onValue(RT.m.ref(RT.db, '.info/serverTimeOffset'), s => { rtOffset = +s.val() || 0; });
-      RT.m.onValue(RT.m.ref(RT.db, '.info/connected'), s => { const was = rtConnected; rtConnected = s.val() !== false; if (was && !rtConnected) pvpAway(true); });
+      RT.m.onValue(RT.m.ref(RT.db, '.info/connected'), s => {
+        const was = rtConnected; rtConnected = s.val() !== false;
+        if (was && !rtConnected && G_ && G_.pvp) pvpAway(true);
+        if (rtConnected) rmOnline(); // 連回來了：重新報到「我在」
+      });
     } catch (e) {}
   }
   function startPvp(d, rejoin) {
@@ -3016,7 +3081,7 @@
     const b = G_.b;
     // 你的畫面要等「對方看到球（1 個延遲）＋他回球傳回來（再 1 個延遲）」：把這段時間平均分到整段飛行，球在你畫面上稍微慢一點飛，
     // 對方回球時你看到的球剛好在他拍子上；就算他沒接到，你看到球落地的時間也跟他那邊判定的時間差不多
-    const v = G_.pvp, D = Math.min(0.5, 2 * (v.lagEma || 0.08)), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
+    const v = G_.pvp, D = Math.min(0.55, 2.4 * (v.lagEma || 0.08) + 0.02), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
     let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 120); T += 1 / 120; }
     v.k = T > 0 ? Math.max(0.6, T / (T + D)) : 1; v.hover = 0;
     pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
@@ -3174,6 +3239,45 @@
   }
   $('prHome').addEventListener('click', () => { overlayClose('pvpRes'); leaveRoom(); G_ = null; showHome(); });
 
+  // ---------- 新版本檢查：回到遊戲時問伺服器最新版本號（version.json），有新版就提示更新 ----------
+  const verNum = v => String(v || '').split('.').reduce((a, n) => a * 1000 + (+n || 0), 0);
+  let updShown = false, lastChk = 0;
+  async function checkUpdate(manual) {
+    if (!manual && Date.now() - lastChk < 60000) return false; // 一分鐘最多問一次
+    lastChk = Date.now();
+    try {
+      const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw 0;
+      const v = (await r.json()).v;
+      if (verNum(v) > verNum(GAME_VER)) {
+        $('updBar').textContent = T().updNew(v);
+        // 在比賽中先不打擾，回到首頁再顯示
+        if (!inMatch()) { $('updBar').classList.remove('hidden'); if (!updShown) track('update_prompt', { from: GAME_VER, to: v }); updShown = true; }
+        return true;
+      }
+      if (manual) notice(T().updLatest(GAME_VER));
+    } catch (e) { if (manual) notice(T().updFail); }
+    return false;
+  }
+  $('updBar').addEventListener('click', () => { track('update_click', {}); location.reload(); });
+  $('updBtn').addEventListener('click', () => checkUpdate(true));
+  setTimeout(() => checkUpdate(false), 4000);
+
+  // ---------- 在 IG／FB／Threads 裡打開：提示改用瀏覽器（LINE 的連結會自動跳到瀏覽器） ----------
+  const inAppKind = /Instagram|FBAN|FBAV|FB_IAB|Barcelona|Threads|Messenger/i.test(navigator.userAgent) ? 'ig' : /Line\//i.test(navigator.userAgent) ? 'line' : '';
+  function showInApp() {
+    if (!inAppKind || standalone) return;
+    const t = T();
+    $('inappTxt').textContent = t.inappTip; $('inappCopy').textContent = t.inappCopy;
+    $('inappBar').classList.remove('hidden'); track('inapp_open', { app: inAppKind, room: pendingRoom ? 1 : 0 });
+  }
+  $('inappCopy').addEventListener('click', async () => {
+    const url = GAME_URL.split('?')[0] + (pendingRoom || (room && room.code) ? '?room=' + (pendingRoom || room.code) : '');
+    try { await navigator.clipboard.writeText(url); $('inappCopy').textContent = T().inappCopied; } catch (e) { $('inappTxt').textContent = url; }
+  });
+  $('inappX').addEventListener('click', () => $('inappBar').classList.add('hidden'));
+  setTimeout(showInApp, 600);
+
   function track(name, params) {
     if (!FB.an || !consent) return;
     try { FB.m.logEvent(FB.an, name, params || {}); } catch (e) {}
@@ -3209,7 +3313,7 @@
   async function fbLogout() {
     try { await FB.m.signOut(FB.auth); } catch (e) {}
     FB.profile = null;
-    ['bd_rec', 'bd_name', 'bd_tut', 'bd_owner', 'bd_entry', 'bd_hist'].forEach(k => { try { localStorage.removeItem(SK(k)); } catch (e) {} });
+    ['bd_rec', 'bd_name', 'bd_tut', 'bd_owner', 'bd_entry', 'bd_hist', 'bd_room'].forEach(k => { try { localStorage.removeItem(SK(k)); } catch (e) {} });
     location.reload();
   }
 
