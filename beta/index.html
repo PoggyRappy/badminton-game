@@ -174,6 +174,7 @@
   .nwBub b { color: #1d9e88; }
   .nwSc { font: 900 20px "Noto Sans TC", sans-serif; } .nwSc .r { color: #ff6b6b; } .nwSc .k { color: #ddd; }
   .compact .nwIc { height: 50px; } .compact .nwSteps { margin: 0 0 4px; }
+  .rmConn { font-size: 12.5px; margin: 6px 0 0; font-weight: 700; } .rmConn:empty { display: none; }
   .rmTip { font-size: 11.5px; opacity: .65; margin: 6px 0 0; line-height: 1.5; }
   .rmQ { font-weight: 700; margin: 4px 0 8px; }
   .rmCoin { font-size: 46px; line-height: 1.1; } .rmCoin.spin { animation: coin .25s linear infinite; }
@@ -510,7 +511,7 @@
       <div class="rmSlot" id="rmSlotG"><small id="rmRoleG"></small><b id="rmNameG"></b><span class="rmSt" id="rmStG"></span></div>
     </div>
     <!-- 大廳：準備／開始 -->
-    <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div><p class="rmTip" id="rmTip"></p></div>
+    <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div><p class="rmConn" id="rmConn"></p><p class="rmTip" id="rmTip"></p></div>
     <!-- 選顏色 -->
     <div id="rmPick" class="hidden"><p class="rmQ" id="rmPickQ"></p><div class="rmBtns"><button class="btn rmRed" id="rmRed"></button><button class="btn rmBlack" id="rmBlack"></button></div></div>
     <!-- 抽發球 -->
@@ -601,7 +602,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.19 · 2026/11/24 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v3.20 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -1011,7 +1012,7 @@
         ready: '準備', unready: '取消準備', start: '▶ 開始', needBoth: '雙方都按「準備」後，房主就能開始', waitHost: '都準備好了，等房主按開始', tutWait: '對方正在完成新手教學，稍等一下',
         pickQ: '選一個顏色（先選先贏）', red: '🔴 紅方', black: '⚫ 黑方', youAre: c => `你是 ${c}`, waitPick: '等對方選…',
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
-        lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
+        lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
         quitT: '要離開比賽嗎？', quitP: '現在離開會直接判輸喔。', stay: '繼續比賽', quit: '離開（判輸）', win: '🏆 你贏了！', lose: '這場輸了，再來一場！',
         oppQuit: '對方離開了比賽，判你獲勝', youQuit: '你離開了比賽', aiNote: n => `其中 ${n} 分是電腦代打`, toRoom: '🤝 回到房間', toHome: '回主選單', loginTip: '登入 Google，對戰記錄換手機也不會不見', histVs: n => `🤝 vs ${n}`, imgTime: '比賽時間', imgCta: '找朋友來場好友對戰！',
@@ -1191,7 +1192,7 @@
         ready: 'Ready', unready: 'Not ready', start: '▶ Start', needBoth: 'Once both players are ready, the host can start', waitHost: 'All set — waiting for the host to start', tutWait: 'Your friend is finishing the tutorial — hang on',
         pickQ: 'Pick a color (first come, first served)', red: '🔴 Red', black: '⚫ Black', youAre: c => `You are ${c}`, waitPick: 'Waiting for your friend…',
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
-        lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
+        lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
         quitT: 'Leave the match?', quitP: 'Leaving now counts as a loss.', stay: 'Keep playing', quit: 'Leave (lose)', win: '🏆 You win!', lose: 'You lost this one — run it back!',
         oppQuit: 'Your friend left the match — you win', youQuit: 'You left the match', aiNote: n => `${n} point(s) were played by the computer`, toRoom: '🤝 Back to the room', toHome: 'Main menu', loginTip: 'Sign in with Google to keep your match history on any phone', histVs: n => `🤝 vs ${n}`, imgTime: 'Match time', imgCta: 'Grab a friend for a Friend Battle!',
@@ -2245,7 +2246,7 @@
     // 好友對戰：我打過去的球用 k 倍速飛（見 pvpSendHit）；快落地時對方的結果還沒傳來，就再放慢一點等一下（最多 0.4 秒），不會先在你這邊落地、結果對方卻接起來
     if (pvpRemote() && b.last === 'p') {
       const v = g.pvp; bdt = dt * (v.k || 1);
-      if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < 0.5) { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
+      if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < (P2P.ok ? 0.5 : 0.8)) /* 走伺服器的時候偶爾會卡比較久，多等一點 */ { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
     }
     if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; }
     for (let i = 0; i < 4; i++) step(b, bdt / 4);
@@ -2817,7 +2818,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.19';
+  const GAME_VER = '3.20';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2903,6 +2904,8 @@
     m.set(rref(code + '/' + role + '/on'), true);
     room.unsub = m.onValue(rref(code), snap => onRoom(snap.val()));
     rtInfo(); // 斷線重連時自動報到
+    P2P.gen = 0; P2P.tries = 0; P2P.lastTry = 0; P2P.otherOn = false;
+    clearInterval(P2P.loop); P2P.loop = setInterval(() => { if (room) p2pSignal(room.data); }, 3000); // 房主定時檢查要不要（重新）直連
     store.set('bd_room', JSON.stringify({ code, t: Date.now() })); // 記住房號：遊戲被手機關掉，重開也能回到這間房
     overlayClose('friend');
     if (needTutorial()) { if (!G_) startTutorial(Math.min(+store.get('bd_tutAt', '0'), TUT.length - 1)); } // 新人先教學，房間會顯示「新手教學中」
@@ -2919,7 +2922,7 @@
   function rmSet(obj) { if (!room) return; RT.m.update(rref(room.code + '/' + room.role), obj); }
   function leaveRoom(silent) {
     if (!room) return;
-    const r = room; room = null; store.set('bd_room', '');
+    const r = room; room = null; store.set('bd_room', ''); clearInterval(P2P.loop); p2pClose();
     try { r.unsub && r.unsub(); RT.m.onDisconnect(rref(r.code + '/' + r.role + '/on')).cancel(); } catch (e) {}
     if (r.role === 'host') RT.m.remove(rref(r.code)); else RT.m.set(rref(r.code + '/guest'), null);
     clearTimeout(rmTimer); overlayClose('room');
@@ -2934,6 +2937,7 @@
     if (!room) return;
     if (!d) { const was = room.role; leaveRoom(true); if (was === 'guest') notice(T().rm.hostLeft); return; }
     room.data = d;
+    p2pSignal(d);
     if (d.state !== lastState) { lastState = d.state; onState(d); }
     // 房主：雙方都選好顏色 → 抽發球
     if (room.role === 'host' && d.state === 'pick' && d.colors && d.colors.red && d.colors.black) {
@@ -2970,6 +2974,7 @@
   function renderRoom() {
     if (!room) return;
     const t = T().rm, d = room.data || {}, me = room.role, H = d.host, Gs = d.guest;
+    $('rmConn').textContent = !Gs || !Gs.on ? '' : P2P.ok ? t.connP2P(Math.round(p2pMs())) : hasRTC && P2P.tries < 3 ? t.connTry : t.connRelay;
     $('rmTip').textContent = t.lagTip; $('rmCodeL').textContent = t.code; if (!rmCopied) $('rmCopy').textContent = t.copyCode; $('rmCode').textContent = room.code; $('rmShare').textContent = t.share; $('rmLeave').textContent = t.leave;
     const slot = (who, P, sfx) => {
       $('rmRole' + sfx).textContent = (who === 'host' ? t.host : t.guest) + (who === me ? t.you : '');
@@ -3044,6 +3049,80 @@
       });
     } catch (e) {}
   }
+  // ---------- 手機直連（WebRTC）：兩支手機直接傳，不繞新加坡 ----------
+  // 房間資料庫只用來「介紹」兩支手機（交換連線資訊）；連上後位置一秒 30 次直接傳，掉了就不等（不會整排卡住）。
+  // 直連不了（部分電信、學校／公司網路）就自動用原本的方式，擊球、得分兩邊都送，誰先到用誰。
+  const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }];
+  const P2P = { pc: null, ch: null, ok: false, gen: 0, tries: 0, lastTry: 0, rtt: [], pingI: 0, otherOn: false, loop: 0 };
+  const hasRTC = typeof RTCPeerConnection === 'function';
+  function p2pClose() {
+    clearInterval(P2P.pingI);
+    try { P2P.ch && P2P.ch.close(); } catch (e) {} try { P2P.pc && P2P.pc.close(); } catch (e) {}
+    P2P.pc = P2P.ch = null; P2P.ok = false;
+  }
+  function p2pSend(o) {
+    const ch = P2P.ch; if (!P2P.ok || !ch || ch.readyState !== 'open') return false;
+    if (window.__p2pDrop && Math.random() < window.__p2pDrop) return true; // 測試用：故意丟封包
+    try { ch.send(JSON.stringify(o)); return true; } catch (e) { return false; }
+  }
+  function p2pWire(ch) {
+    P2P.ch = ch;
+    ch.onopen = () => {
+      P2P.ok = true; P2P.tries = 0; P2P.rtt = []; renderRoom(); track('p2p_open', { role: room ? room.role : '' });
+      clearInterval(P2P.pingI); P2P.pingI = setInterval(() => p2pSend({ k: 'ping', s: performance.now() }), 500); // 量來回時間
+    };
+    ch.onclose = () => { if (P2P.ch === ch) { P2P.ok = false; clearInterval(P2P.pingI); renderRoom(); } };
+    ch.onmessage = e => {
+      let d; try { d = JSON.parse(e.data); } catch (x) { return; }
+      if (d.k === 'ping') { p2pSend({ k: 'pong', s: d.s }); return; }
+      if (d.k === 'pong') { P2P.rtt.push(performance.now() - d.s); if (P2P.rtt.length > 20) P2P.rtt.shift(); return; }
+      if (G_ && G_.pvp) pvpRecv(d, 'p2p');
+    };
+  }
+  function p2pPc() {
+    const pc = new RTCPeerConnection({ iceServers: ICE });
+    pc.onconnectionstatechange = () => { if (P2P.pc === pc && ['failed', 'closed', 'disconnected'].includes(pc.connectionState)) { P2P.ok = false; renderRoom(); } };
+    return pc;
+  }
+  function iceDone(pc) { // 等連線資訊收集完（最多 2.5 秒），一次送出
+    return new Promise(res => {
+      if (pc.iceGatheringState === 'complete') return res();
+      const t = setTimeout(res, 2500);
+      pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); res(); } });
+    });
+  }
+  async function p2pOffer() { // 房主發起
+    p2pClose(); P2P.tries++; P2P.lastTry = Date.now();
+    const gen = Date.now(), pc = p2pPc(); P2P.gen = gen; P2P.pc = pc;
+    p2pWire(pc.createDataChannel('g', { ordered: false, maxRetransmits: 0 }));
+    await pc.setLocalDescription(await pc.createOffer()); await iceDone(pc);
+    if (P2P.pc !== pc || !room) return;
+    RT.m.set(rref(room.code + '/rtc'), { gen, offer: pc.localDescription.sdp });
+  }
+  async function p2pAnswer(rtc) { // 房客回應
+    p2pClose(); P2P.gen = rtc.gen;
+    const pc = p2pPc(); P2P.pc = pc;
+    pc.ondatachannel = e => p2pWire(e.channel);
+    await pc.setRemoteDescription({ type: 'offer', sdp: rtc.offer });
+    await pc.setLocalDescription(await pc.createAnswer()); await iceDone(pc);
+    if (P2P.pc !== pc || !room) return;
+    RT.m.update(rref(room.code + '/rtc'), { answer: pc.localDescription.sdp, agen: rtc.gen });
+  }
+  function p2pSignal(d) {
+    if (!hasRTC || !room || !d) return;
+    const rtc = d.rtc || {}, other = d[room.other], on = !!(other && other.on);
+    if (!other) { if (P2P.pc) p2pClose(); P2P.otherOn = false; return; }
+    if (on && !P2P.otherOn) P2P.tries = 0; // 對方剛上線（或回來了）：重新試
+    P2P.otherOn = on;
+    if (room.role === 'guest') {
+      if (rtc.offer && rtc.gen && rtc.gen !== P2P.gen && d.guest && d.guest.uid === FB.user.uid) p2pAnswer(rtc).catch(e => console.warn('直連失敗', e));
+    } else {
+      if (rtc.answer && rtc.agen === P2P.gen && P2P.pc && !P2P.pc.currentRemoteDescription) P2P.pc.setRemoteDescription({ type: 'answer', sdp: rtc.answer }).catch(() => {});
+      if (on && !P2P.ok && Date.now() - P2P.lastTry > (P2P.tries < 3 ? 6000 : 30000)) p2pOffer().catch(e => console.warn('直連失敗', e));
+    }
+  }
+  function p2pMs() { if (!P2P.rtt.length) return 0; const a = P2P.rtt.slice().sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; }
+
   function startPvp(d, rejoin) {
     if (!room) return;
     rtInfo();
@@ -3055,6 +3134,7 @@
     showScreen(null); newMatch(4, false, true); // 電腦代打時用第 5 關的實力
     const g = G_;
     g.pvp = { code: room.code, role: room.role, myCol, opCol, opp: oppP.name || '', oppAcct: oppP.acct || '', seq: 0, evs: [], lastN: 0, lastRecv: Date.now(), sendT: 0, tx: g.a.x,
+      q: 0, lastQ: 0, rtT: 0, buf: [], offs: [], lags: [], pin: null, p2pT: 0, allT: 0,
       ai: false, hold: '', holdT: 0, aiPts: 0, maxLag: 0, lagSum: 0, lagN: 0, startedAt: Date.now() };
     g.a.lefty = false; g.a.scale = 1;
     g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
@@ -3063,7 +3143,7 @@
     updScore(); setupServe(); pvpServeHint();
     keys.left = keys.right = false; pendingSwing = null; introLines = null; readyT = rejoin ? 0.1 : 1.2;
     // 接收對方的資料
-    g.pvp.unsub = RT.m.onValue(lref(room.code, room.other), s => pvpRecv(s.val()));
+    g.pvp.unsub = RT.m.onValue(lref(room.code, room.other), s => pvpRecv(s.val(), 'rt'));
     pvpPush(true);
     if (rejoin) pvpAway();
     track('pvp_start', { rejoin: rejoin ? 1 : 0 });
@@ -3071,17 +3151,23 @@
   function pvpServeHint() { const g = G_; if (g && g.pvp && g.state === 'serve' && g.server === 'a' && !g.pvp.ai) $('hint').textContent = T().rm.waitSv; }
   // 傳送：位置＋最近的事件
   function pvpEv(e) { const v = G_.pvp; e.n = ++v.seq; e.t = srvNow(); v.evs.push(e); if (v.evs.length > 8) v.evs.shift(); pvpPush(true); }
+  // 位置一秒 30 次：直連時直接傳；伺服器那條只當備援（半秒一次＋有擊球／得分就馬上送）。直連不了就全部走伺服器（一秒 20 次）
   function pvpPush(now) {
     const g = G_, v = g && g.pvp; if (!v || !room) return;
-    if (!now && performance.now() - v.sendT < 66) return; // 一秒 15 次
-    v.sendT = performance.now();
-    RT.m.set(lref(v.code, v.role), { t: srvNow(), x: +g.p.x.toFixed(3), ev: v.evs });
+    const pt = performance.now();
+    if (!now && pt - v.sendT < 33) return;
+    const dtS = (pt - (v.sendT || pt)) / 1000, x = g.p.x;
+    const vx = dtS > 0 ? (x - (v.sentX ?? x)) / dtS : 0;
+    v.sendT = pt; v.sentX = x;
+    const msg = { q: ++v.q, pt: +pt.toFixed(1), t: srvNow(), x: +x.toFixed(3), vx: +vx.toFixed(2), ev: v.evs };
+    const direct = p2pSend(msg);
+    if (now || (direct ? pt - v.rtT > 500 : pt - v.rtT > 50)) { v.rtT = pt; RT.m.set(lref(v.code, v.role), msg); }
   }
   function pvpSendHit(kind, fake) {
     const b = G_.b;
     // 你的畫面要等「對方看到球（1 個延遲）＋他回球傳回來（再 1 個延遲）」：把這段時間平均分到整段飛行，球在你畫面上稍微慢一點飛，
     // 對方回球時你看到的球剛好在他拍子上；就算他沒接到，你看到球落地的時間也跟他那邊判定的時間差不多
-    const v = G_.pvp, D = Math.min(0.55, 2.4 * (v.lagEma || 0.08) + 0.02), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
+    const v = G_.pvp, D = Math.min(0.6, 2 * lagP90(v) + 0.03), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
     let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 120); T += 1 / 120; }
     v.k = T > 0 ? Math.max(0.6, T / (T + D)) : 1; v.hover = 0;
     pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
@@ -3099,14 +3185,39 @@
     }
     if (b.y < 0.01) b.y = 0.01;
   }
-  function pvpRecv(d) {
+  // 收到對方的資料（直連和伺服器兩條路都會來，用編號去掉重複／過期的）
+  function pvpRecv(d, via) {
     const g = G_, v = g && g.pvp; if (!v || g.over || !d) return;
     v.lastRecv = Date.now();
-    if (typeof d.x === 'number') v.tx = mir(d.x);
-    const lag = Math.max(0, srvNow() - (d.t || srvNow())) / 1000; v.lagSum += lag; v.lagN++; v.maxLag = Math.max(v.maxLag, lag);
-    v.lagEma = v.lagEma == null ? lag : v.lagEma * 0.85 + Math.min(0.4, lag) * 0.15; // 最近的延遲
+    const now = performance.now();
+    if (typeof d.x === 'number' && (d.q || 0) > v.lastQ) {
+      v.lastQ = d.q || v.lastQ;
+      if (typeof d.pt === 'number') {
+        // 對手位置放進緩衝：用「最快那次到達」當基準，晚到的訊息也排得回正確的時間
+        const off = now - d.pt; v.offs.push([now, off]); while (v.offs.length > 1 && now - v.offs[0][0] > 5000) v.offs.shift();
+        const offMin = Math.min(...v.offs.map(o => o[1]));
+        v.buf.push({ t: d.pt + offMin, x: mir(d.x), vx: -(d.vx || 0) }); if (v.buf.length > 60) v.buf.shift();
+        // 這筆晚了多久（單程）：直連用來回時間的一半＋這次多慢；伺服器那條用伺服器時間
+        const lag = via === 'p2p' ? (Math.min(...(P2P.rtt.length ? P2P.rtt : [60])) / 2 + (off - offMin)) / 1000 : Math.max(0, srvNow() - (d.t || srvNow())) / 1000;
+        v.lags.push(lag); if (v.lags.length > 40) v.lags.shift();
+        v.lagSum += lag; v.lagN++; v.maxLag = Math.max(v.maxLag, lag);
+      } else v.buf.push({ t: now, x: mir(d.x), vx: 0 });
+    }
     (d.ev || []).filter(e => e.n > v.lastN).sort((a, b) => a.n - b.n).forEach(e => { v.lastN = e.n; pvpOnEv(e); });
   }
+  // 對手畫在「0.1 秒前」的位置：前後兩筆之間平順補上；後面的還沒到就用速度往前推（最多 0.15 秒）
+  const BUF_MS = 100;
+  function bufX(v, now) {
+    const b = v.buf, rt = now - BUF_MS; if (!b.length) return null;
+    for (let i = b.length - 1; i > 0; i--) {
+      if (b[i - 1].t <= rt && rt <= b[i].t) { const k = (rt - b[i - 1].t) / Math.max(1, b[i].t - b[i - 1].t); return b[i - 1].x + (b[i].x - b[i - 1].x) * k; }
+    }
+    const L = b[b.length - 1];
+    if (rt > L.t) return L.x + L.vx * Math.min(0.15, (rt - L.t) / 1000);
+    return b[0].x;
+  }
+  // 等對方回球要等多久：取最近 40 次裡比較慢的那幾次（第 90 百分位），偶爾卡一下也等得到
+  function lagP90(v) { if (!v.lags.length) return 0.1; const a = v.lags.slice().sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(a.length * 0.9))]; }
   function pvpOnEv(e) {
     const g = G_, v = g.pvp, a = g.a, t = T();
     if (e.k === 'sync' || e.k === 'needSync' || e.k === 'quit') { pvpCtl(e); return; }
@@ -3118,8 +3229,8 @@
       // 不快轉：從對方擊球那一刻開始，完整、等速地飛過來（你看到的軌跡跟真的一模一樣，預判才準）
       const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh };
       const old = g.b; // 你這邊畫面上的舊球可能已經飛過對方的拍子一點點：用 0.12 秒把畫面接回擊球點，不要瞬移
-      if (old && g.state === 'rally') g.bOff = { x: old.x - b.x, y: old.y - b.y, t: 0.12, T: 0.12 };
-      if (typeof e.px === 'number') { a.x = mir(e.px); v.tx = a.x; } // 對方人物對齊擊球位置
+      if (old && g.state === 'rally') { const T0 = Math.max(0.12, Math.min(0.35, Math.hypot(old.x - b.x, old.y - b.y) / 8)); g.bOff = { x: old.x - b.x, y: old.y - b.y, t: T0, T: T0 }; } // 差越多，接回去的時間越長
+      if (typeof e.px === 'number') { a.x = mir(e.px); v.pin = { x: a.x, until: performance.now() + 150 }; } // 對方人物對齊擊球位置（0.15 秒）
       g.b = b; g.trail = []; g.state = 'rally'; g.rally++; $('hint').textContent = '';
       a.swingType = kind; a.swingT = contactT(kind);
       const nm = kind === 'serve' ? t.shots.serve : t.shots[kind];
@@ -3138,7 +3249,14 @@
   // 每一幀：傳位置、對方位置平滑移動、偵測斷線
   function pvpTick(dt) {
     const g = G_, v = g.pvp, t = T().rm;
-    if (!v.ai) { g.a.x += (v.tx - g.a.x) * Math.min(1, dt * 14); g.a.x = Math.max(NET_X + 0.2, Math.min(COURT - 0.1, g.a.x)); }
+    if (!v.ai) {
+      const now = performance.now(), bx = v.pin && now < v.pin.until ? v.pin.x : bufX(v, now);
+      const pinned = v.pin && now < v.pin.until;
+      // 對手最快只能用 9 m/s 移動到目標：網路卡一下後資料一次湧進來，人物會快速滑過去，不會瞬移
+      if (bx != null) { const want = g.a.x + (bx - g.a.x) * Math.min(1, dt * 30), cap = 9 * dt; g.a.x = pinned ? bx : g.a.x + Math.max(-cap, Math.min(cap, want - g.a.x)); g.a.x = Math.max(NET_X + 0.2, Math.min(COURT - 0.1, g.a.x)); }
+    }
+    v.allT += dt; if (P2P.ok) v.p2pT += dt;
+    if ((v.lblT = (v.lblT || 0) + dt) > 1) { v.lblT = 0; $('lvLbl').textContent = T().rm.pvLbl + (P2P.ok ? ' ⚡' : ' 🌐'); }
     pvpPush(false);
     if (g.state === 'serve') pvpServeHint();
     const oppOn = room && room.data && room.data[room.other] ? room.data[room.other].on !== false : false;
@@ -3215,7 +3333,7 @@
     // 訪客：提醒登入 Google 保存記錄
     $('prLogin').classList.toggle('hidden', isGoogle()); $('prLoginTxt').textContent = t.loginTip; $('prLoginBtn').textContent = t.loginBtn; $('prShare').textContent = t.shareRes;
     if (!isGoogle()) track('login_prompt', { from: 'pvp' });
-    track('pvp_end', { won: won ? 1 : 0, why: why || 'done', score: `${g.ps}-${g.as}`, ai_pts: v.aiPts, lag_ms: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0 });
+    track('pvp_end', { won: won ? 1 : 0, why: why || 'done', score: `${g.ps}-${g.as}`, ai_pts: v.aiPts, lag_ms: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0, p2p: v.allT ? Math.round(v.p2pT / v.allT * 100) : 0 });
   }
   $('prRoom').addEventListener('click', () => { overlayClose('pvpRes'); G_ = null; showHome(); });
   $('prShare').addEventListener('click', () => { if (shareRec && shareRec.pvp) { track('share_open', { from: 'pvp' }); openShareView(); } });
@@ -3227,7 +3345,8 @@
     const sc = { [v.myCol]: rec.ps, [v.opCol]: rec.as };
     const side = c => { const who = d.colors && d.colors[c] === 'host' ? H : Gs; return { uid: who.uid || '', name: who.name || '', acct: who.acct || '', score: sc[c] }; };
     const mine = { shots: st.shots, smash: st.smash, bestSmash: st.bestSmash || 0, feints: st.feints, lagMs: v.lagN ? Math.round(v.lagSum / v.lagN * 1000) : 0, maxLagMs: Math.round(v.maxLag * 1000),
-      aiPts: v.aiPts, mobile: isTouch, app: standalone, lang: LANG, why: rec.why };
+      aiPts: v.aiPts, mobile: isTouch, app: standalone, lang: LANG, why: rec.why,
+      conn: v.allT && v.p2pT / v.allT > 0.8 ? 'p2p' : v.allT && v.p2pT / v.allT > 0.2 ? 'mixed' : 'relay', p2pShare: v.allT ? +(v.p2pT / v.allT).toFixed(2) : 0, rttMs: Math.round(p2pMs()) };
     const doc = { players: [H.uid, Gs.uid].filter(Boolean), code: v.code, ver: GAME_VER, red: side('red'), black: side('black'),
       winner: rec.won ? v.myCol : v.opCol, secs: rec.secs, longest: rec.longest, avgRally: +rec.avg.toFixed(2), [v.role]: mine, ts: FB.m.serverTimestamp() };
     if (doc.players.length !== 2) return;
