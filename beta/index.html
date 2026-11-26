@@ -174,17 +174,39 @@
   .nwBub b { color: #1d9e88; }
   .nwSc { font: 900 20px "Noto Sans TC", sans-serif; } .nwSc .r { color: #ff6b6b; } .nwSc .k { color: #ddd; }
   .compact .nwIc { height: 50px; } .compact .nwSteps { margin: 0 0 4px; }
-  .rmModes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin: 8px 0 2px; }
-  .rmModes button { border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; border-radius: 12px; padding: 5px 2px; font: 700 12px "Noto Sans TC", sans-serif; display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; }
-  .rmModes button i { font-style: normal; font-size: 18px; line-height: 1.1; }
-  .rmModes button.on { border-color: #ffe066; background: rgba(255,224,102,.18); color: #ffe066; }
-  .rmModes button small { font-size: 9.5px; opacity: .6; font-weight: 400; }
-  .rmModes button:disabled { cursor: default; } .rmModes.guest button:not(.on) { opacity: .45; }
-  .rmModeD { font-size: 12px; opacity: .8; margin: 2px 0 4px; min-height: 1.2em; }
+  /* 房間頂部：房號＋複製／邀請｜模式膠囊｜離開 */
+  .card.rmCard { position: relative; }
+  .rmHead { display: flex !important; align-items: center; justify-content: space-between !important; gap: 8px; flex-wrap: nowrap !important; }
+  .rmCodeBox { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .rmCodeBox small { font-size: 11px; opacity: .65; }
+  .rmCode { font-size: 26px !important; letter-spacing: 4px !important; }
+  .rmIc { border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08); color: #fff; border-radius: 99px; height: 32px; min-width: 32px; padding: 0 10px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; white-space: nowrap; }
+  .rmIc.rmInv { background: #5ce1c6; color: #1d2433; border: 0; }
+  .rmIc.rmX { padding: 0; width: 32px; font-size: 15px; opacity: .8; }
+  .rmModeBtn { position: relative; display: flex; align-items: center; gap: 8px; border-radius: 99px; padding: 6px 14px 6px 12px; cursor: pointer; color: #fff;
+    font: 900 16px "Noto Sans TC", sans-serif; background: linear-gradient(#1f2a3d, #1f2a3d) padding-box, linear-gradient(110deg, #5ce1c6, #ffe066, #ff8a8a) border-box; border: 2px solid transparent;
+    box-shadow: 0 0 18px rgba(255,224,102,.18); white-space: nowrap; }
+  .rmModeBtn small { font: 700 10.5px "Noto Sans TC", sans-serif; opacity: .65; letter-spacing: 1px; border-right: 1px solid rgba(255,255,255,.25); padding-right: 8px; }
+  .rmModeBtn i { font-style: normal; font-size: 12px; opacity: .8; transition: transform .2s; } .rmModeBtn.open i { transform: rotate(180deg); }
+  .rmModeBtn:disabled { cursor: default; box-shadow: none; opacity: 1; } .rmModeBtn:disabled i { display: none; }
+  .rmModeD { font-size: 12px; opacity: .75; margin: 4px 0 0; min-height: 1.2em; }
+  /* 模式選單 */
+  .rmPop { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); width: min(520px, 94%); z-index: 5; border-radius: 18px; padding: 10px;
+    background: rgba(24,32,48,.97); border: 1px solid rgba(255,224,102,.35); box-shadow: 0 14px 40px rgba(0,0,0,.55); animation: popIn .16s ease-out; }
+  @keyframes popIn { from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(.98); } }
+  .rmPopHead { font-size: 12px; opacity: .7; margin: 0 2px 8px; text-align: left; }
+  .rmPopGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rmPopGrid button { position: relative; text-align: left; display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
+    border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: #fff; border-radius: 14px; padding: 8px 10px; cursor: pointer; font-family: "Noto Sans TC", sans-serif; }
+  .rmPopGrid button i { grid-row: 1 / 3; font-style: normal; font-size: 26px; text-align: center; }
+  .rmPopGrid button b { font-size: 14px; } .rmPopGrid button span { font-size: 10.5px; opacity: .7; line-height: 1.35; }
+  .rmPopGrid button.on { border-color: #ffe066; background: rgba(255,224,102,.14); box-shadow: inset 0 0 0 1px rgba(255,224,102,.4); }
+  .rmPopGrid button em { position: absolute; top: 6px; right: 8px; font: 700 9.5px "Noto Sans TC", sans-serif; font-style: normal; padding: 1px 6px; border-radius: 99px; background: rgba(255,255,255,.14); opacity: .85; }
+  .rmPopGrid button:disabled { cursor: default; opacity: .45; }
+  .compact .rmCode { font-size: 22px !important; } .compact .rmModeBtn { font-size: 14px; padding: 4px 12px 4px 10px; } .compact .rmPopGrid button { padding: 6px 8px; } .compact .rmPop { top: 48px; }
   .rmAi { font-size: 12.5px !important; margin: 2px 0 0 !important; }
   .aiStars { display: block; font-size: 11px; color: #ffe066; letter-spacing: 1px; } .aiStars .off { color: rgba(255,255,255,.2); }
   #aiGrid button { display: flex; flex-direction: column; align-items: center; gap: 1px; } .aiSt { display: block; font-size: 11px; opacity: .65; }
-  .compact .rmModes button { padding: 3px 2px; } .compact .rmModes button i { font-size: 15px; }
   .rmConn { font-size: 12.5px; margin: 6px 0 0; font-weight: 700; } .rmConn:empty { display: none; }
   .rmTip { font-size: 11.5px; opacity: .65; margin: 6px 0 0; line-height: 1.5; }
   .rmQ { font-weight: 700; margin: 4px 0 8px; }
@@ -515,9 +537,14 @@
 <!-- 好友對戰：房間 -->
 <div class="overlay hidden" id="room" style="z-index:32">
   <div class="card rmCard">
-    <div class="rmHead"><span id="rmCodeL"></span><b class="rmCode" id="rmCode"></b><button class="btn sec rmShare" id="rmCopy"></button><button class="btn sec rmShare" id="rmShare"></button></div>
-    <div class="rmModes" id="rmModes"></div>
+    <div class="rmHead">
+      <div class="rmCodeBox"><small id="rmCodeL"></small><b class="rmCode" id="rmCode"></b><button class="rmIc" id="rmCopy"></button><button class="rmIc rmInv" id="rmShare"></button></div>
+      <button class="rmModeBtn" id="rmModeBtn"><small id="rmModeL"></small><span id="rmModeV"></span><i id="rmModeArrow">▾</i></button>
+      <button class="rmIc rmX" id="rmLeave">✕</button>
+    </div>
     <p class="rmModeD" id="rmModeD"></p>
+    <!-- 模式選單（點模式膠囊後浮出來） -->
+    <div class="rmPop hidden" id="rmModePop"><div class="rmPopHead" id="rmPopHead"></div><div class="rmPopGrid" id="rmModes"></div></div>
     <div class="rmSlots">
       <div class="rmSlot" id="rmSlotH"><small id="rmRoleH"></small><b id="rmNameH"></b><span class="rmSt" id="rmStH"></span></div>
       <div class="rmVs">VS</div>
@@ -530,7 +557,6 @@
     <!-- 抽發球 -->
     <div id="rmToss" class="hidden"><div class="rmCoin" id="rmCoin">🪙</div><p class="rmQ" id="rmTossTxt"></p></div>
     <p class="note rmMsg" id="rmMsg"></p>
-    <button class="linkBtn" id="rmLeave"></button>
   </div>
 </div>
 
@@ -624,7 +650,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.22 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v3.23 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -1036,7 +1062,7 @@
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
         lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', modes: { std: ['🤝', '標準', '原本的好友對戰'], weather: ['🌪️', '天氣', '每一分隨機天氣，雙方一起受影響'], bomb: ['💣', '炸彈', '球是倒數炸彈，結束在誰那邊誰失分'],
           skill: ['🃏', '技能', '每一分抽一張技能卡，用一次'], shrink: ['📏', '縮小', '每打一分，場地就縮小一點'], prop: ['🔧', '道具', '不用球拍，換各種道具來打'] },
-        dev: '開發中', chal: '闖關', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '⭐ 越多越難。跟電腦打不算闖關進度，也不上排行榜。',
+        dev: '開發中', chal: '闖關', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '⭐ 越多越難。跟電腦打不算闖關進度，也不上排行榜。',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `電腦（${st} ${n}）`,
         connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
@@ -1222,7 +1248,7 @@
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
         lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', modes: { std: ['🤝', 'Standard', 'The original Friend Battle'], weather: ['🌪️', 'Weather', 'Random weather every point, for both sides'], bomb: ['💣', 'Bomb', 'The shuttle is a ticking bomb — whoever it ends on loses the point'],
           skill: ['🃏', 'Skills', 'Draw a skill card each point and use it once'], shrink: ['📏', 'Shrink', 'The court gets smaller after every point'], prop: ['🔧', 'Props', 'No racket — play with different props'] },
-        dev: 'In dev', chal: 'Challenge', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: '⭐ More stars = harder. Doesn’t count toward Challenge or the leaderboard.',
+        dev: 'In dev', chal: 'Challenge', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: '⭐ More stars = harder. Doesn’t count toward Challenge or the leaderboard.',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `Computer (${st} ${n})`,
         connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
@@ -2864,7 +2890,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.22';
+  const GAME_VER = '3.23';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2923,7 +2949,7 @@
         if (cur.v !== GAME_VER) { why = 'ver'; return; }
         const uid = FB.user.uid;
         if (cur.host.uid === uid) { role = 'host'; cur.host.on = true; return cur; }
-        if (cur.guest && cur.guest.uid !== uid && cur.guest.on) { why = 'full'; return; }
+        if (cur.guest && cur.guest.uid !== uid && cur.guest.on && !cur.guest.ai) { why = 'full'; return; } // 電腦佔的位子：朋友進來就取代電腦
         role = 'guest';
         const keep = cur.guest && cur.guest.uid === uid ? cur.guest.st : 'in';
         cur.guest = rmMe(needTutorial() ? 'tut' : (keep === 'tut' ? 'in' : keep)); return cur;
@@ -3000,6 +3026,9 @@
     const md = t.rm.modes[m.mode || 'std'] || t.rm.modes.std;
     return `${md[0]} ${md[1]}・vs ${m.ai ? t.rm.vsAi(t.stage(m.aiLv + 1), t.levels[m.aiLv]) : (m.opp || '?')}`;
   }
+  function closeModePop() { $('rmModePop').classList.add('hidden'); $('rmModeBtn').classList.remove('open'); }
+  $('rmModeBtn').addEventListener('click', e => { e.stopPropagation(); const pop = $('rmModePop'), open = pop.classList.contains('hidden'); pop.classList.toggle('hidden', !open); $('rmModeBtn').classList.toggle('open', open); });
+  document.addEventListener('click', e => { if (!$('rmModePop').classList.contains('hidden') && !e.target.closest('#rmModePop')) closeModePop(); });
   function aiLabel(lv) { const t = T(); return t.rm.aiName(t.stage(lv + 1), t.levels[lv]); }
 
   function rmSet(obj) { if (!room) return; RT.m.update(rref(room.code + '/' + room.role), obj); }
@@ -3058,7 +3087,9 @@
     if (!room) return;
     const t = T().rm, d = room.data || {}, me = room.role, H = d.host, Gs = d.guest;
     $('rmConn').textContent = !Gs || !Gs.on || Gs.ai ? '' : P2P.ok ? t.connP2P(Math.round(p2pMs())) : hasRTC && P2P.tries < 3 ? t.connTry : t.connRelay;
-    $('rmTip').textContent = Gs && Gs.ai ? '' : t.lagTip; // 跟電腦打不用連線提醒 $('rmCodeL').textContent = t.code; if (!rmCopied) $('rmCopy').textContent = t.copyCode; $('rmCode').textContent = room.code; $('rmShare').textContent = t.share; $('rmLeave').textContent = t.leave;
+    $('rmTip').textContent = Gs && Gs.ai ? '' : t.lagTip; /* 跟電腦打不用連線提醒 */
+    $('rmCodeL').textContent = t.code; $('rmCode').textContent = room.code; $('rmShare').textContent = t.shareShort; $('rmShare').title = t.share; $('rmLeave').title = t.leave;
+    $('rmCopy').textContent = rmCopied ? '✓' : '📋'; $('rmCopy').title = t.copyCode;
     const slot = (who, P, sfx) => {
       $('rmRole' + sfx).textContent = (who === 'host' ? t.host : t.guest) + (who === me ? t.you : '');
       $('rmName' + sfx).textContent = P ? P.name : t.waiting;
@@ -3069,19 +3100,21 @@
     };
     slot('host', H, 'H'); slot('guest', Gs, 'G');
     if (Gs && Gs.ai) { $('rmNameG').textContent = aiLabel(Gs.lv); $('rmRoleG').textContent = t.guest; }
-    // 模式按鈕：房主可以換，對方只看得到選了哪個
+    // 模式膠囊：房主點開選單換模式；對方只看得到現在是哪個
     const mode = d.mode || 'std', isHost = me === 'host' && (d.state || 'wait') === 'wait';
-    $('rmModes').className = 'rmModes' + (me === 'host' ? '' : ' guest');
-    $('rmModes').innerHTML = MODES.map(M => { const md = t.modes[M.id];
-      return `<button data-m="${M.id}" class="${M.id === mode ? 'on' : ''}" ${!isHost || !M.live ? 'disabled' : ''}><i>${md[0]}</i>${md[1]}${M.live ? '' : `<small>${t.dev}</small>`}</button>`; }).join('');
-    $('rmModes').querySelectorAll('button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+    $('rmModeL').textContent = t.modeL; $('rmModeV').textContent = t.modes[mode][0] + ' ' + t.modes[mode][1];
+    $('rmModeBtn').disabled = !isHost; if (!isHost) closeModePop();
     $('rmModeD').textContent = t.modes[mode][2] + (me === 'host' ? '' : '（' + t.hostOnly + '）');
+    $('rmPopHead').textContent = t.pickMode;
+    $('rmModes').innerHTML = MODES.map(M => { const md = t.modes[M.id];
+      return `<button data-m="${M.id}" class="${M.id === mode ? 'on' : ''}" ${M.live ? '' : 'disabled'}><i>${md[0]}</i><b>${md[1]}</b><span>${md[2]}</span>${M.live ? '' : `<em>${t.dev}</em>`}</button>`; }).join('');
+    $('rmModes').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setMode(b.dataset.m); closeModePop(); }));
     // 補電腦（只有房主、還沒人進來時）
     $('rmAddAi').textContent = Gs && Gs.ai ? t.rmAi : t.addAi;
     $('rmAddAi').classList.toggle('hidden', me !== 'host' || (Gs && !Gs.ai) || (d.state || 'wait') !== 'wait');
     const st = d.state || 'wait';
     $('rmLobby').classList.toggle('hidden', st !== 'wait'); $('rmPick').classList.toggle('hidden', st !== 'pick'); $('rmToss').classList.toggle('hidden', st !== 'toss' && st !== 'count');
-    $('rmShare').classList.toggle('hidden', !!Gs); $('rmCopy').classList.toggle('hidden', !!Gs); // 朋友（或電腦）進來了就收起來
+    $('rmShare').classList.toggle('hidden', !!(Gs && !Gs.ai)); $('rmCopy').classList.toggle('hidden', !!(Gs && !Gs.ai)); // 朋友進來了就收起來（補電腦時還能邀請，朋友進來會取代電腦）
     let msg = '', warn = false;
     if (st === 'wait') {
       const mine = room.me(), other = d[room.other], both = H && Gs && H.st === 'ready' && Gs.st === 'ready' && H.on && Gs.on;
@@ -3100,7 +3133,7 @@
   let rmCopied = false;
   $('rmCopy').addEventListener('click', async () => {
     if (!room) return; track('room_copy', {});
-    try { await navigator.clipboard.writeText(room.code); $('rmCopy').textContent = T().rm.codeCopied; rmCopied = true; setTimeout(() => { rmCopied = false; renderRoom(); }, 1800); } catch (e) { $('rmMsg').textContent = T().rm.code + ' ' + room.code; }
+    try { await navigator.clipboard.writeText(room.code); $('rmCopy').textContent = '✓'; rmCopied = true; setTimeout(() => { rmCopied = false; renderRoom(); }, 1800); } catch (e) { $('rmMsg').textContent = T().rm.code + ' ' + room.code; }
   });
   $('rmReady').addEventListener('click', () => { if (!room) return; rmSet({ st: room.me().st === 'ready' ? 'in' : 'ready' }); });
   $('rmStart').addEventListener('click', () => { if (!room || room.role !== 'host') return; unlockSpeech(); RT.m.update(rref(room.code), { state: 'pick', colors: null, serve: null }); track('room_start', {}); });
