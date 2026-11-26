@@ -602,7 +602,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.20 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v3.21 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -1128,7 +1128,9 @@
       callStart: '零比零，比賽開始',
       dndTip: '剛剛切到別的地方，所以先幫你暫停了。<br>不想被通知打斷：玩之前開「勿擾模式」或「專注模式」',
       news: { t: '🆕 好友對戰上線了！', p: '首頁改成三種玩法：<b>🏆 闖關之路</b>（進度都還在）、<b>🤝 好友對戰</b>，還有之後會開放的 <b>🎉 Party Mode</b>。<br>現在可以跟朋友一對一連線 PK，三步就能開打：',
-        s1: '開一間房', s2: '傳連結給朋友', s3: '打完看戰績', bub: '來跟我打一場！', go: '🤝 去開房間', ok: '知道了' },
+        s1: '開一間房', s2: '傳連結給朋友', s3: '打完看戰績', bub: '來跟我打一場！', go: '🤝 去開房間', ok: '知道了',
+        p2pT: '⚡ 好友對戰變順了！', p2pP: '現在兩支手機會直接連線，不繞伺服器，延遲更低、不會突然卡一下。', p2pLine: '⚡ 現在連線更順了！',
+        netTip: '💡 小提醒：用家裡 Wi-Fi 或手機網路最穩；學校、公司的 Wi-Fi 有時沒辦法直連，房間裡看到「🌐 一般連線」時，換成手機網路試試。' },
       setCtl: '按鍵位置', ctlEdit: '🎮 自訂', ctlHint: '拖曳按鈕到順手的位置；點一下按鈕再調大小', ctlSize: '大小', ctlAlpha: '透明度',
       ctlReset: '恢復預設', ctlDone: '完成', ctlOverlap: '有按鈕重疊了，比賽時可能會誤觸', ctlNames: { jump: '跳', left: '◀', right: '▶', drop: '輕', swing: '揮拍' },
       readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
@@ -1307,7 +1309,9 @@
       callStart: 'Love all, play',
       dndTip: 'You switched away, so we paused the game.<br>To avoid interruptions, turn on Do Not Disturb or Focus mode before playing.',
       news: { t: '🆕 Friend Battle is here!', p: 'The home screen now has three ways to play: <b>🏆 Challenge</b> (your progress is safe), <b>🤝 Friend Battle</b>, and <b>🎉 Party Mode</b> coming later.<br>Play a friend 1-on-1 online in three steps:',
-        s1: 'Open a room', s2: 'Send the link', s3: 'See the result', bub: 'Play me!', go: '🤝 Open a room', ok: 'Got it' },
+        s1: 'Open a room', s2: 'Send the link', s3: 'See the result', bub: 'Play me!', go: '🤝 Open a room', ok: 'Got it',
+        p2pT: '⚡ Friend Battle is smoother!', p2pP: 'Phones now connect directly instead of going through a server — less lag, no more sudden freezes.', p2pLine: '⚡ Connections are smoother now!',
+        netTip: '💡 Tip: home Wi-Fi or mobile data works best. School or office Wi-Fi sometimes blocks direct connections — if the room says “🌐 Standard connection”, try mobile data.' },
       setCtl: 'Button layout', ctlEdit: '🎮 Customize', ctlHint: 'Drag buttons where they feel right; tap one to resize it', ctlSize: 'Size', ctlAlpha: 'Opacity',
       ctlReset: 'Reset', ctlDone: 'Done', ctlOverlap: 'Some buttons overlap — you may hit the wrong one', ctlNames: { jump: 'Jump', left: '◀', right: '▶', drop: 'Soft', swing: 'Hit' },
       readYou: 'Read you!', taichiOn: '☯ Tai chi: soft control', attackOn: '🔥 Full attack!', guestTag: 'Guest',
@@ -2221,6 +2225,7 @@
     } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
+    if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; } // 球的畫面位置慢慢接回真正的位置
     if (g.pvp && pvpTick(dt)) return; // 好友對戰：傳送位置、等斷線的對方
     if (g.pFat) g.pFat = Math.max(0, g.pFat - dt * 0.12); // 體力慢慢回來
     if (g.drill) { drillUpdate(dt); return; }
@@ -2243,19 +2248,23 @@
 
     const prevX = b.x;
     let bdt = dt;
-    // 好友對戰：我打過去的球用 k 倍速飛（見 pvpSendHit）；快落地時對方的結果還沒傳來，就再放慢一點等一下（最多 0.4 秒），不會先在你這邊落地、結果對方卻接起來
+    // 好友對戰：我打過去的球，出拍後 0.15 秒維持真實速度（打擊感跟闖關一樣），之後用 k 倍速飛（見 pvpSendHit）；
+    // 快落地時對方的結果還沒傳來，就再放慢一點等一下，不會先在你這邊落地、結果對方卻接起來
     if (pvpRemote() && b.last === 'p') {
-      const v = g.pvp; bdt = dt * (v.k || 1);
+      const v = g.pvp; v.fly = (v.fly || 0) + dt; bdt = v.fly < 0.15 ? dt : dt * (v.k || 1);
       if (b.x > NET_X && b.vy < 0 && b.y < 0.5 && v.hover < (P2P.ok ? 0.5 : 0.8)) /* 走伺服器的時候偶爾會卡比較久，多等一點 */ { const f = Math.max(0.15, b.y / 0.5); v.hover += bdt * (1 - f); bdt *= f; }
     }
-    if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; }
-    for (let i = 0; i < 4; i++) step(b, bdt / 4);
-    if (b.type === 'smash' || Math.hypot(b.vx, b.vy) > 14) g.trail.push({ x: b.x, y: b.y, life: 0.25 });
-    // 掛網
-    if (!b.net && (prevX - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) {
-      b.net = true; b.x = NET_X + (prevX < NET_X ? -0.05 : 0.05); b.vx = -b.vx * 0.08; b.vy = Math.min(b.vy, 0) * 0.3;
-      showMsg(T().netHit, '#ff8a8a'); netSound();
+    // 球用固定的 1/240 秒一步來算（不管手機畫面快慢、球有沒有放慢）：同一顆球在兩支手機上的軌跡、落點、掛不掛網都一模一樣
+    const SD = 1 / 240; let netNow = false;
+    b.acc = (b.acc || 0) + bdt;
+    while (b.acc >= SD && b.y > 0) {
+      b.acc -= SD; const px = b.x; step(b, SD);
+      if (!b.net && (px - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) { // 掛網
+        b.net = true; b.x = NET_X + (px < NET_X ? -0.05 : 0.05); b.vx = -b.vx * 0.08; b.vy = Math.min(b.vy, 0) * 0.3; netNow = true;
+      }
     }
+    if (netNow) { showMsg(T().netHit, '#ff8a8a'); netSound(); }
+    if (b.type === 'smash' || Math.hypot(b.vx, b.vy) > 14) g.trail.push({ x: b.x, y: b.y, life: 0.25 });
     if (b.y <= 0) {
       b.y = 0; floorSound();
       let winner, shortSv = false;
@@ -2525,18 +2534,25 @@
   setTimeout(applyCtl, 0);
 
   // 更新公告：玩過的人回來時看一次；卡在第 2 關的人直接給「再挑戰」按鈕
-  const NEWS_ID = 'v3.18-friend';
+  const NEWS_ID = 'v3.20-p2p', NEWS_FRIEND = 'v3.18-friend';
   function maybeNews() {
     const r = getRec();
     if (store.get('bd_news', '') === NEWS_ID || !r.matches || G_ || $('home').classList.contains('hidden')) return;
     if ([...document.querySelectorAll('.overlay:not(.hidden)')].some(o => o.id !== 'home')) return; // 有其他視窗開著就下次再說
-    const t = T().news;
+    const t = T().news, sawFriend = store.get('bd_news', '') === NEWS_FRIEND;
+    // 看過「好友對戰上線」的人：只看簡短的「變順了」；還沒看過的：看上線公告，最下面加一行
+    $('nwSteps').classList.toggle('hidden', sawFriend);
+    if (sawFriend) {
+      $('newsT').textContent = t.p2pT; $('newsP').innerHTML = t.p2pP; $('nwTip').textContent = t.netTip;
+      $('newsStuck').textContent = ''; $('newsRetry').textContent = t.go; $('newsRetry').classList.remove('hidden'); $('newsOk').textContent = t.ok;
+      store.set('bd_news', NEWS_ID); overlayOpen('newsDlg'); track('news_shown', { id: NEWS_ID, kind: 'p2p' }); return;
+    }
     $('newsT').textContent = t.t; $('newsP').innerHTML = t.p;
     // 三個小圖：開房間 → 傳連結 → 打完看戰績
     $('nwSteps').innerHTML = `<div class="nwStep"><div class="nwIc"><span class="nwCode">KB37</span><span class="nwBtn">🔗</span></div>${t.s1}<i>①</i></div>`
       + `<div class="nwStep"><div class="nwIc"><span class="nwBub">${t.bub}<br><b>…/?room=KB37</b></span></div>${t.s2}<i>②</i></div>`
       + `<div class="nwStep"><div class="nwIc"><span class="nwSc"><span class="r">7</span> <span class="k">:</span> 4</span>&nbsp;🏆</div>${t.s3}<i>③</i></div>`;
-    $('nwTip').textContent = T().rm.lagTip;
+    $('nwTip').textContent = t.p2pLine + ' ' + t.netTip;
     $('newsStuck').textContent = '';
     $('newsRetry').textContent = t.go; $('newsRetry').classList.remove('hidden');
     $('newsOk').textContent = t.ok;
@@ -2818,7 +2834,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.20';
+  const GAME_VER = '3.21';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -3165,16 +3181,19 @@
   }
   function pvpSendHit(kind, fake) {
     const b = G_.b;
+    // 自己這邊也用「傳出去的那組數字」（四捨五入過的），兩支手機從完全相同的起點開始算
+    ['x', 'y', 'vx', 'vy'].forEach(k => { b[k] = +b[k].toFixed(4); }); b.acc = 0;
     // 你的畫面要等「對方看到球（1 個延遲）＋他回球傳回來（再 1 個延遲）」：把這段時間平均分到整段飛行，球在你畫面上稍微慢一點飛，
     // 對方回球時你看到的球剛好在他拍子上；就算他沒接到，你看到球落地的時間也跟他那邊判定的時間差不多
     const v = G_.pvp, D = Math.min(0.6, 2 * lagP90(v) + 0.03), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
-    let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 120); T += 1 / 120; }
-    v.k = T > 0 ? Math.max(0.6, T / (T + D)) : 1; v.hover = 0;
+    let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 240); T += 1 / 240; }
+    const Tr = T - 0.15; // 前 0.15 秒維持真實速度，等待時間分到後面那段
+    v.k = Tr > 0.05 ? Math.max(0.55, Tr / (Tr + D)) : 1; v.hover = 0; v.fly = 0;
     pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
   }
   function pvpSendPoint(w, clean, cause) {
     const g = G_, v = g.pvp, sc = { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol };
-    pvpEv({ k: 'pt', w: w === 'p' ? v.myCol : v.opCol, cl: !!clean, ca: cause || '', sc });
+    pvpEv({ k: 'pt', w: w === 'p' ? v.myCol : v.opCol, cl: !!clean, ca: cause || '', sc, lx: g.b && g.b.y === 0 ? +g.b.x.toFixed(4) : null }); // 附上落點
     RT.m.update(rref(v.code), { score: sc }); // 房間記住比分，斷線重進可以接回
   }
   // 讓球依延遲往前快轉（中間碰到網一樣會掛網）
@@ -3227,7 +3246,7 @@
     else if (e.k === 'hit') {
       const B = e.b, kind = e.ty;
       // 不快轉：從對方擊球那一刻開始，完整、等速地飛過來（你看到的軌跡跟真的一模一樣，預判才準）
-      const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh };
+      const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh, acc: 0 };
       const old = g.b; // 你這邊畫面上的舊球可能已經飛過對方的拍子一點點：用 0.12 秒把畫面接回擊球點，不要瞬移
       if (old && g.state === 'rally') { const T0 = Math.max(0.12, Math.min(0.35, Math.hypot(old.x - b.x, old.y - b.y) / 8)); g.bOff = { x: old.x - b.x, y: old.y - b.y, t: T0, T: T0 }; } // 差越多，接回去的時間越長
       if (typeof e.px === 'number') { a.x = mir(e.px); v.pin = { x: a.x, until: performance.now() + 150 }; } // 對方人物對齊擊球位置（0.15 秒）
@@ -3241,7 +3260,13 @@
       if (g.state === 'point') return;
       const w = e.w === v.myCol ? 'p' : 'a';
       if (e.ca === 'svline' || e.ca === 'rcvline') showMsg(e.ca === 'svline' ? t.svFault : t.rcvFault, '#ff8a8a', 1400);
-      else if (g.b && g.b.y > 0.05 && !g.b.net) { /* 對方判定時，你這邊的球可能還在飛：讓它停在地上 */ g.b.y = 0; }
+      else if (g.b && g.b.y > 0) {
+        // 對方判定時，你這邊放慢的球可能還在空中：把它快速滑到「對方那邊實際落地的位置」，兩邊看到的落點一模一樣
+        const b = g.b, ox = b.x, oy = b.y;
+        if (typeof e.lx === 'number') { b.x = mir(e.lx); b.y = 0; } else { while (b.y > 0) step(b, 1 / 240); b.y = 0; }
+        const T0 = Math.max(0.12, Math.min(0.3, Math.hypot(ox - b.x, oy) / 10)); g.bOff = { x: ox - b.x, y: oy, t: T0, T: T0 };
+        floorSound();
+      }
       scorePoint(w, e.cl, w === 'a' ? e.ca : null);
       g.ps = e.sc[v.myCol]; g.as = e.sc[v.opCol]; g.server = e.sc.server === v.myCol ? 'p' : 'a'; updScore();
     }
