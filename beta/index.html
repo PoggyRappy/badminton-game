@@ -174,6 +174,22 @@
   .nwBub b { color: #1d9e88; }
   .nwSc { font: 900 20px "Noto Sans TC", sans-serif; } .nwSc .r { color: #ff6b6b; } .nwSc .k { color: #ddd; }
   .compact .nwIc { height: 50px; } .compact .nwSteps { margin: 0 0 4px; }
+  /* v4 公告小海報 */
+  .nwSteps:has(.v4P) { display: block; }
+  .v4P { border-radius: 18px; overflow: hidden; margin: 2px 0 8px; border: 3px solid #1d2433; box-shadow: 0 6px 0 #1d2433, 0 10px 24px rgba(0,0,0,.35); line-height: 0; }
+  .v4P svg { width: 100%; height: auto; display: block; }
+  @media (orientation: landscape) and (max-height: 560px) {
+    #newsDlg .card.v4 { max-width: 760px; width: 94vw; display: grid; grid-template-columns: 1fr 1.1fr; column-gap: 18px; align-items: center; }
+    #newsDlg .card.v4 > h2 { grid-column: 1 / 3; } #newsDlg .card.v4 > #nwSteps { grid-column: 1; grid-row: 2 / 5; }
+    #newsDlg .card.v4 > #newsP, #newsDlg .card.v4 > .btn { grid-column: 2; } #newsDlg .card.v4 > #nwTip, #newsDlg .card.v4 > #newsStuck { display: none; }
+    #newsDlg .card.v4 > #newsP { font-size: 13.5px; margin: 0; }
+  }
+  .v4S { position: relative; font-size: 12.5px; opacity: .85; margin-top: 2px; }
+  .v4Vs { position: relative; display: flex; justify-content: center; align-items: center; gap: 14px; margin: 10px 0 8px; font-size: 24px; }
+  .v4Vs b { font: 900 italic 18px "Noto Sans TC", sans-serif; color: #ff8a8a; }
+  .v4Ms { position: relative; display: flex; justify-content: center; gap: 8px; }
+  .v4Ms span { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); }
+  .v4Net { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: linear-gradient(90deg, #2f9e6e, #3fbf86, #2f9e6e); }
   /* 房間頂部：房號＋複製／邀請｜模式膠囊｜離開 */
   .card.rmCard { position: relative; }
   .rmHead { display: flex !important; align-items: center; justify-content: space-between !important; gap: 8px; flex-wrap: nowrap !important; }
@@ -245,7 +261,9 @@
   .ppGrid button i, .rmProps button i { font-style: normal; font-size: 26px; line-height: 1.1; }
   .ppGrid button small, .rmProps button small { font-size: 10px; opacity: .7; font-weight: 400; line-height: 1.3; }
   .ppGrid button.on, .rmProps button.on { border-color: #ffe066; background: rgba(255,224,102,.15); }
-  .rmProps { display: flex; justify-content: center; margin: 0 0 8px; }
+  .rmProps { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 0 8px; }
+  .rmPropD { display: flex; flex-direction: column; align-items: center; gap: 3px; width: min(320px, 90%); } .rmPropD em { font-style: normal; font-size: 11.5px; opacity: .7; }
+  .pBars.mini { flex-direction: row; gap: 10px; width: 100%; } .pBars.mini .pBar { flex: 1; grid-template-columns: auto 1fr; gap: 4px; } .pBars.mini .pBar span { height: 5px; }
   .rmPropPill { border: 1px solid rgba(255,224,102,.5); background: rgba(255,224,102,.1); color: #fff; border-radius: 99px; padding: 6px 16px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
   .rmPropPill i { font-style: normal; opacity: .7; margin-left: 4px; }
   .rmProps .rmPropPill { flex-direction: row; white-space: nowrap; padding: 6px 16px; display: inline-flex; align-items: center; gap: 4px; } .rmProps .rmPropPill i { font-size: 12px; }
@@ -1153,7 +1171,7 @@
         oppCard: c => `對手用了 ${c}！`, cardWhen: '發球前點卡片使用', handT: '🃏 這一局你的 3 張技能卡', handS: '點卡片可以翻到背面看說明。每一分發球前，點揮拍鍵旁邊的圓形圖示就能使用，每張只能用一次；球拍變大抽到就整局生效。對手也抽了 3 張。', handOk: '看完了，開始比賽', tapInfo: '點我看說明', bigOn: '已生效・整局', handGo: '開始！', handWaitOpp: '等對手看完技能卡…',
         props: { pan: ['平底鍋', '硬金屬，球打出去比較平，不會壞'], ping: ['桌球拍', '膠皮打久會磨掉，越打越沒力'], tennis: ['網球拍', '網線很彈，殺球是網球的打法'], hand: ['徒手', '要真的碰到球，打久手會痛、會換手'], cone: ['三角錐', '抓尖端揮；空心塑膠會亂彈，打久會裂'] },
         propGot: (a, b) => `🔧 你拿到 ${a}　對手拿到 ${b}`, wearMsg: { ping: '🏓 膠皮開始磨掉了，球越來越沒力', cone: '🔺 三角錐裂開了，球會亂彈' }, handHurt: '✋ 手開始痛了…', handMiss: '😣 手好痛，沒打到！', handSwitch: '🤚 右手痛到不行，換左手打！', handSwitchOpp: '🤚 對手手太痛，換手打了！', handToughMe: '😖 兩隻手都好痛…只能硬撐把球碰過網（丟分會恢復一點）', handToughOpp: '😖 對手兩隻手都痛了，只能硬撐！', propHidden: '✅ 已選（開打才揭曉）',
-        myProp: '你的道具', propPick: '點我選道具', propT2: '🔧 選一個道具', propS2: '對手看不到你選什麼，開打才揭曉；沒選的話開打時隨機發。', stPow: '力量', stSpd: '速度', stRch: '範圍', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
+        myProp: '你的道具', propPick: '點我選道具', propNone: '還沒選：沒選的話開打時隨機發一個', propT2: '🔧 選一個道具', propS2: '對手看不到你選什麼，開打才揭曉；沒選的話開打時隨機發。', stPow: '力量', stSpd: '速度', stRch: '範圍', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
         slipMe: '🧊 滑了一下！', slipOpp: '🧊 對手滑了一下！', boomMe: '💥 炸彈在你這邊爆炸了！', boomOpp: '💥 炸彈在對方那邊爆炸！', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '闖關打到哪一關，就能選到哪一關的電腦。跟電腦打不算闖關進度，也不上排行榜。',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `電腦（${st} ${n}）`,
         connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
@@ -1274,7 +1292,9 @@
       news: { t: '🆕 好友對戰上線了！', p: '首頁改成三種玩法：<b>🏆 闖關之路</b>（進度都還在）、<b>🤝 好友對戰</b>，還有之後會開放的 <b>🎉 Party Mode</b>。<br>現在可以跟朋友一對一連線 PK，三步就能開打：',
         s1: '開一間房', s2: '傳連結給朋友', s3: '打完看戰績', bub: '來跟我打一場！', go: '🤝 去開房間', ok: '知道了',
         p2pT: '⚡ 好友對戰變順了！', p2pP: '現在兩支手機會直接連線，不繞伺服器，延遲更低、不會突然卡一下。', p2pLine: '⚡ 現在連線更順了！',
-        netTip: '💡 小提醒：用家裡 Wi-Fi 或手機網路最穩；學校、公司的 Wi-Fi 有時沒辦法直連，房間裡看到「🌐 一般連線」時，換成手機網路試試。' },
+        netTip: '💡 小提醒：用家裡 Wi-Fi 或手機網路最穩；學校、公司的 Wi-Fi 有時沒辦法直連，房間裡看到「🌐 一般連線」時，換成手機網路試試。',
+        v4T: '🆕 羽球PK v4：對戰房開張！', v4Head: '對戰房', v4Sub: '找朋友，或挑一關的電腦來打',
+        v4P: '首頁分成 <b>🏆 闖關之路</b> 和 <b>🤝 對戰房</b>，闖關進度都還在。<br>對戰房可以找朋友或電腦對打，還有 5 種新玩法等你試！', v4Go: '🤝 去對戰房看看' },
       setCtl: '按鍵位置', ctlEdit: '🎮 自訂', ctlHint: '拖曳按鈕到順手的位置；點一下按鈕再調大小', ctlSize: '大小', ctlAlpha: '透明度',
       ctlReset: '恢復預設', ctlDone: '完成', ctlOverlap: '有按鈕重疊了，比賽時可能會誤觸', ctlNames: { jump: '跳', left: '◀', right: '▶', drop: '輕', swing: '揮拍' },
       readYou: '看穿了！', taichiOn: '☯ 太極：以柔克剛', attackOn: '🔥 全面進攻！', guestTag: '訪客',
@@ -1348,7 +1368,7 @@
         oppCard: c => `Opponent used ${c}!`, cardWhen: 'Tap a card before the serve', handT: '🃏 Your 3 skill cards this game', handS: 'Tap a card to flip it and read what it does. Before each serve, tap the round icons next to the swing button — each works once. Big Racket is on for the whole game as soon as you draw it. Your opponent drew 3 too.', handOk: 'Done — start the match', tapInfo: 'tap for details', bigOn: 'Active · whole game', handGo: 'Go!', handWaitOpp: 'Waiting for your opponent to read their cards…',
         props: { pan: ['Frying pan', 'hard metal, flatter shots, never wears out'], ping: ['Ping-pong bat', 'the rubber wears off — less power over time'], tennis: ['Tennis racket', 'springy strings, tennis-style smash'], hand: ['Bare hand', 'must really touch it; your hand hurts and you switch hands'], cone: ['Traffic cone', 'held by the tip; hollow plastic bounces wild and cracks'] },
         propGot: (a, b) => `🔧 You got ${a} · Opponent got ${b}`, wearMsg: { ping: '🏓 The rubber is wearing off — less power', cone: '🔺 The cone is cracking — shots go wild' }, handHurt: '✋ Your hand starts to hurt…', handMiss: '😣 Ouch — missed!', handSwitch: '🤚 Too painful — switching hands!', handSwitchOpp: '🤚 Opponent switched hands!', handToughMe: '😖 Both hands hurt… you can only just push it over the net (losing a point helps)', handToughOpp: '😖 Opponent is playing through the pain!', propHidden: '✅ picked (revealed at start)',
-        myProp: 'Your prop', propPick: 'tap to pick', propT2: '🔧 Pick a prop', propS2: 'Your opponent can’t see your pick until the match starts. No pick = random.', stPow: 'Power', stSpd: 'Speed', stRch: 'Reach', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
+        myProp: 'Your prop', propPick: 'tap to pick', propNone: 'Not picked yet — you’ll get a random one', propT2: '🔧 Pick a prop', propS2: 'Your opponent can’t see your pick until the match starts. No pick = random.', stPow: 'Power', stSpd: 'Speed', stRch: 'Reach', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
         slipMe: '🧊 You slipped!', slipOpp: '🧊 Opponent slipped!', boomMe: '💥 It blew up on your side!', boomOpp: '💥 It blew up on their side!', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: 'Computers unlock as you progress in Challenge. Doesn’t count toward Challenge or the leaderboard.',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `Computer (${st} ${n})`,
         connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
@@ -1468,6 +1488,8 @@
       news: { t: '🆕 Friend Battle is here!', p: 'The home screen now has three ways to play: <b>🏆 Challenge</b> (your progress is safe), <b>🤝 Friend Battle</b>, and <b>🎉 Party Mode</b> coming later.<br>Play a friend 1-on-1 online in three steps:',
         s1: 'Open a room', s2: 'Send the link', s3: 'See the result', bub: 'Play me!', go: '🤝 Open a room', ok: 'Got it',
         p2pT: '⚡ Friend Battle is smoother!', p2pP: 'Phones now connect directly instead of going through a server — less lag, no more sudden freezes.', p2pLine: '⚡ Connections are smoother now!',
+        v4T: '🆕 Badminton PK v4: the Battle Room is open!', v4Head: 'Battle Room', v4Sub: 'Play a friend or the computer',
+        v4P: 'The home screen now has <b>🏆 Challenge</b> (your progress is safe) and <b>🤝 Battle Room</b>.<br>Play a friend or the computer — with 5 new modes to try!', v4Go: '🤝 Open the Battle Room',
         netTip: '💡 Tip: home Wi-Fi or mobile data works best. School or office Wi-Fi sometimes blocks direct connections — if the room says “🌐 Standard connection”, try mobile data.' },
       setCtl: 'Button layout', ctlEdit: '🎮 Customize', ctlHint: 'Drag buttons where they feel right; tap one to resize it', ctlSize: 'Size', ctlAlpha: 'Opacity',
       ctlReset: 'Reset', ctlDone: 'Done', ctlOverlap: 'Some buttons overlap — you may hit the wrong one', ctlNames: { jump: 'Jump', left: '◀', right: '▶', drop: 'Soft', swing: 'Hit' },
@@ -2738,11 +2760,67 @@
   setTimeout(applyCtl, 0);
 
   // 更新公告：玩過的人回來時看一次；卡在第 2 關的人直接給「再挑戰」按鈕
-  const NEWS_ID = 'v3.20-p2p', NEWS_FRIEND = 'v3.18-friend';
+  const NEWS_ID = 'v4.0-room', NEWS_FRIEND = 'v3.18-friend';
+  // v4 公告：一張小海報＋一段話（不一一列出每個模式的規則）
+  function v4Poster() { // v4 公告海報（B 版：遊戲的場館配色＋Q 版球員 vs 機器人）
+    const n = T().news, head = n.v4Head, sub = n.v4Sub, brand = T().title || '羽球PK', long = head.length > 4;
+    const F = 'font-family="Noto Sans TC, sans-serif"';
+    const star = (cx, cy, r1, r2, k) => Array.from({ length: k * 2 }, (_, i) => { const r = i % 2 ? r2 : r1, a = i * Math.PI / k - Math.PI / 2; return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1); }).join(' ');
+    const IC = {
+      weather: '<path d="M-7 2a4 4 0 0 1 1-7a5 5 0 0 1 9-1a4 4 0 0 1 4 7z" fill="#fff"/><path d="M0 2l-3 6h3l-2 5 5-7h-3l2-4z" fill="#ffd23f"/>',
+      bomb: '<circle cx="-1" cy="2" r="6.5" fill="#20242e"/><path d="M3 -3q3 -4 6 -3" fill="none" stroke="#c98b4f" stroke-width="1.6"/><circle cx="9" cy="-6" r="2.2" fill="#ffb84d"/><circle cx="-3" cy="0" r="1.6" fill="#fff" opacity=".5"/>',
+      skill: '<rect x="-5" y="-7.5" width="10" height="14" rx="2" transform="rotate(-12)" fill="#fff"/><polygon points="' + star(0, -0.5, 4, 1.8, 5) + '" fill="#ff6b8a"/>',
+      shrink: '<path d="M-8 0h5M-5.5 -3l-3 3 3 3M8 0h-5M5.5 -3l3 3-3 3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="-1" y="-6" width="2" height="12" rx="1" fill="#fff"/>',
+      prop: '<circle cx="-2" cy="1" r="6" fill="#3a3f4a" stroke="#fff" stroke-width="1.2"/><rect x="3" y="-1" width="8" height="3" rx="1.5" transform="rotate(-30 3 0)" fill="#c98b4f"/>'
+    };
+    const chips = ['weather', 'bomb', 'skill', 'shrink', 'prop'].map((m, i) => `<g transform="translate(${180 + (i - 2) * 34} 216)"><circle r="14" fill="#2b3550" stroke="#0f1420" stroke-width="2.5"/><circle r="14" fill="none" stroke="#5ce1c6" stroke-width="1.2" opacity=".7"/>${IC[m]}</g>`).join('');
+    const chibi = (x, y, dir, col, robot) => {
+      const X = d => x + d * dir, skin = robot ? '#c9d2f0' : '#f2c9a0';
+      let g = `<g stroke="#0f1420" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">`
+        + `<path d="M${X(-6)} ${y - 14}l${-3 * dir} 12M${X(6)} ${y - 14}l${3 * dir} 12" fill="none"/><ellipse cx="${X(-10)}" cy="${y}" rx="6" ry="3" fill="#eee"/><ellipse cx="${X(10)}" cy="${y}" rx="6" ry="3" fill="#eee"/>`
+        + `<rect x="${x - 14}" y="${y - 46}" width="28" height="34" rx="11" fill="${col}"/>`
+        + `<path d="M${X(-12)} ${y - 36}l${-8 * dir} 10" fill="none"/><circle cx="${X(-21)}" cy="${y - 25}" r="3.5" fill="${skin}"/>`
+        + `<path d="M${X(11)} ${y - 38}l${13 * dir} -18" fill="none"/><circle cx="${X(25)}" cy="${y - 57}" r="3.8" fill="${skin}"/>`
+        + `<path d="M${X(26)} ${y - 59}l${7 * dir} -17" fill="none"/><ellipse cx="${X(37)}" cy="${y - 87}" rx="9" ry="13" transform="rotate(${20 * dir} ${X(37)} ${y - 87})" fill="rgba(255,255,255,.15)" stroke="${col}" stroke-width="2.6"/>`;
+      if (!robot) g += `<circle cx="${x}" cy="${y - 62}" r="19" fill="#f2c9a0"/><path d="M${x - 19} ${y - 63}q1-20 20-20q18 0 18 19q-7-8-19-7q-10 0-19 8z" fill="#2a2220"/></g>`
+        + `<ellipse cx="${X(-1)}" cy="${y - 60}" rx="2.6" ry="3.4" fill="#0f1420"/><ellipse cx="${X(10)}" cy="${y - 60}" rx="2.6" ry="3.4" fill="#0f1420"/><circle cx="${X(0)}" cy="${y - 61.3}" r="1" fill="#fff"/><circle cx="${X(11)}" cy="${y - 61.3}" r="1" fill="#fff"/>`
+        + `<path d="M${X(1)} ${y - 53}q${4 * dir} 4 ${8 * dir} 0" fill="none" stroke="#0f1420" stroke-width="2" stroke-linecap="round"/><ellipse cx="${X(-7)}" cy="${y - 54}" rx="3.2" ry="2" fill="#ff8a8a" opacity=".6"/>`;
+      else g += `<path d="M${x} ${y - 80}v-8" fill="none"/><circle cx="${x}" cy="${y - 91}" r="3.6" fill="#ff6b8a"/><rect x="${x - 19}" y="${y - 80}" width="38" height="34" rx="11" fill="#c9d2f0"/><rect x="${x - 13}" y="${y - 73}" width="26" height="19" rx="7" fill="#1d2433"/></g>`
+        + `<path d="M${x - 9} ${y - 63}q2.5-4 5 0M${x + 4} ${y - 63}q2.5-4 5 0" fill="none" stroke="#5ce1c6" stroke-width="2.2" stroke-linecap="round"/>`;
+      return g;
+    };
+    let lights = ''; for (const x of [50, 140, 220, 310]) lights += `<path d="M${x - 10} 6 L${x + 10} 6 L${x + 70} 190 L${x - 70} 190Z" fill="url(#v4cone)"/><rect x="${x - 14}" y="3" width="28" height="5" rx="1.5" fill="#fff8de"/>`;
+    return `<div class="v4P"><svg viewBox="0 0 360 240" role="img" aria-label="${head}">
+      <defs>
+        <linearGradient id="v4tg" x1="0" x2="1"><stop offset="0" stop-color="#5ce1c6"/><stop offset=".55" stop-color="#ffe066"/><stop offset="1" stop-color="#ff8a3d"/></linearGradient>
+        <linearGradient id="v4bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3554"/><stop offset="1" stop-color="#1a2133"/></linearGradient>
+        <radialGradient id="v4cone" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#fff6d8" stop-opacity=".42"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></radialGradient>
+        <pattern id="v4wood" width="60" height="12" patternUnits="userSpaceOnUse"><path d="M0 11.5H60M20 0V12" stroke="#7a4f2a" stroke-width="1"/></pattern>
+        <pattern id="v4netp" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 0L3 3M3 0L0 3" stroke="#fff" stroke-width=".5" opacity=".7"/></pattern>
+      </defs>
+      <rect width="360" height="240" fill="url(#v4bg)"/>${lights}
+      <rect y="188" width="360" height="52" fill="#c98b4f"/><rect y="188" width="360" height="52" fill="url(#v4wood)" opacity=".35"/>
+      <rect x="34" y="184" width="292" height="9" fill="#2f9e6e"/><path d="M34 184v9M50 184v9M146 184v9M214 184v9M310 184v9M326 184v9" stroke="#fff" stroke-width="2"/>
+      <rect x="178.5" y="124" width="3" height="62" fill="#e8e8e8"/><rect x="177" y="124" width="6" height="26" fill="url(#v4netp)" opacity=".9"/><rect x="176.5" y="122" width="7" height="3" fill="#fff"/>
+      ${chibi(98, 190, 1, '#5ce1c6', false)}${chibi(262, 190, -1, '#ff6b8a', true)}
+      <path d="M136 98 Q180 70 220 100" fill="none" stroke="#fff" stroke-width="1.8" stroke-dasharray="3 5" opacity=".6"/>
+      <g transform="translate(204 88) rotate(110) scale(1.2)"><path d="M-5 -10L5 -10L3 0L-3 0Z" fill="#fff"/><path d="M-3 -9L-2 -1M0 -10V-1M3 -9L2 -1" stroke="#ccd" stroke-width=".6"/><circle cy="2.5" r="3.4" fill="#f4e3c3"/></g>
+      <g transform="translate(180 116) rotate(-6)"><polygon points="${star(0, 0, 22, 13, 11)}" fill="#ffe066" stroke="#0f1420" stroke-width="2.6" stroke-linejoin="round"/><text y="6" text-anchor="middle" ${F} font-weight="900" font-style="italic" font-size="16" fill="#ff4d6d" stroke="#0f1420" stroke-width="2.4" paint-order="stroke">VS</text></g>
+      <text x="180" y="${long ? 40 : 44}" text-anchor="middle" ${F} font-weight="900" font-size="${long ? 28 : 36}" letter-spacing="${long ? 1 : 5}" fill="url(#v4tg)" stroke="#0f1420" stroke-width="6" stroke-linejoin="round" paint-order="stroke">${head}</text>
+      <g transform="translate(180 60)"><rect x="-82" y="-9" width="164" height="18" rx="9" fill="#0f1420" opacity=".7"/><text y="4" text-anchor="middle" ${F} font-size="11" font-weight="700" fill="#fff"${sub.length > 16 ? ' textLength="150" lengthAdjust="spacingAndGlyphs"' : ''}>${sub}</text></g>
+      <g transform="translate(36 22) rotate(-8)"><rect x="-23" y="-10" width="46" height="20" rx="10" fill="url(#v4tg)"/><text y="5" text-anchor="middle" ${F} font-weight="900" font-size="13" fill="#1d2433">v4.0</text></g>
+      ${long ? '' : `<text x="344" y="24" text-anchor="end" ${F} font-weight="900" font-size="11" fill="#fff" opacity=".8">${brand}</text>`}
+      ${chips}
+    </svg></div>`;
+  }
   function maybeNews() {
     const r = getRec();
     if (store.get('bd_news', '') === NEWS_ID || !r.matches || G_ || $('home').classList.contains('hidden')) return;
     if ([...document.querySelectorAll('.overlay:not(.hidden)')].some(o => o.id !== 'home')) return; // 有其他視窗開著就下次再說
+    { const t = T().news;
+      $('newsDlg').querySelector('.card').classList.add('v4'); $('newsT').textContent = t.v4T; $('newsP').innerHTML = t.v4P; $('nwSteps').classList.remove('hidden'); $('nwSteps').innerHTML = v4Poster();
+      $('nwTip').textContent = ''; $('newsStuck').textContent = ''; $('newsRetry').textContent = t.v4Go; $('newsRetry').classList.remove('hidden'); $('newsOk').textContent = t.ok;
+      store.set('bd_news', NEWS_ID); overlayOpen('newsDlg'); track('news_shown', { id: NEWS_ID }); return; }
     const t = T().news, sawFriend = store.get('bd_news', '') === NEWS_FRIEND;
     // 看過「好友對戰上線」的人：只看簡短的「變順了」；還沒看過的：看上線公告，最下面加一行
     $('nwSteps').classList.toggle('hidden', sawFriend);
@@ -3488,12 +3566,16 @@
   }
   // 🔧 選道具的視窗：每個道具附上力量、速度、範圍的長條
   function propStats(id) { const P = PROPS[id], M = MAT[id]; return { pow: P.power * M.el, spd: P.spd, rch: P.reach }; }
+  const pbar = (v, lo, hi) => Math.round(15 + 85 * Math.max(0, Math.min(1, (v - lo) / (hi - lo))));
+  function propBarsHtml(id, mini) {
+    const t = T().rm, st = propStats(id), row = (lb, w, c) => `<div class="pBar"><small>${lb}</small><span><u style="width:${w}%;background:${c}"></u></span></div>`;
+    return `<div class="pBars${mini ? ' mini' : ''}">${row(t.stPow, pbar(st.pow, 0.5, 1.4), '#ff8a3d')}${row(t.stSpd, pbar(st.spd, 0.85, 1.12), '#5ce1c6')}${row(t.stRch, pbar(st.rch, 0.5, 1.05), '#ffe066')}</div>`;
+  }
   function openPropDlg(cur) {
-    const t = T().rm, bar = (v, lo, hi) => Math.round(15 + 85 * Math.max(0, Math.min(1, (v - lo) / (hi - lo))));
+    const t = T().rm;
     $('propT').textContent = t.propT2; $('propS').textContent = t.propS2;
     $('propList').innerHTML = PROP_IDS.map(id => { const st = propStats(id);
-      const row = (lb, w, c) => `<div class="pBar"><small>${lb}</small><span><u style="width:${w}%;background:${c}"></u></span></div>`;
-      return `<button data-p="${id}" class="${id === cur ? 'on' : ''}"><i>${propIc(id)}</i><b>${t.props[id][0]}</b><div class="pBars">${row(t.stPow, bar(st.pow, 0.5, 1.4), '#ff8a3d')}${row(t.stSpd, bar(st.spd, 0.85, 1.12), '#5ce1c6')}${row(t.stRch, bar(st.rch, 0.5, 1.05), '#ffe066')}</div><em>${t.props[id][1]}</em></button>`; }).join('');
+      return `<button data-p="${id}" class="${id === cur ? 'on' : ''}"><i>${propIc(id)}</i><b>${t.props[id][0]}</b>${propBarsHtml(id)}<em>${t.props[id][1]}</em></button>`; }).join('');
     $('propList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { rmSet({ prop: b.dataset.p }); overlayClose('propDlg'); }));
     overlayOpen('propDlg');
   }
@@ -3530,6 +3612,7 @@
     if (showProps) {
       $('rmProps').innerHTML = `<button class="rmPropPill" id="rmPropPill">🔧 ${t.myProp}：${PROPS[myProp] ? propIc(myProp, 'pIc s') + t.props[myProp][0] : t.propPick} <i>▾</i></button>`;
       $('rmPropPill').addEventListener('click', () => openPropDlg(myProp));
+      $('rmProps').insertAdjacentHTML('beforeend', `<div class="rmPropD">${PROPS[myProp] ? propBarsHtml(myProp, true) + `<em>${t.props[myProp][1]}</em>` : `<em>${t.propNone}</em>`}</div>`);
       const tag = (who, P) => who === me ? '' : (PROPS[P] ? ' ' + t.propHidden : ''); // 對方的只顯示「已選好」
       if (H) $('rmNameH').textContent = H.name + tag('host', H.prop);
       if (Gs) $('rmNameG').textContent = Gs.name + tag('guest', Gs.prop);
@@ -3701,7 +3784,8 @@
       const i1 = Math.floor(seeded(g.pvp.seed + 31, 0) * PROP_IDS.length), i2 = (i1 + 1 + Math.floor(seeded(g.pvp.seed + 37, 0) * (PROP_IDS.length - 1))) % PROP_IDS.length;
       const byCol = { red: PROP_IDS[i1], black: PROP_IDS[i2] }, me0 = d[room.role] || {};
       if (!vsAi) { if (PROPS[me0.prop]) byCol[myCol] = me0.prop; if (PROPS[oppP.prop]) byCol[opCol] = oppP.prop; }
-      g.p.prop = byCol[myCol]; g.a.prop = byCol[opCol]; g.handN = { p: 0, a: 0 }; g.handOff = { p: false, a: false }; g.handTough = { p: false, a: false };
+      g.p.prop = byCol[myCol]; g.a.prop = byCol[opCol]; g.handN = { p: 0, a: 0 };
+      if (!vsAi && !PROPS[me0.prop]) rmSet({ prop: g.p.prop }); // 沒選的人：把隨機拿到的記在房間，回到房間就看得到 g.handOff = { p: false, a: false }; g.handTough = { p: false, a: false };
       const tp = T().rm; setTimeout(() => { if (G_ === g) showMsg(tp.propGot(tp.props[g.p.prop][0], tp.props[g.a.prop][0]), '#ffd0b0', 3200); }, 600);
     }
     g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
