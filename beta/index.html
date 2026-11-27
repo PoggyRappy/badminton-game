@@ -194,11 +194,13 @@
   .rmPop { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); width: min(520px, 94%); z-index: 5; border-radius: 18px; padding: 10px;
     background: rgba(24,32,48,.97); border: 1px solid rgba(255,224,102,.35); box-shadow: 0 14px 40px rgba(0,0,0,.55); animation: popIn .16s ease-out; }
   @keyframes popIn { from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(.98); } }
-  .rmPopHead { font-size: 12px; opacity: .7; margin: 0 2px 8px; text-align: left; }
+  .rmPopHead { display: none; }
   .rmPopGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .rmPopGrid button { position: relative; text-align: left; display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
     border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: #fff; border-radius: 14px; padding: 8px 10px; cursor: pointer; font-family: "Noto Sans TC", sans-serif; }
   .rmPopGrid button i { grid-row: 1 / 3; font-style: normal; font-size: 26px; text-align: center; }
+  .rmPopGrid button { display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center !important; padding: 12px 6px !important; }
+  .rmPopGrid button i { font-size: 34px; } .rmPopGrid button b { font-size: 15px !important; }
   .rmPopGrid button b { font-size: 14px; } .rmPopGrid button span { font-size: 10.5px; opacity: .7; line-height: 1.35; }
   .rmPopGrid button.on { border-color: #ffe066; background: rgba(255,224,102,.14); box-shadow: inset 0 0 0 1px rgba(255,224,102,.4); }
   .rmPopGrid button em { position: absolute; top: 6px; right: 8px; font: 700 9.5px "Noto Sans TC", sans-serif; font-style: normal; padding: 1px 6px; border-radius: 99px; background: rgba(255,255,255,.14); opacity: .85; }
@@ -243,7 +245,19 @@
   .ppGrid button i, .rmProps button i { font-style: normal; font-size: 26px; line-height: 1.1; }
   .ppGrid button small, .rmProps button small { font-size: 10px; opacity: .7; font-weight: 400; line-height: 1.3; }
   .ppGrid button.on, .rmProps button.on { border-color: #ffe066; background: rgba(255,224,102,.15); }
-  .rmProps { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 6px; align-items: center; margin: 0 0 8px; }
+  .rmProps { display: flex; justify-content: center; margin: 0 0 8px; }
+  .rmPropPill { border: 1px solid rgba(255,224,102,.5); background: rgba(255,224,102,.1); color: #fff; border-radius: 99px; padding: 6px 16px; font: 700 13px "Noto Sans TC", sans-serif; cursor: pointer; }
+  .rmPropPill i { font-style: normal; opacity: .7; margin-left: 4px; }
+  .rmProps .rmPropPill { flex-direction: row; white-space: nowrap; padding: 6px 16px; display: inline-flex; align-items: center; gap: 4px; } .rmProps .rmPropPill i { font-size: 12px; }
+  .pIc { width: 44px; height: 44px; display: block; } .pIc.s { width: 22px; height: 22px; display: inline-block; vertical-align: middle; margin-right: 2px; }
+  .propList { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; max-height: 62vh; overflow-y: auto; }
+  .propList button { display: grid; grid-template-columns: 46px 70px 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px; text-align: left; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: #fff; border-radius: 14px; padding: 8px 12px; cursor: pointer; font: 700 14px "Noto Sans TC", sans-serif; }
+  .propList button.on { border-color: #ffe066; background: rgba(255,224,102,.13); }
+  .propList button i { grid-row: 1 / 3; font-style: normal; font-size: 28px; text-align: center; } .propList button b { grid-row: 1 / 3; }
+  .propList button em { grid-column: 3; font-style: normal; font-weight: 400; font-size: 11px; opacity: .65; margin-top: 2px; }
+  .pBars { grid-column: 3; display: flex; flex-direction: column; gap: 3px; }
+  .pBar { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 6px; } .pBar small { font-size: 10.5px; opacity: .75; font-weight: 400; }
+  .pBar span { height: 7px; border-radius: 9px; background: rgba(255,255,255,.1); overflow: hidden; } .pBar u { display: block; height: 100%; border-radius: 9px; }
   .rmProps > span { font-size: 12px; opacity: .75; padding-right: 4px; } .rmProps button { padding: 4px 2px; } .rmProps button i { font-size: 20px; } .rmProps button small { display: none; }
   .rmConn { font-size: 12.5px; margin: 6px 0 0; font-weight: 700; } .rmConn:empty { display: none; }
   .rmTip { font-size: 11.5px; opacity: .65; margin: 6px 0 0; line-height: 1.5; }
@@ -607,6 +621,9 @@
 <!-- 對戰房模式：技能卡／換道具按鈕（比賽中左上角） -->
 <button id="fxBtn" class="hidden"></button>
 <div id="cardBar" class="hidden"></div>
+<div class="overlay hidden" id="propDlg" style="z-index:40">
+  <div class="card stCard"><button class="xBtn" id="propClose" aria-label="close">✕</button><h2 id="propT"></h2><p class="note" id="propS"></p><div class="propList" id="propList"></div></div>
+</div>
 <div class="overlay hidden" id="handDlg" style="z-index:38">
   <div class="card"><h2 id="handT"></h2><p class="note" id="handS"></p><div class="hList" id="handList"></div><button class="btn pri" id="handOk"></button></div>
 </div>
@@ -699,7 +716,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.30 · 2026/11/27 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v4.0 · 2026/11/27 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -806,7 +823,7 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const cv = $('c'), ctx = cv.getContext('2d');
+  const cv = $('c'), ctx = cv.getContext('2d'), ctxMain = ctx;
   const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
   document.body.classList.add(isTouch ? 'touch' : 'notouch');
 
@@ -1134,9 +1151,9 @@
           clone: ['👥', '分身術', '這一分多一個分身陪你打雙打：你進攻它封網、你防守它補位', '這一分'], big: ['🏸', '球拍變大', '整局拿超大球拍，打得到很遠的球，但揮拍和跑動都變慢', '整局'],
           slow: ['🐢', '慢動作', '這一分讓對手跑比較慢', '這一分'] },
         oppCard: c => `對手用了 ${c}！`, cardWhen: '發球前點卡片使用', handT: '🃏 這一局你的 3 張技能卡', handS: '點卡片可以翻到背面看說明。每一分發球前，點揮拍鍵旁邊的圓形圖示就能使用，每張只能用一次；球拍變大抽到就整局生效。對手也抽了 3 張。', handOk: '看完了，開始比賽', tapInfo: '點我看說明', bigOn: '已生效・整局', handGo: '開始！', handWaitOpp: '等對手看完技能卡…',
-        props: { pan: ['平底鍋', '範圍小、力量大、跑稍慢'], ping: ['桌球拍', '範圍很小、力量小、跑比較快'], tennis: ['網球拍', '範圍跟球拍差不多、力量最大，殺球是網球的打法'], hand: ['徒手', '要真的用手碰到球，打久了手會痛'], cone: ['三角錐', '抓著尖端揮，範圍中等、力量偏小'] },
+        props: { pan: ['平底鍋', '硬金屬，球打出去比較平，不會壞'], ping: ['桌球拍', '膠皮打久會磨掉，越打越沒力'], tennis: ['網球拍', '網線很彈，殺球是網球的打法'], hand: ['徒手', '要真的碰到球，打久手會痛、會換手'], cone: ['三角錐', '抓尖端揮；空心塑膠會亂彈，打久會裂'] },
         propGot: (a, b) => `🔧 你拿到 ${a}　對手拿到 ${b}`, wearMsg: { ping: '🏓 膠皮開始磨掉了，球越來越沒力', cone: '🔺 三角錐裂開了，球會亂彈' }, handHurt: '✋ 手開始痛了…', handMiss: '😣 手好痛，沒打到！', handSwitch: '🤚 右手痛到不行，換左手打！', handSwitchOpp: '🤚 對手手太痛，換手打了！', handToughMe: '😖 兩隻手都好痛…只能硬撐把球碰過網（丟分會恢復一點）', handToughOpp: '😖 對手兩隻手都痛了，只能硬撐！', propHidden: '✅ 已選（開打才揭曉）',
-        myProp: '你的道具', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
+        myProp: '你的道具', propPick: '點我選道具', propT2: '🔧 選一個道具', propS2: '對手看不到你選什麼，開打才揭曉；沒選的話開打時隨機發。', stPow: '力量', stSpd: '速度', stRch: '範圍', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
         slipMe: '🧊 滑了一下！', slipOpp: '🧊 對手滑了一下！', boomMe: '💥 炸彈在你這邊爆炸了！', boomOpp: '💥 炸彈在對方那邊爆炸！', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '闖關打到哪一關，就能選到哪一關的電腦。跟電腦打不算闖關進度，也不上排行榜。',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `電腦（${st} ${n}）`,
         connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
@@ -1329,9 +1346,9 @@
           clone: ['👥', 'Shadow Clone', 'a clone plays doubles with you this point: it guards the net when you attack and covers the gaps when you defend', 'This point'], big: ['🏸', 'Big Racket', 'a giant racket for the rest of the game — huge reach, but slower swing and feet', 'Whole game'],
           slow: ['🐢', 'Slow-mo', 'your opponent moves slower this point', 'This point'] },
         oppCard: c => `Opponent used ${c}!`, cardWhen: 'Tap a card before the serve', handT: '🃏 Your 3 skill cards this game', handS: 'Tap a card to flip it and read what it does. Before each serve, tap the round icons next to the swing button — each works once. Big Racket is on for the whole game as soon as you draw it. Your opponent drew 3 too.', handOk: 'Done — start the match', tapInfo: 'tap for details', bigOn: 'Active · whole game', handGo: 'Go!', handWaitOpp: 'Waiting for your opponent to read their cards…',
-        props: { pan: ['Frying pan', 'short reach, powerful, a bit slower'], ping: ['Ping-pong bat', 'tiny reach, weak, quicker feet'], tennis: ['Tennis racket', 'normal reach, most power, tennis-style smash'], hand: ['Bare hand', 'you must really touch the shuttle — your hand will start to hurt'], cone: ['Traffic cone', 'held by the tip, medium reach, a bit weak'] },
+        props: { pan: ['Frying pan', 'hard metal, flatter shots, never wears out'], ping: ['Ping-pong bat', 'the rubber wears off — less power over time'], tennis: ['Tennis racket', 'springy strings, tennis-style smash'], hand: ['Bare hand', 'must really touch it; your hand hurts and you switch hands'], cone: ['Traffic cone', 'held by the tip; hollow plastic bounces wild and cracks'] },
         propGot: (a, b) => `🔧 You got ${a} · Opponent got ${b}`, wearMsg: { ping: '🏓 The rubber is wearing off — less power', cone: '🔺 The cone is cracking — shots go wild' }, handHurt: '✋ Your hand starts to hurt…', handMiss: '😣 Ouch — missed!', handSwitch: '🤚 Too painful — switching hands!', handSwitchOpp: '🤚 Opponent switched hands!', handToughMe: '😖 Both hands hurt… you can only just push it over the net (losing a point helps)', handToughOpp: '😖 Opponent is playing through the pain!', propHidden: '✅ picked (revealed at start)',
-        myProp: 'Your prop', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
+        myProp: 'Your prop', propPick: 'tap to pick', propT2: '🔧 Pick a prop', propS2: 'Your opponent can’t see your pick until the match starts. No pick = random.', stPow: 'Power', stSpd: 'Speed', stRch: 'Reach', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
         slipMe: '🧊 You slipped!', slipOpp: '🧊 Opponent slipped!', boomMe: '💥 It blew up on your side!', boomOpp: '💥 It blew up on their side!', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: 'Computers unlock as you progress in Challenge. Doesn’t count toward Challenge or the leaderboard.',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `Computer (${st} ${n})`,
         connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
@@ -3006,8 +3023,12 @@
     placeCardBar();
   }
   function placeCardBar() { // 擺在揮拍鍵上方（揮拍鍵可以被玩家拖到別的位置，所以每次重新算）
-    const bar = $('cardBar'), sw = document.querySelector('.ctrl button[data-k="swing"]'), r = sw && sw.getBoundingClientRect();
-    if (r && r.width > 0) { bar.style.left = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, r.left + r.width / 2 - bar.offsetWidth / 2)) + 'px'; bar.style.top = Math.max(60, r.top - bar.offsetHeight - 12) + 'px'; bar.style.right = 'auto'; }
+    const bar = $('cardBar'), sw = document.querySelector('.ctrl button[data-k="swing"]'), dr = document.querySelector('.ctrl button[data-k="drop"]'), r = sw && sw.getBoundingClientRect();
+    if (r && r.width > 0) {
+      const L = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, r.left + r.width / 2 - bar.offsetWidth / 2));
+      let top = r.top; const d = dr && dr.getBoundingClientRect(); // 不要蓋到「輕」：如果左右有重疊，就擺在兩顆鍵比較高的那顆上面
+      if (d && d.width > 0 && d.right > L && d.left < L + bar.offsetWidth) top = Math.min(top, d.top);
+      bar.style.left = L + 'px'; bar.style.top = Math.max(60, top - bar.offsetHeight - 20) + 'px'; bar.style.right = 'auto'; }
     else { bar.style.left = 'auto'; bar.style.right = '16px'; bar.style.top = 'auto'; bar.style.bottom = '20px'; }
   }
   addEventListener('resize', () => { if (G_ && G_.hand) placeCardBar(); });
@@ -3265,7 +3286,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.30';
+  const GAME_VER = '4.0';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -3455,10 +3476,32 @@
     } else if (d.state === 'wait') { $('rmCoin').textContent = '🪙'; }
     else if (d.state === 'play') { if (!(G_ && G_.pvp && !G_.over)) startPvp(d); }
   }
+  // 道具小圖示：直接用遊戲裡畫道具的程式畫（平底鍋不會有蛋）
+  const propIcCache = {};
+  function propIc(id, cls) {
+    if (!propIcCache[id]) {
+      const c = document.createElement('canvas'); c.width = c.height = 96; const x = c.getContext('2d');
+      const len = { pan: 0.47, ping: 0.25, tennis: 0.7, hand: 0.17, cone: 0.47 }[id] || 0.5, m = 92 / len;
+      x.translate(16, 80); x.rotate(-Math.PI / 4); drawProp(id, m, '#f2c9a0', 0, 0, x); propIcCache[id] = c.toDataURL();
+    }
+    return `<img class="${cls || 'pIc'}" src="${propIcCache[id]}" alt="">`;
+  }
+  // 🔧 選道具的視窗：每個道具附上力量、速度、範圍的長條
+  function propStats(id) { const P = PROPS[id], M = MAT[id]; return { pow: P.power * M.el, spd: P.spd, rch: P.reach }; }
+  function openPropDlg(cur) {
+    const t = T().rm, bar = (v, lo, hi) => Math.round(15 + 85 * Math.max(0, Math.min(1, (v - lo) / (hi - lo))));
+    $('propT').textContent = t.propT2; $('propS').textContent = t.propS2;
+    $('propList').innerHTML = PROP_IDS.map(id => { const st = propStats(id);
+      const row = (lb, w, c) => `<div class="pBar"><small>${lb}</small><span><u style="width:${w}%;background:${c}"></u></span></div>`;
+      return `<button data-p="${id}" class="${id === cur ? 'on' : ''}"><i>${propIc(id)}</i><b>${t.props[id][0]}</b><div class="pBars">${row(t.stPow, bar(st.pow, 0.5, 1.4), '#ff8a3d')}${row(t.stSpd, bar(st.spd, 0.85, 1.12), '#5ce1c6')}${row(t.stRch, bar(st.rch, 0.5, 1.05), '#ffe066')}</div><em>${t.props[id][1]}</em></button>`; }).join('');
+    $('propList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { rmSet({ prop: b.dataset.p }); overlayClose('propDlg'); }));
+    overlayOpen('propDlg');
+  }
+  $('propClose').addEventListener('click', () => overlayClose('propDlg'));
   function backToLobby() {
     if (!room || room.role !== 'host') return;
     const d = room.data || {}, up = { state: 'wait', colors: null, serve: null, score: null, startAt: null, 'host/st': 'in' };
-    if (d.guest) up['guest/st'] = d.guest.st === 'tut' ? 'tut' : 'in';
+    if (d.guest) up['guest/st'] = d.guest.ai ? 'ready' : d.guest.st === 'tut' ? 'tut' : 'in'; // 電腦回到房間就是準備好的
     RT.m.update(rref(room.code), up);
   }
   function renderRoom() {
@@ -3485,18 +3528,18 @@
     const vsAiRoom = !!(Gs && Gs.ai), showProps = mode === 'prop' && (d.state || 'wait') === 'wait' && !vsAiRoom, myProp = room.me().prop || '';
     $('rmProps').classList.toggle('hidden', !showProps);
     if (showProps) {
-      $('rmProps').innerHTML = `<span>${t.myProp}</span>` + PROP_IDS.map(id => `<button data-p="${id}" class="${id === myProp ? 'on' : ''}" title="${t.props[id][1]}"><i>${PROPS[id].e}</i>${t.props[id][0]}</button>`).join('');
-      $('rmProps').querySelectorAll('button').forEach(b => b.addEventListener('click', () => rmSet({ prop: b.dataset.p })));
-      const tag = (who, P) => who === me ? (PROPS[P] ? ' ' + PROPS[P].e : '') : (PROPS[P] ? ' ' + t.propHidden : ''); // 對方的只顯示「已選好」
+      $('rmProps').innerHTML = `<button class="rmPropPill" id="rmPropPill">🔧 ${t.myProp}：${PROPS[myProp] ? propIc(myProp, 'pIc s') + t.props[myProp][0] : t.propPick} <i>▾</i></button>`;
+      $('rmPropPill').addEventListener('click', () => openPropDlg(myProp));
+      const tag = (who, P) => who === me ? '' : (PROPS[P] ? ' ' + t.propHidden : ''); // 對方的只顯示「已選好」
       if (H) $('rmNameH').textContent = H.name + tag('host', H.prop);
       if (Gs) $('rmNameG').textContent = Gs.name + tag('guest', Gs.prop);
     }
     $('rmModeL').textContent = t.modeL; $('rmModeV').textContent = t.modes[mode][0] + ' ' + t.modes[mode][1];
     $('rmModeBtn').disabled = !isHost; if (!isHost) closeModePop();
     $('rmModeD').textContent = t.modes[mode][2] + (me === 'host' ? '' : '（' + t.hostOnly + '）');
-    $('rmPopHead').textContent = t.pickMode;
+    $('rmPopHead').textContent = '';
     $('rmModes').innerHTML = MODES.map(M => { const md = t.modes[M.id];
-      return `<button data-m="${M.id}" class="${M.id === mode ? 'on' : ''}" ${M.live ? '' : 'disabled'}><i>${md[0]}</i><b>${md[1]}</b><span>${md[2]}</span>${M.live ? '' : `<em>${t.dev}</em>`}</button>`; }).join('');
+      return `<button data-m="${M.id}" class="${M.id === mode ? 'on' : ''}" ${M.live ? '' : 'disabled'}><i>${md[0]}</i><b>${md[1]}</b></button>`; }).join('');
     $('rmModes').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setMode(b.dataset.m); closeModePop(); }));
     // 補電腦（只有房主、還沒人進來時）
     $('rmAddAi').textContent = Gs && Gs.ai ? t.rmAi : t.addAi;
@@ -3659,7 +3702,7 @@
       const byCol = { red: PROP_IDS[i1], black: PROP_IDS[i2] }, me0 = d[room.role] || {};
       if (!vsAi) { if (PROPS[me0.prop]) byCol[myCol] = me0.prop; if (PROPS[oppP.prop]) byCol[opCol] = oppP.prop; }
       g.p.prop = byCol[myCol]; g.a.prop = byCol[opCol]; g.handN = { p: 0, a: 0 }; g.handOff = { p: false, a: false }; g.handTough = { p: false, a: false };
-      const tp = T().rm; setTimeout(() => { if (G_ === g) showMsg(tp.propGot(PROPS[g.p.prop].e + ' ' + tp.props[g.p.prop][0], PROPS[g.a.prop].e + ' ' + tp.props[g.a.prop][0]), '#ffd0b0', 3200); }, 600);
+      const tp = T().rm; setTimeout(() => { if (G_ === g) showMsg(tp.propGot(tp.props[g.p.prop][0], tp.props[g.a.prop][0]), '#ffd0b0', 3200); }, 600);
     }
     g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
     $('aName').textContent = (opCol === 'red' ? '🔴 ' : '⚫ ') + (vsAi ? aiLabel(oppP.lv) : (oppP.name || ''));
@@ -4553,7 +4596,7 @@
       ctx.strokeStyle = pl.lefty ? '#e8bc93' : '#f2c9a0'; ctx.lineWidth = Math.max(3, m * 0.09);
       ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(wx, wy); ctx.stroke();
       const BK = G_ && G_.big && G_.big[pl.side] && !pl.isClone ? 3.0 : 1, SK = BK > 1 ? 1.9 : 1; // 🏸 大球拍：拍面放大 3 倍、拍桿 1.9 倍
-      const [nx, ny] = at(wx, wy, q.ra, (BK > 1 ? 0.36 * SK + 0.17 * BK * 0.45 : 0.36) * m); [cx, cy] = at(wx, wy, q.ra, (0.36 * SK + 0.17 * BK) * m); // 大球拍的中桿伸進拍框
+      const [nx, ny] = at(wx, wy, q.ra, (BK > 1 ? 0.36 * SK + 0.02 : 0.36) * m); [cx, cy] = at(wx, wy, q.ra, (0.36 * SK + 0.17 * BK) * m); // 中桿剛好接到拍框
       if (pl.prop && PROPS[pl.prop] && G_ && G_.pvp && G_.pvp.mode === 'prop') { // 🔧 道具：握在手上取代球拍
         const ang = Math.atan2(ny - wy, nx - wx);
         ctx.save(); ctx.translate(wx, wy); ctx.rotate(ang); drawProp(pl.prop, m, pl.lefty ? '#e8bc93' : '#f2c9a0', handPain(pl.side), propWear(pl.side)); ctx.restore(); return;
@@ -4647,8 +4690,8 @@
   }
   // 道具的畫法（手在原點，+x 是道具伸出去的方向；最後畫拳頭握住握把）
   // 🔧 道具照真實比例畫（m ≈ 1 公尺）：羽球拍全長約 0.67m
-  function drawProp(id, m, skin, pain, wear) {
-    wear = wear || 0;
+  function drawProp(id, m, skin, pain, wear, c2) {
+    wear = wear || 0; const ctx = c2 || ctxMain;
     const R = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); };
     if (id === 'pan') { // 平底鍋：全長約 0.45m，鍋面直徑 0.24m（側面看是扁的鍋）
       ctx.fillStyle = '#3a2a1e'; R(-0.04 * m, -0.018 * m, 0.25 * m, 0.036 * m, 0.016 * m); ctx.fill();
