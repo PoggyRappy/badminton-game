@@ -207,6 +207,18 @@
   .rmAi { font-size: 12.5px !important; margin: 2px 0 0 !important; }
   .aiStars { display: block; font-size: 11px; color: #ffe066; letter-spacing: 1px; } .aiStars .off { color: rgba(255,255,255,.2); }
   #aiGrid button { display: flex; flex-direction: column; align-items: center; gap: 1px; } .aiSt { display: block; font-size: 11px; opacity: .65; }
+  #fxBtn { position: fixed; top: 62px; left: 14px; z-index: 22; border: 2px solid #ffe066; background: rgba(29,36,51,.9); color: #fff; border-radius: 14px; padding: 6px 12px;
+    font: 900 15px "Noto Sans TC", sans-serif; cursor: pointer; box-shadow: 0 0 14px rgba(255,224,102,.35); display: flex; align-items: center; gap: 6px; touch-action: manipulation; }
+  #fxBtn small { font-weight: 700; font-size: 11px; opacity: .7; }
+  #fxBtn.used { border-color: rgba(255,255,255,.25); box-shadow: none; opacity: .5; }
+  body:not(.inMatch) #fxBtn { display: none; }
+  .ppGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .ppGrid button, .rmProps button { border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #fff; border-radius: 14px; padding: 8px 4px; cursor: pointer; font: 700 13px "Noto Sans TC", sans-serif; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ppGrid button i, .rmProps button i { font-style: normal; font-size: 26px; line-height: 1.1; }
+  .ppGrid button small, .rmProps button small { font-size: 10px; opacity: .7; font-weight: 400; line-height: 1.3; }
+  .ppGrid button.on, .rmProps button.on { border-color: #ffe066; background: rgba(255,224,102,.15); }
+  .rmProps { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 6px; align-items: center; margin: 0 0 8px; }
+  .rmProps > span { font-size: 12px; opacity: .75; padding-right: 4px; } .rmProps button { padding: 4px 2px; } .rmProps button i { font-size: 20px; } .rmProps button small { display: none; }
   .rmConn { font-size: 12.5px; margin: 6px 0 0; font-weight: 700; } .rmConn:empty { display: none; }
   .rmTip { font-size: 11.5px; opacity: .65; margin: 6px 0 0; line-height: 1.5; }
   .rmQ { font-weight: 700; margin: 4px 0 8px; }
@@ -550,6 +562,7 @@
       <div class="rmVs">VS</div>
       <div class="rmSlot" id="rmSlotG"><small id="rmRoleG"></small><b id="rmNameG"></b><span class="rmSt" id="rmStG"></span><button class="linkBtn rmAi" id="rmAddAi"></button></div>
     </div>
+    <div class="rmProps hidden" id="rmProps"></div>
     <!-- 大廳：準備／開始 -->
     <div id="rmLobby"><div class="rmBtns"><button class="btn sec" id="rmReady"></button><button class="btn pri" id="rmStart"></button></div><p class="rmConn" id="rmConn"></p><p class="rmTip" id="rmTip"></p></div>
     <!-- 選顏色 -->
@@ -564,6 +577,12 @@
 <button id="updBar" class="hidden"></button>
 <!-- 在 IG／LINE／FB 裡打開：建議改用瀏覽器 -->
 <div id="inappBar" class="hidden"><span id="inappTxt"></span><button id="inappCopy"></button><button id="inappX" aria-label="close">✕</button></div>
+
+<!-- 對戰房模式：技能卡／換道具按鈕（比賽中左上角） -->
+<button id="fxBtn" class="hidden"></button>
+<div class="overlay hidden" id="propPick" style="z-index:37">
+  <div class="card stCard"><button class="xBtn" id="ppClose" aria-label="close">✕</button><h2 id="ppT"></h2><p class="note" id="ppS"></p><div class="ppGrid" id="ppGrid"></div></div>
+</div>
 
 <!-- 對戰房：選電腦對手 -->
 <div class="overlay hidden" id="aiPick" style="z-index:36">
@@ -650,7 +669,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.23 · 2026/11/26 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v3.25 · 2026/11/27 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -875,6 +894,13 @@
     b.vy += (-G - K * v * b.vy) * dt;
     b.x += b.vx * dt; b.y += b.vy * dt;
   }
+  // 對戰房模式會改變飛行的環境（風、雨）：只用在球真正飛的時候；擊球瞄準不會自動修正，要自己判斷
+  function stepEnv(b, dt) {
+    const e = G_ && G_.env; if (!e) { step(b, dt); return; }
+    const v = Math.hypot(b.vx, b.vy), k = K * e.drag;
+    b.vx += (-k * v * b.vx + e.wind) * dt; b.vy += (-G * e.grav - k * v * b.vy) * dt;
+    b.x += b.vx * dt; b.y += b.vy * dt;
+  }
   function sim(x, y, vx, vy) {
     const b = { x, y, vx, vy }; let netY = null; const sx = x;
     for (let i = 0; i < 1600 && b.y > 0; i++) {
@@ -1062,7 +1088,13 @@
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
         lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', modes: { std: ['🤝', '標準', '原本的好友對戰'], weather: ['🌪️', '天氣', '每一分隨機天氣，雙方一起受影響'], bomb: ['💣', '炸彈', '球是倒數炸彈，結束在誰那邊誰失分'],
           skill: ['🃏', '技能', '每一分抽一張技能卡，用一次'], shrink: ['📏', '縮小', '每打一分，場地就縮小一點'], prop: ['🔧', '道具', '不用球拍，換各種道具來打'] },
-        dev: '開發中', chal: '闖關', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '⭐ 越多越難。跟電腦打不算闖關進度，也不上排行榜。',
+        dev: '開發中', chal: '闖關', wx: { sun: ['☀️', '晴天', '沒有特別影響'], wind: ['🌬️', '強風', '球會被吹偏'], rain: ['🌧️', '下雨', '球變重、掉得比較快'], fog: ['🌫️', '起霧', '球飛到場中間會看不到'], snow: ['❄️', '寒流', '兩邊都跑得比較慢'] },
+        windTo: '（往對面吹，高球容易出界）', windFrom: '（往你這邊吹，高球會變短）', shrunk: m => `📏 場地縮小了！現在每邊只剩 ${m} 公尺`,
+        cards: { rocket: ['🚀', '火箭殺球', '下一次殺球超快'], slow: ['🐢', '慢動作', '球變慢 2.5 秒'], long: ['🦒', '長手臂', '6 秒內打得到更遠的球'], ghost: ['👻', '隱形球', '下一拍對方會看不到一半'], dash: ['⚡', '衝刺', '3.5 秒內跑超快'] },
+        yourCard: c => `🃏 這一分你的卡：${c}`, oppCard: c => `對手用了 ${c}！`, tapUse: '點我使用', keyUse: '按 C 使用',
+        props: { pan: ['平底鍋', '力量大、範圍小、跑比較慢'], ping: ['桌球拍', '很準、範圍很小'], tennis: ['網球拍', '範圍大、力量大，但不太準'], hand: ['徒手', '最難：範圍最小、力量小'], bread: ['法國麵包', '範圍最大，力量普通'] },
+        myProp: '你的道具', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
+        boomMe: '💥 炸彈在你這邊爆炸了！', boomOpp: '💥 炸彈在對方那邊爆炸！', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '⭐ 越多越難。跟電腦打不算闖關進度，也不上排行榜。',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `電腦（${st} ${n}）`,
         connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
@@ -1248,7 +1280,13 @@
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
         lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', modes: { std: ['🤝', 'Standard', 'The original Friend Battle'], weather: ['🌪️', 'Weather', 'Random weather every point, for both sides'], bomb: ['💣', 'Bomb', 'The shuttle is a ticking bomb — whoever it ends on loses the point'],
           skill: ['🃏', 'Skills', 'Draw a skill card each point and use it once'], shrink: ['📏', 'Shrink', 'The court gets smaller after every point'], prop: ['🔧', 'Props', 'No racket — play with different props'] },
-        dev: 'In dev', chal: 'Challenge', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: '⭐ More stars = harder. Doesn’t count toward Challenge or the leaderboard.',
+        dev: 'In dev', chal: 'Challenge', wx: { sun: ['☀️', 'Sunny', 'nothing special'], wind: ['🌬️', 'Windy', 'the shuttle drifts'], rain: ['🌧️', 'Rain', 'the shuttle is heavier and drops faster'], fog: ['🌫️', 'Fog', 'the shuttle vanishes mid-court'], snow: ['❄️', 'Cold snap', 'everyone moves slower'] },
+        windTo: ' (blowing away from you — clears may go long)', windFrom: ' (blowing toward you — clears fall short)', shrunk: m => `📏 The court shrank! ${m} m per side now`,
+        cards: { rocket: ['🚀', 'Rocket Smash', 'your next smash is super fast'], slow: ['🐢', 'Slow-mo', 'the shuttle slows for 2.5 s'], long: ['🦒', 'Long Arms', 'bigger reach for 6 s'], ghost: ['👻', 'Ghost Shot', 'your next shot goes invisible halfway'], dash: ['⚡', 'Dash', 'super speed for 3.5 s'] },
+        yourCard: c => `🃏 Your card this point: ${c}`, oppCard: c => `Opponent used ${c}!`, tapUse: 'tap to use', keyUse: 'press C',
+        props: { pan: ['Frying pan', 'powerful, short reach, slower feet'], ping: ['Ping-pong bat', 'accurate, tiny reach'], tennis: ['Tennis racket', 'big reach and power, less accurate'], hand: ['Bare hand', 'hardest: tiny reach, weak'], bread: ['Baguette', 'longest reach, normal power'] },
+        myProp: 'Your prop', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
+        boomMe: '💥 It blew up on your side!', boomOpp: '💥 It blew up on their side!', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: '⭐ More stars = harder. Doesn’t count toward Challenge or the leaderboard.',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `Computer (${st} ${n})`,
         connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
@@ -1474,6 +1512,7 @@
   function setupServe() {
     if (G_ && G_.pFat) G_.pFat *= 0.5; // 每分之間喘口氣
     const g = G_;
+    g.fz = null; g.boom = null; modeSetup(g);
     g.p.x = g.server === 'p' ? 4.3 : 3.7; g.a.x = g.server === 'a' ? 9.1 : 9.7;
     g.p.swingT = g.a.swingT = -1; g.p.swingType = g.a.swingType = null;
     g.p.y = g.a.y = 0; g.p.vy = g.a.vy = 0;
@@ -1507,15 +1546,16 @@
     g.state = 'rally'; $('hint').textContent = '';
     g.aiDelay = LEVELS[g.level].react; g.aiPlan = null;
     hitSound('serve');
+    if (bombOn()) { g.fz = 0; g.bombT = bombFuse(g); g.tickT = 0; } // 炸彈：發球就開始倒數
     if (who === 'p' && pvpRemote()) pvpSendHit('serve');
   }
 
   // ---------- 擊球 ----------
-  function reach(pl) { return 2.35 + pl.y; }
+  function reach(pl) { return 2.35 + pl.y + zoneMul(pl.side).h; }
   function inZone(pl, b) {
-    const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
-    const back = pl.side === 'p' && G_ && G_.pvp ? -0.35 : -0.65; // 好友對戰：球過了身體 0.35 公尺就打不到（闖關維持 0.65，手機比較好打）
-    return dx > back && dx < 1.05 && b.y > 0.12 && b.y < reach(pl) &&
+    const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1), zm = zoneMul(pl.side);
+    const back = (pl.side === 'p' && G_ && G_.pvp ? -0.35 : -0.65) * zm.b; // 好友對戰：球過了身體 0.35 公尺就打不到（闖關維持 0.65，手機比較好打）
+    return dx > back && dx < 1.05 * zm.f && b.y > 0.12 && b.y < reach(pl) &&
       (pl.side === 'p' ? b.x < NET_X : b.x > NET_X) && b.last !== pl.side;
   }
 
@@ -1634,12 +1674,15 @@
     const dec = who === 'a' ? (opt.decision || aiChoose(pl, b, L, opp)) : { kind: chooseKind(pl, b, soft, opt.fwd), fake: opt.feint ? (opt.fakeKind || 'clear') : null };
     const kind = dec.kind, feint = !!dec.fake;
     let t = targetFor(kind, opp, who, who === 'a' ? L : null);
+    if (g.shrink && (DEEP.includes(kind) || kind === 'smash')) t = Math.min(t, COURT - g.shrink - 0.45); // 📏 縮小：瞄準縮小後的底線
     if (who === 'p' && DEEP.includes(kind)) {
       // 理想擊球點在身體前方約 0.35 公尺；越前面（越早出手）力道越大、越容易出界
       const dx = (b.x - pl.x) * (pl.side === 'p' ? 1 : -1);
       t = Math.min(t, 12.9) + (dx - 0.35) * 1.5 + (pl.y > 0.2 ? 0.25 : 0) + (Math.random() - 0.5) * 0.7;
       if (zoneOf(pl) === 'front' && kind !== 'push') t += 0.15; // 網前挑球稍微容易挑出界
     }
+    const prop = propOf(who); // 🔧 道具：力量大的容易打深（出界），控制差的落點亂
+    if (prop) { const P = PROPS[prop]; if (DEEP.includes(kind)) t += (P.power - 1) * 1.4; t += (Math.random() - 0.5) * P.err; }
     if (who === 'a') { // 對手失誤：難的球路、或接你的快球時比較容易失誤
       const risk = (L.style === 'power' && kind === 'smash') ? 0.5 : (KIND_RISK[kind] || 1); // 重砲手殺球很穩
       // 殺得越快壓力越大；累了變慢的殺球就沒什麼威脅。被看穿的球幾乎不會失誤
@@ -1679,12 +1722,16 @@
       if (fat > 2.5 && Math.random() < 0.08 * (fat - 2.5)) tx = Math.random() < 0.5 ? COURT + 0.4 : NET_X - 0.4; // 累到殺出界或掛網
       g.pFat = fat + (pl.y > 0.2 ? 1.4 : 1);
     } else if (who === 'p') g.pFat = Math.max(0, (g.pFat || 0) - 0.6);
+    const fxw = g.fx && g.fx[who];
+    if (prop && (kind === 'smash' || kind === 'kill')) boost += (PROPS[prop].power - 1) * 6;
+    if (fxw && fxw.rocket && (kind === 'smash' || kind === 'kill')) { boost += 6; fxw.rocket = false; fxw.rocketHit = true; } // 🃏 火箭殺球
     const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, boost, (who === 'p' || (!!L.tight && Math.random() < L.tight)) && ['slice', 'dropUnder', 'block'].includes(kind)); // 你的切、吊、擋和高手一樣貼網
     if (kind === 'smash' || kind === 'kill') {
       kmh = Math.round(Math.hypot(v.vx, v.vy) * 11.5); // 換算成接近真實比賽的時速
       if (who === 'p') g.stats.bestSmash = Math.max(g.stats.bestSmash || 0, kmh);
     }
-    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false; b.air = pl.y > 0.2; b.feint = feint; b.kmh = kmh;
+    b.vx = v.vx; b.vy = v.vy; b.last = who; b.type = kind; b.net = false; b.air = pl.y > 0.2; b.feint = feint; b.kmh = kmh; b.ft = 0; b.ghost = false;
+    if (fxw && fxw.ghost) { fxw.ghost = false; b.ghost = true; if (who === 'p' && !pvpRemote()) g.aiDelay += 0.35; } // 🃏 隱形球：對方畫面上球飛到一半會消失
     // 對手：殺完上網補拍；太極／進攻模式切換
     let modeMsg = '';
     if (who === 'a') {
@@ -1711,7 +1758,7 @@
   // ---------- AI ----------
   function aiThink(dt) {
     const g = G_, a = g.a, b = g.b, L = LEVELS[g.level];
-    let target = a.x, sp = L.speed;
+    let target = a.x, sp = L.speed * spdMul('a');
     const wantJump = L.smashP > 0 && g.aiRoll < L.smashP && g.aiMode !== 'taichi';
     if (g.aiRushT > 0) g.aiRushT -= dt;
     if (b && g.state === 'rally' && b.last === 'p') {
@@ -1724,7 +1771,7 @@
           const s = { x: b.x, y: b.y, vx: b.vx, vy: b.vy }; let ix = null;
           const catchH = wantJump ? 2.8 : 2.1;
           for (let i = 0; i < 1600 && s.y > 0; i++) {
-            step(s, 1 / 120);
+            stepEnv(s, 1 / 120);
             if (s.vy < 0 && s.x > NET_X && s.y < catchH && ix === null) ix = s.x;
           }
           if (ix === null) ix = s.x;
@@ -1944,6 +1991,7 @@
 
   // ---------- 主頁 ----------
   function showHome() {
+    $('fxBtn').classList.add('hidden');
     const t = T(), r = getRec(), ns = nextStage();
     G_ = null; paused = false; clearHud(); drillHud(false);
     $('prBtn').textContent = t.dr.practice;
@@ -2277,8 +2325,8 @@
     let mv = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     // 已經按了揮拍：站著就打得到就不動；打不到才自動小步對準（按住 ▶ 也不會跑過頭）
     if (pendingSwing && g.state === 'rally' && g.b && g.b.last !== 'p' && !(keys.left && !keys.right)) { // 按住 ◀ 往後退一律照你的意思走
-      if (!willReach(p, g.b, pendingT + 0.1)) { const ax = alignX(p, g.b); if (ax !== null) p.x += Math.max(-5.2 * dt, Math.min(5.2 * dt, ax - p.x)); }
-    } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2) * dt; // 發球前可以慢慢調整站位
+      if (!willReach(p, g.b, pendingT + 0.1)) { const ax = alignX(p, g.b), sp = 5.2 * spdMul('p') * dt; if (ax !== null) p.x += Math.max(-sp, Math.min(sp, ax - p.x)); }
+    } else p.x += mv * (g.state === 'serve' ? 2.5 : 5.2 * spdMul('p')) * dt; // 發球前可以慢慢調整站位
     p.x = Math.max(0.2, Math.min(NET_X - 0.35, p.x));
     updPlayer(p, dt); updPlayer(g.a, dt);
     if (g.bOff) { g.bOff.t -= dt; if (g.bOff.t <= 0) g.bOff = null; } // 球的畫面位置慢慢接回真正的位置
@@ -2301,6 +2349,7 @@
       else if (pendingT <= 0) { pendingSwing = null; pendingFeint = false; }
     }
     if (!pvpRemote()) aiThink(dt);
+    bombTick(dt); modeTick(dt);
 
     const prevX = b.x;
     let bdt = dt;
@@ -2312,9 +2361,17 @@
     }
     // 球用固定的 1/240 秒一步來算（不管手機畫面快慢、球有沒有放慢）：同一顆球在兩支手機上的軌跡、落點、掛不掛網都一模一樣
     const SD = 1 / 240; let netNow = false;
+    if (g.slowT > 0) bdt *= 0.5; // 🃏 慢動作：球飛得比較慢（兩邊同時）
     b.acc = (b.acc || 0) + bdt;
-    while (b.acc >= SD && b.y > 0) {
-      b.acc -= SD; const px = b.x; step(b, SD);
+    while (b.acc >= SD && b.y > 0 && !b.hold) {
+      b.acc -= SD; const px = b.x; stepEnv(b, SD); b.ft = (b.ft || 0) + SD;
+      if (g.fz != null && bombOn()) {
+        g.fz += SD;
+        if (g.fz >= g.bombT) {
+          if (pvpRemote() && b.last === 'p') { b.hold = true; break; } // 我打過去的球：等對方判定（球停在那裡、引信狂閃）
+          bombExplode(b); return;
+        }
+      }
       if (!b.net && (px - NET_X) * (b.x - NET_X) <= 0 && b.y < NET_H) { // 掛網
         b.net = true; b.x = NET_X + (px < NET_X ? -0.05 : 0.05); b.vx = -b.vx * 0.08; b.vy = Math.min(b.vy, 0) * 0.3; netNow = true;
       }
@@ -2324,7 +2381,7 @@
     if (b.y <= 0) {
       b.y = 0; floorSound();
       let winner, shortSv = false;
-      const inside = b.x >= 0 && b.x <= COURT;
+      const sh = g.shrink || 0, inside = b.x >= sh && b.x <= COURT - sh; // 📏 縮小：邊界往內縮
       if (b.net) winner = b.last === 'p' ? 'a' : 'p';
       else if (b.type === 'serve' && Math.abs(b.x - NET_X) < 1.98 && (b.x - NET_X) * (b.last === 'p' ? 1 : -1) > 0) { shortSv = true; winner = b.last === 'p' ? 'a' : 'p'; showMsg(T().shortServe, '#ff8a8a'); }
       else if (inside) winner = b.x < NET_X ? 'a' : 'p';
@@ -2718,6 +2775,135 @@
     updScore();
   }
 
+  // ---------- 💣 炸彈模式 ----------
+  // 每一分發球後開始倒數（只算球在飛的時間），5–12 秒隨機。兩支手機用同一個亂數種子，算出來的秒數一樣。
+  // 爆炸時球在誰那邊，誰失分；跟落地一樣，由「接球的那一方」判定，兩邊才不會判得不一樣。
+  const bombOn = () => !!(G_ && G_.pvp && G_.pvp.mode === 'bomb');
+  function seeded(seed, n) { let t = (seed + n * 0x9E3779B1) >>> 0; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+  function bombFuse(g) { return 5 + 7 * seeded(g.pvp.seed, g.ps + g.as); }
+  function bombBoom(b) { // 爆炸畫面＋聲音
+    const g = G_; g.boom = { x: b.x, y: Math.max(0.1, b.y), t: 0 }; b.gone = true; g.trail = [];
+    try { burst('lowpass', 260, 0.6, 0.6, 1.0); tone('sine', 90, 28, 0.5, 0.6); burst('bandpass', 1400, 1.2, 0.18, 0.35, 0.02); } catch (e) {}
+    if (navigator.vibrate) try { navigator.vibrate(120); } catch (e) {}
+  }
+  function bombExplode(b) { // 我這邊判定：球在我這半場 → 我失分
+    const mine = b.x < NET_X, t = T().rm;
+    bombBoom(b); showMsg(mine ? t.boomMe : t.boomOpp, mine ? '#ff8a8a' : '#ffe066', 1600);
+    decidePoint(mine ? 'a' : 'p', false, 'bomb');
+  }
+  function bombTick(dt) { // 引信聲：剩 3 秒以內越來越急（不顯示秒數）
+    const g = G_; if (!bombOn() || g.fz == null || g.state !== 'rally') return;
+    const rem = g.bombT - g.fz, iv = rem > 3 ? 0.7 : Math.max(0.07, 0.7 * rem / 3);
+    g.tickT = (g.tickT || 0) + dt; if (g.tickT >= iv) { g.tickT = 0; try { tone('square', rem > 3 ? 1500 : 2100, 0, 0.025, rem > 3 ? 0.035 : 0.07); } catch (e) {} }
+  }
+
+  // ---------- 對戰房：🌪️ 天氣、📏 縮小、🃏 技能卡、🔧 道具（共用設定，每一分開始前呼叫 modeSetup） ----------
+  // 所有隨機的東西（天氣、卡片）都用「開賽亂數種子＋第幾分」算，兩支手機算出來一樣，不用另外傳
+  const modeOf = () => (G_ && G_.pvp ? G_.pvp.mode : 'std');
+  const WEATHERS = ['sun', 'wind', 'rain', 'fog', 'snow'];
+  const CARDS = ['rocket', 'slow', 'long', 'ghost', 'dash'];
+  // reach 擊球範圍、power 力量、err 落點誤差（公尺）、spd 移動速度
+  const PROPS = { pan: { e: '🍳', reach: 0.9, power: 1.25, err: 0.35, spd: 0.88 }, ping: { e: '🏓', reach: 0.72, power: 0.85, err: 0.15, spd: 1.06 },
+    tennis: { e: '🎾', reach: 1.15, power: 1.3, err: 0.6, spd: 0.95 }, hand: { e: '✋', reach: 0.6, power: 0.72, err: 0.9, spd: 1.1 }, bread: { e: '🥖', reach: 1.3, power: 0.9, err: 0.45, spd: 1.0 } };
+  const PROP_IDS = Object.keys(PROPS);
+  function propOf(who) { const g = G_; return g && g.pvp && g.pvp.mode === 'prop' && g[who] && PROPS[g[who].prop] ? g[who].prop : null; }
+  function zoneMul(side) {
+    const g = G_, r = { f: 1, b: 1, h: 0 }; if (!g || !g.pvp) return r;
+    const pr = propOf(side); if (pr) { const k = PROPS[pr].reach; r.f = k; r.b = k; r.h = (k - 1) * 0.6; }
+    const fx = g.fx && g.fx[side]; if (fx && fx.longT > 0) { r.f *= 1.5; r.b *= 1.6; r.h += 0.5; } // 🦒 長手臂
+    return r;
+  }
+  function spdMul(who) {
+    const g = G_; if (!g || !g.pvp) return 1;
+    let m = g.env ? g.env.spd : 1;
+    const fx = g.fx && g.fx[who]; if (fx && fx.dashT > 0) m *= 1.6; // ⚡ 衝刺
+    const pr = propOf(who); if (pr) m *= PROPS[pr].spd;
+    return m;
+  }
+  function modeLbl(g) {
+    const t = T().rm, v = g.pvp, md = t.modes[v.mode]; let x = '';
+    if (v.mode === 'weather' && g.env) x = '・' + t.wx[g.env.type][0] + ' ' + t.wx[g.env.type][1] + (g.env.wind ? (g.env.wind > 0 ? ' →' : ' ←') : '');
+    if (v.mode === 'shrink') x = '・' + (COURT - 2 * (g.shrink || 0)).toFixed(1) + 'm';
+    return md[0] + ' ' + md[1] + x;
+  }
+  function modeSetup(g) {
+    g.env = null; g.fx = { p: {}, a: {} }; g.slowT = 0;
+    const v = g.pvp; if (!v) { g.shrink = 0; fxUI(); return; }
+    const n = g.ps + g.as, t = T().rm;
+    if (v.mode === 'weather') {
+      const r = seeded(v.seed + 101, n), w = r < 0.12 ? 'sun' : WEATHERS[1 + Math.min(3, Math.floor((r - 0.12) / 0.22))];
+      const dir = seeded(v.seed + 202, n) < 0.5 ? 1 : -1, str = 1.6 + seeded(v.seed + 303, n) * 1.4, flip = v.myCol === 'red' ? 1 : -1; // 風向用紅方的方向定，各自換算
+      g.env = { type: w, wind: w === 'wind' ? dir * str * flip : 0, grav: w === 'rain' ? 1.22 : 1, drag: w === 'rain' ? 1.12 : 1, spd: w === 'snow' ? 0.78 : 1 };
+      setTimeout(() => { if (G_ === g) showMsg(t.wx[w][0] + ' ' + t.wx[w][1] + '：' + t.wx[w][2] + (w === 'wind' ? (g.env.wind > 0 ? t.windTo : t.windFrom) : ''), '#bfe9ff', 2400); }, 400);
+    }
+    if (v.mode === 'shrink') {
+      const s0 = g.shrink || 0; g.shrink = Math.min(2.4, 0.3 * n);
+      if (g.shrink > s0) { g.shrinkFx = 1; setTimeout(() => { if (G_ === g) showMsg(t.shrunk((COURT - 2 * g.shrink).toFixed(1)), '#ffe066', 1800); }, 400); }
+    } else g.shrink = 0;
+    if (v.mode === 'skill') {
+      const cardFor = col => CARDS[Math.floor(seeded(v.seed + (col === 'red' ? 7 : 13), n) * CARDS.length)];
+      g.card = { p: cardFor(v.myCol), a: cardFor(v.opCol), used: { p: false, a: false } };
+      g.aiCardAt = 1.5 + Math.random() * 4; g.aiCardT = 0;
+      setTimeout(() => { if (G_ === g) showMsg(t.yourCard(t.cards[g.card.p][0] + ' ' + t.cards[g.card.p][1]), '#ffe066', 1800); }, 400);
+    }
+    if (v.mode === 'prop' && n > 0) {
+      const loser = g.server === 'p' ? 'a' : 'p'; // 剛剛那一分誰輸（贏的人發球）
+      g.canSwap = loser === 'p' && g.propSw > 0;
+      if (loser === 'a' && !pvpRemote() && g.aSw > 0 && Math.random() < 0.35) { // 電腦也會換道具
+        const np = PROP_IDS.filter(x => x !== g.a.prop)[Math.floor(Math.random() * 4)]; g.a.prop = np; g.aSw--;
+        setTimeout(() => { if (G_ === g) showMsg(t.oppProp(PROPS[np].e + ' ' + t.props[np][0]), '#ffd0b0', 1600); }, 500);
+      }
+    }
+    fxUI();
+  }
+  // 左上角的按鈕：技能卡（用一次）／換道具（剛輸一分時）
+  function fxUI() {
+    const g = G_, el = $('fxBtn'), t = T().rm;
+    if (!g || !g.pvp || g.over) { el.classList.add('hidden'); return; }
+    if (g.pvp.mode === 'skill' && g.card) {
+      const c = g.card.p, used = g.card.used.p;
+      el.innerHTML = `${t.cards[c][0]} ${t.cards[c][1]}${used ? ' ✓' : `<small>${isTouch ? t.tapUse : t.keyUse}</small>`}`;
+      el.classList.toggle('used', used); el.classList.remove('hidden'); return;
+    }
+    if (g.pvp.mode === 'prop' && g.canSwap) { el.innerHTML = `🔄 ${t.swapProp(g.propSw)}`; el.classList.remove('used', 'hidden'); return; }
+    el.classList.add('hidden');
+  }
+  function useCard(who) {
+    const g = G_; if (!g || !g.card || g.card.used[who] || !['serve', 'rally'].includes(g.state)) return;
+    const c = g.card[who], fx = g.fx[who], t = T().rm; g.card.used[who] = true;
+    if (c === 'rocket') fx.rocket = true; else if (c === 'long') fx.longT = 6; else if (c === 'dash') fx.dashT = 3.5; else if (c === 'ghost') fx.ghost = true; else if (c === 'slow') g.slowT = 2.5;
+    try { tone('triangle', 660, 1320, 0.18, 0.2); } catch (e) {}
+    if (who === 'p') { showMsg(t.cards[c][0] + ' ' + t.cards[c][1] + '！' + t.cards[c][2], '#ffe066', 1800); if (pvpRemote()) pvpEv({ k: 'card', c }); track('card_use', { card: c }); }
+    else showMsg(t.oppCard(t.cards[c][0] + ' ' + t.cards[c][1]), '#ff8a8a', 1800);
+    fxUI();
+  }
+  function onOppCard(c) { const g = G_, t = T().rm; if (c === 'slow') g.slowT = 2.5; showMsg(t.oppCard(t.cards[c][0] + ' ' + t.cards[c][1]), '#ff8a8a', 1800); try { tone('triangle', 520, 260, 0.18, 0.15); } catch (e) {} }
+  function openPropPick() {
+    const g = G_, t = T().rm; if (!g || !g.canSwap) return;
+    $('ppT').textContent = t.propT; $('ppS').textContent = t.propS;
+    $('ppGrid').innerHTML = PROP_IDS.map(id => `<button data-p="${id}" class="${g.p.prop === id ? 'on' : ''}"><i>${PROPS[id].e}</i>${t.props[id][0]}<small>${t.props[id][1]}</small></button>`).join('');
+    $('ppGrid').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.p; overlayClose('propPick'); if (g.pvp.vsAi) paused = false;
+      if (!G_ || G_ !== g || !g.canSwap || id === g.p.prop) return;
+      g.p.prop = id; g.propSw--; g.canSwap = false; fxUI();
+      if (pvpRemote()) pvpEv({ k: 'prop', p: id });
+      showMsg(t.nowProp(PROPS[id].e + ' ' + t.props[id][0]), '#ffe066', 1500); track('prop_swap', { prop: id });
+    }));
+    if (g.pvp.vsAi) paused = true; // 跟電腦打：選的時候暫停
+    overlayOpen('propPick');
+  }
+  $('ppClose').addEventListener('click', () => { overlayClose('propPick'); if (G_ && G_.pvp && G_.pvp.vsAi) paused = false; });
+  function fxClick() { const g = G_; if (!g || !g.pvp || g.over) return; if (g.pvp.mode === 'skill') useCard('p'); else if (g.pvp.mode === 'prop') openPropPick(); }
+  $('fxBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fxClick(); });
+  function modeTick(dt) {
+    const g = G_; if (!g || !g.pvp) return;
+    if (g.slowT > 0) g.slowT -= dt;
+    ['p', 'a'].forEach(w => { const f = g.fx && g.fx[w]; if (!f) return; if (f.longT > 0) f.longT -= dt; if (f.dashT > 0) f.dashT -= dt; });
+    if (g.canSwap && g.state === 'rally') { g.canSwap = false; fxUI(); } // 開始打了就不能換
+    // 電腦用技能卡：這一分打了幾秒後找時機用
+    if (g.pvp.mode === 'skill' && g.card && !g.card.used.a && !pvpRemote() && g.state === 'rally') { g.aiCardT += dt; if (g.aiCardT > g.aiCardAt) useCard('a'); }
+  }
+
   function decidePoint(w, clean, cause) { if (G_.pvp && G_.pvp.ai && !G_.pvp.vsAi) G_.pvp.aiPts++; scorePoint(w, clean, cause); if (pvpRemote()) pvpSendPoint(w, clean, cause); }
   function afterPoint() {
     const g = G_;
@@ -2890,7 +3076,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.23';
+  const GAME_VER = '3.25';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -2993,7 +3179,7 @@
   }
   // ---------- 對戰房：模式、補電腦 ----------
   // live：做好可以玩的模式；還沒做好的顯示「開發中」
-  const MODES = [{ id: 'std', live: true }, { id: 'weather' }, { id: 'bomb' }, { id: 'skill' }, { id: 'shrink' }, { id: 'prop' }];
+  const MODES = [{ id: 'std', live: true }, { id: 'weather', live: true }, { id: 'bomb', live: true }, { id: 'skill', live: true }, { id: 'shrink', live: true }, { id: 'prop', live: true }];
   const AI_STARS = [1, 2, 3, 2, 3, 4, 3, 4, 5, 5]; // 每一關電腦的難度（之後依真實過關率調整）；玩家說 3、6、9 關特別難
   function setMode(id) {
     if (!room || room.role !== 'host' || !room.data || room.data.state !== 'wait') return;
@@ -3072,7 +3258,7 @@
       let n = 3; $('rmCoin').textContent = n; $('rmTossTxt').textContent = t.go; speak(t.go);
       const tick = () => { n--; if (n > 0) { $('rmCoin').textContent = n; rmTimer = setTimeout(tick, 1000); }
         else { $('rmCoin').textContent = '🏸'; $('rmTossTxt').textContent = t.stage3;
-          if (room && room.role === 'host') { RT.m.update(rref(room.code), { state: 'play', startAt: Date.now(), score: { red: 0, black: 0, server: d.serve } }); fsRoom({ started: FB.m.increment(1) }); } } };
+          if (room && room.role === 'host') { RT.m.update(rref(room.code), { state: 'play', startAt: Date.now(), seed: Math.floor(Math.random() * 2 ** 31), score: { red: 0, black: 0, server: d.serve } }); fsRoom({ started: FB.m.increment(1) }); } } };
       rmTimer = setTimeout(tick, 1000);
     } else if (d.state === 'wait') { $('rmCoin').textContent = '🪙'; }
     else if (d.state === 'play') { if (!(G_ && G_.pvp && !G_.over)) startPvp(d); }
@@ -3102,6 +3288,15 @@
     if (Gs && Gs.ai) { $('rmNameG').textContent = aiLabel(Gs.lv); $('rmRoleG').textContent = t.guest; }
     // 模式膠囊：房主點開選單換模式；對方只看得到現在是哪個
     const mode = d.mode || 'std', isHost = me === 'host' && (d.state || 'wait') === 'wait';
+    // 🔧 道具模式：大廳裡先選道具
+    const showProps = mode === 'prop' && (d.state || 'wait') === 'wait', myProp = (room.me().prop) || 'pan';
+    $('rmProps').classList.toggle('hidden', !showProps);
+    if (showProps) {
+      $('rmProps').innerHTML = `<span>${t.myProp}</span>` + PROP_IDS.map(id => `<button data-p="${id}" class="${id === myProp ? 'on' : ''}" title="${t.props[id][1]}"><i>${PROPS[id].e}</i>${t.props[id][0]}</button>`).join('');
+      $('rmProps').querySelectorAll('button').forEach(b => b.addEventListener('click', () => rmSet({ prop: b.dataset.p })));
+      if (H) $('rmNameH').textContent = H.name + ' ' + (PROPS[H.prop] ? PROPS[H.prop].e : '🍳');
+      if (Gs) $('rmNameG').textContent = (Gs.ai ? aiLabel(Gs.lv) : Gs.name) + ' ' + (Gs.ai ? '🎲' : PROPS[Gs.prop] ? PROPS[Gs.prop].e : '🍳');
+    }
     $('rmModeL').textContent = t.modeL; $('rmModeV').textContent = t.modes[mode][0] + ' ' + t.modes[mode][1];
     $('rmModeBtn').disabled = !isHost; if (!isHost) closeModePop();
     $('rmModeD').textContent = t.modes[mode][2] + (me === 'host' ? '' : '（' + t.hostOnly + '）');
@@ -3262,12 +3457,17 @@
     showScreen(null); newMatch(vsAi ? oppP.lv : 4, false, true); // 跟電腦打：用選的那一關；好友斷線時電腦代打用第 5 關的實力
     const g = G_;
     g.pvp = { code: room.code, role: room.role, myCol, opCol, opp: oppP.name || '', oppAcct: oppP.acct || '', seq: 0, evs: [], lastN: 0, lastRecv: Date.now(), sendT: 0, tx: g.a.x,
-      q: 0, lastQ: 0, rtT: 0, buf: [], offs: [], lags: [], pin: null, p2pT: 0, allT: 0, mode: d.mode || 'std', vsAi, aiLv: vsAi ? oppP.lv : null,
+      q: 0, lastQ: 0, rtT: 0, buf: [], offs: [], lags: [], pin: null, p2pT: 0, allT: 0, mode: d.mode || 'std', seed: d.seed || 1, vsAi, aiLv: vsAi ? oppP.lv : null,
       ai: false, hold: '', holdT: 0, aiPts: 0, maxLag: 0, lagSum: 0, lagN: 0, startedAt: Date.now() };
     if (vsAi) g.pvp.ai = true; else { g.a.lefty = false; g.a.scale = 1; } // 電腦保留那一關的外型（例如左手）
+    if (g.pvp.mode === 'prop') { // 🔧 道具：用房間裡選好的；電腦隨機
+      const me0 = d[room.role] || {}; g.p.prop = PROPS[me0.prop] ? me0.prop : 'pan';
+      g.a.prop = PROPS[oppP.prop] ? oppP.prop : PROP_IDS[Math.floor(seeded(g.pvp.seed + 31, 0) * PROP_IDS.length)];
+      g.propSw = 3; g.aSw = 3;
+    }
     g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
     $('aName').textContent = (opCol === 'red' ? '🔴 ' : '⚫ ') + (vsAi ? aiLabel(oppP.lv) : (oppP.name || ''));
-    $('lvLbl').textContent = t.modes[g.pvp.mode][0] + ' ' + t.modes[g.pvp.mode][1]; // 左上角顯示模式
+    $('lvLbl').textContent = modeLbl(g); // 上方顯示模式（天氣、場地大小）
     updScore(); setupServe(); pvpServeHint();
     keys.left = keys.right = false; pendingSwing = null; introLines = null; readyT = rejoin ? 0.1 : 1.2;
     // 接收對方的資料
@@ -3300,14 +3500,15 @@
     // 你的畫面要等「對方看到球（1 個延遲）＋他回球傳回來（再 1 個延遲）」：把這段時間平均分到整段飛行，球在你畫面上稍微慢一點飛，
     // 對方回球時你看到的球剛好在他拍子上；就算他沒接到，你看到球落地的時間也跟他那邊判定的時間差不多
     const v = G_.pvp, D = Math.min(0.6, 2 * lagP90(v) + 0.03), s0 = { x: G_.b.x, y: G_.b.y, vx: G_.b.vx, vy: G_.b.vy };
-    let T = 0; while (s0.y > 0 && T < 4) { step(s0, 1 / 240); T += 1 / 240; }
+    let T = 0; while (s0.y > 0 && T < 4) { stepEnv(s0, 1 / 240); T += 1 / 240; }
     const Tr = T - 0.15; // 前 0.15 秒維持真實速度，等待時間分到後面那段
     v.k = Tr > 0.05 ? Math.max(0.55, Tr / (Tr + D)) : 1; v.hover = 0; v.fly = 0;
-    pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
+    pvpEv({ k: 'hit', px: +G_.p.x.toFixed(3), ty: kind, fk: fake || null, fz: G_.fz, gh: G_.b.ghost ? 1 : 0, b: { x: +b.x.toFixed(4), y: +b.y.toFixed(4), vx: +b.vx.toFixed(4), vy: +b.vy.toFixed(4), air: !!b.air, ft: !!b.feint, kmh: b.kmh || 0 } });
   }
   function pvpSendPoint(w, clean, cause) {
     const g = G_, v = g.pvp, sc = { [v.myCol]: g.ps, [v.opCol]: g.as, server: g.server === 'p' ? v.myCol : v.opCol };
-    pvpEv({ k: 'pt', w: w === 'p' ? v.myCol : v.opCol, cl: !!clean, ca: cause || '', sc, lx: g.b && g.b.y === 0 ? +g.b.x.toFixed(4) : null }); // 附上落點
+    const bm = cause === 'bomb' && g.b;
+    pvpEv({ k: 'pt', w: w === 'p' ? v.myCol : v.opCol, cl: !!clean, ca: cause || '', sc, lx: g.b && (g.b.y === 0 || bm) ? +g.b.x.toFixed(4) : null, ly: bm ? +g.b.y.toFixed(3) : null }); // 附上落點／爆炸位置
     RT.m.update(rref(v.code), { score: sc }); // 房間記住比分，斷線重進可以接回
   }
   // 讓球依延遲往前快轉（中間碰到網一樣會掛網）
@@ -3355,16 +3556,19 @@
     const g = G_, v = g.pvp, a = g.a, t = T();
     if (e.k === 'sync' || e.k === 'needSync' || e.k === 'quit') { pvpCtl(e); return; }
     if (v.hold || v.ai) return;
+    if (e.k === 'card') { onOppCard(e.c); return; }
+    if (e.k === 'prop') { if (PROPS[e.p]) { a.prop = e.p; showMsg(t.rm.oppProp(PROPS[e.p].e + ' ' + t.rm.props[e.p][0]), '#ffd0b0', 1500); } return; }
     if (e.k === 'sw') { a.swingType = e.ty; a.swingT = 0; }
     else if (e.k === 'jp') { if (a.y === 0) a.vy = 4.3; }
     else if (e.k === 'hit') {
       const B = e.b, kind = e.ty;
       // 不快轉：從對方擊球那一刻開始，完整、等速地飛過來（你看到的軌跡跟真的一模一樣，預判才準）
-      const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh, acc: 0 };
+      const b = { x: mir(B.x), y: B.y, vx: -B.vx, vy: B.vy, last: 'a', type: kind, net: false, air: B.air, feint: B.ft, kmh: B.kmh, acc: 0, ft: 0, ghost: !!e.gh };
       const old = g.b; // 你這邊畫面上的舊球可能已經飛過對方的拍子一點點：用 0.12 秒把畫面接回擊球點，不要瞬移
       if (old && g.state === 'rally') { const T0 = Math.max(0.12, Math.min(0.35, Math.hypot(old.x - b.x, old.y - b.y) / 8)); g.bOff = { x: old.x - b.x, y: old.y - b.y, t: T0, T: T0 }; } // 差越多，接回去的時間越長
       if (typeof e.px === 'number') { a.x = mir(e.px); v.pin = { x: a.x, until: performance.now() + 150 }; } // 對方人物對齊擊球位置（0.15 秒）
       g.b = b; g.trail = []; g.state = 'rally'; g.rally++; $('hint').textContent = '';
+      if (bombOn()) { if (kind === 'serve') { g.fz = 0; g.bombT = bombFuse(g); g.tickT = 0; } else if (typeof e.fz === 'number') g.fz = e.fz; } // 炸彈：跟對方的倒數對齊
       a.swingType = kind; a.swingT = contactT(kind);
       const nm = kind === 'serve' ? t.shots.serve : t.shots[kind];
       const label = B.ft && e.fk ? t.opp('') + t.feintName(e.fk, kind) : t.opp(nm);
@@ -3374,10 +3578,14 @@
       if (g.state === 'point') return;
       const w = e.w === v.myCol ? 'p' : 'a';
       if (e.ca === 'svline' || e.ca === 'rcvline') showMsg(e.ca === 'svline' ? t.svFault : t.rcvFault, '#ff8a8a', 1400);
+      else if (e.ca === 'bomb' && g.b) { // 對方判定爆炸：在同一個位置炸
+        if (typeof e.lx === 'number') { g.b.x = mir(e.lx); g.b.y = e.ly || 0.5; }
+        bombBoom(g.b); const mineSide = g.b.x < NET_X; showMsg(mineSide ? t.rm.boomMe : t.rm.boomOpp, mineSide ? '#ff8a8a' : '#ffe066', 1600);
+      }
       else if (g.b && g.b.y > 0) {
         // 對方判定時，你這邊放慢的球可能還在空中：把它快速滑到「對方那邊實際落地的位置」，兩邊看到的落點一模一樣
         const b = g.b, ox = b.x, oy = b.y;
-        if (typeof e.lx === 'number') { b.x = mir(e.lx); b.y = 0; } else { while (b.y > 0) step(b, 1 / 240); b.y = 0; }
+        if (typeof e.lx === 'number') { b.x = mir(e.lx); b.y = 0; } else { while (b.y > 0) stepEnv(b, 1 / 240); b.y = 0; }
         const T0 = Math.max(0.12, Math.min(0.3, Math.hypot(ox - b.x, oy) / 10)); g.bOff = { x: ox - b.x, y: oy, t: T0, T: T0 };
         floorSound();
       }
@@ -3388,7 +3596,7 @@
   // 每一幀：傳位置、對方位置平滑移動、偵測斷線
   function pvpTick(dt) {
     const g = G_, v = g.pvp, t = T().rm;
-    if (v.vsAi) { if (!v.lbl) { v.lbl = 1; $('lvLbl').textContent = t.modes[v.mode][0] + ' ' + t.modes[v.mode][1]; } return false; } // 跟電腦打：不用管連線
+    if (v.vsAi) { if ((v.lblT = (v.lblT || 0) + dt) > 0.5) { v.lblT = 0; $('lvLbl').textContent = modeLbl(g); } return false; } // 跟電腦打：不用管連線
     if (!v.ai) {
       const now = performance.now(), bx = v.pin && now < v.pin.until ? v.pin.x : bufX(v, now);
       const pinned = v.pin && now < v.pin.until;
@@ -3396,7 +3604,7 @@
       if (bx != null) { const want = g.a.x + (bx - g.a.x) * Math.min(1, dt * 30), cap = 9 * dt; g.a.x = pinned ? bx : g.a.x + Math.max(-cap, Math.min(cap, want - g.a.x)); g.a.x = Math.max(NET_X + 0.2, Math.min(COURT - 0.1, g.a.x)); }
     }
     v.allT += dt; if (P2P.ok) v.p2pT += dt;
-    if ((v.lblT = (v.lblT || 0) + dt) > 1) { v.lblT = 0; $('lvLbl').textContent = t.modes[v.mode][0] + ' ' + t.modes[v.mode][1] + (P2P.ok ? ' ⚡' : ' 🌐'); }
+    if ((v.lblT = (v.lblT || 0) + dt) > 1) { v.lblT = 0; $('lvLbl').textContent = modeLbl(g) + (P2P.ok ? ' ⚡' : ' 🌐'); }
     pvpPush(false);
     if (g.state === 'serve') pvpServeHint();
     const oppOn = room && room.data && room.data[room.other] ? room.data[room.other].on !== false : false;
@@ -3451,7 +3659,7 @@
   $('pqLeave').addEventListener('click', () => { overlayClose('pvpQuit'); paused = false; if (G_ && G_.pvp) { if (!G_.pvp.vsAi) pvpEv({ k: 'quit' }); pvpEnd(false, 'youQuit'); } });
   function pvpEnd(won, why) {
     const g = G_, v = g && g.pvp; if (!v || g.over) return;
-    g.over = true; banner(''); try { v.unsub && v.unsub(); RT.m.remove(lref(v.code, v.role)); } catch (e) {}
+    g.over = true; banner(''); $('fxBtn').classList.add('hidden'); try { v.unsub && v.unsub(); RT.m.remove(lref(v.code, v.role)); } catch (e) {}
     const t = T().rm;
     $('prT').textContent = won ? t.win : t.lose;
     $('prMeN').textContent = (v.myCol === 'red' ? '🔴 ' : '⚫ ') + playerName(); $('prOpN').textContent = (v.opCol === 'red' ? '🔴 ' : '⚫ ') + (v.vsAi ? aiLabel(v.aiLv) : v.opp);
@@ -3849,6 +4057,7 @@
     if (inMatch() && (c === 'Escape' || c === 'KeyP')) { openPause(); return; }
     if (inMatch() && c === 'KeyH') { openHelp(); return; }
     if (paused) return;
+    if (c === 'KeyC' && inMatch()) { fxClick(); return; } // 🃏 用技能卡／🔧 換道具
     if (c === 'ArrowLeft' || c === 'KeyA') keys.left = true;
     if (c === 'ArrowRight' || c === 'KeyD') keys.right = true;
     if ((c === 'ArrowUp' || c === 'KeyW') && !e.repeat) playerJump();
@@ -4139,6 +4348,10 @@
       ctx.strokeStyle = '#ddd'; ctx.lineWidth = Math.max(1.5, m * 0.035);
       ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(nx, ny); ctx.stroke();
       ctx.save(); ctx.translate(cx, cy); ctx.rotate(dir > 0 ? q.ra : Math.PI - q.ra);
+      if (pl.prop && PROPS[pl.prop] && G_ && G_.pvp && G_.pvp.mode === 'prop') { // 🔧 道具取代球拍
+        ctx.rotate(Math.PI / 2); ctx.font = `${Math.round(m * 0.7)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(PROPS[pl.prop].e, 0, 0); ctx.restore(); return;
+      }
       ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, m * 0.05);
       ctx.beginPath(); ctx.ellipse(0, 0, 0.17 * m, 0.11 * m, 0, 0, 7); ctx.stroke();
       ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 0.8;
@@ -4187,6 +4400,62 @@
     ctx.beginPath(); ctx.moveTo(-14 * s, -3 * s); ctx.lineTo(-3 * s, -1 * s); ctx.moveTo(-14 * s, 3 * s); ctx.lineTo(-3 * s, 1 * s); ctx.stroke();
     ctx.fillStyle = '#f4e3c3'; ctx.beginPath(); ctx.arc(0, 0, 3.6 * s, 0, 7); ctx.fill();
     ctx.restore();
+    const g = G_;
+    if (g && g.pvp && g.pvp.mode === 'bomb' && g.fz != null) { // 球頭綁一顆炸彈＋引信火花（剩越少閃越快）
+      const rem = g.bombT - g.fz, fl = rem > 3 ? 4 : rem > 1.5 ? 10 : 22, on = Math.sin(performance.now() / 1000 * fl * Math.PI) > 0;
+      ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); // 炸彈畫大一點，遠遠就看得到
+      ctx.fillStyle = '#1b1b22'; ctx.beginPath(); ctx.arc(0, 0, 5.5 * s, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(-1.8 * s, -1.8 * s, 1.5 * s, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#c8a46a'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(2 * s, -4.5 * s); ctx.quadraticCurveTo(5 * s, -9 * s, 7 * s, -8 * s); ctx.stroke();
+      ctx.fillStyle = on ? '#ffe066' : '#ff6b3d'; ctx.beginPath(); ctx.arc(7 * s, -8 * s, (on ? 3 : 2) * s * (rem < 1.5 ? 1.4 : 1), 0, 7); ctx.fill();
+      if (rem < 1.5) { ctx.fillStyle = `rgba(255,80,60,${0.25 + 0.25 * on})`; ctx.beginPath(); ctx.arc(0, 0, 11 * s, 0, 7); ctx.fill(); }
+      ctx.restore();
+    }
+  }
+  // 📏 縮小：界外的地方變暗紅，新的底線用黃線標出來
+  function drawShrink(g, dt) {
+    const sh = g.shrink, fl = g.shrinkFx || 0; if (fl > 0) g.shrinkFx = Math.max(0, fl - dt);
+    ctx.fillStyle = 'rgba(120,30,30,.75)';
+    ctx.fillRect(px(0), GY, sh * S_, 14); ctx.fillRect(px(COURT - sh), GY, sh * S_, 14);
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(0, 0, px(sh), GY); ctx.fillRect(px(COURT - sh), 0, W - px(COURT - sh), GY);
+    ctx.fillStyle = fl > 0 && Math.sin(fl * 30) > 0 ? '#fff' : '#ffe066';
+    [sh, COURT - sh].forEach(x => ctx.fillRect(px(x) - 2.5, GY - 6, 5, 20 + fl * 30));
+  }
+  // 🌪️ 天氣：風、雨、雪、霧（只是畫面效果；球的物理在 stepEnv）
+  function drawWeather(g, t) {
+    const e = g.env, ty = e.type;
+    if (ty === 'wind') {
+      const dir = Math.sign(e.wind) || 1; ctx.strokeStyle = 'rgba(220,240,255,.35)'; ctx.lineWidth = 2;
+      for (let i = 0; i < 16; i++) { const y = (i * 53.7 % 1) * GY * 0.85 + 10, sp = 260 + (i * 37 % 120), x = ((i * 211 + t * sp * dir) % (W + 200) + W + 200) % (W + 200) - 100;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - dir * 60, y); ctx.stroke(); }
+      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `900 ${Math.round(S_ * 0.45)}px "Noto Sans TC", sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(dir > 0 ? '🌬️ ➜' : '⬅ 🌬️', px(NET_X), py(NET_H) - S_ * 1.6);
+    } else if (ty === 'rain') {
+      ctx.fillStyle = 'rgba(10,20,50,.18)'; ctx.fillRect(0, 0, W, GY);
+      ctx.strokeStyle = 'rgba(170,200,255,.45)'; ctx.lineWidth = 1.2;
+      for (let i = 0; i < 70; i++) { const x = (i * 97.3 % W + t * 60) % W, y = ((i * 41.7 % GY) + t * 700) % GY; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 14); ctx.stroke(); }
+    } else if (ty === 'snow') {
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      for (let i = 0; i < 55; i++) { const x = (i * 73.1 % W + Math.sin(t + i) * 12 + W) % W, y = ((i * 29.3 % GY) + t * 45) % GY; ctx.beginPath(); ctx.arc(x, y, 1.5 + (i % 3), 0, 7); ctx.fill(); }
+    } else if (ty === 'fog') { // 場中間一團霧，球飛進去就看不到
+      const x0 = px(NET_X - 2.6), x1 = px(NET_X + 2.6), yTop = Math.max(0, py(7)), yBot = py(1.35);
+      const gr = ctx.createLinearGradient(x0, 0, x1, 0);
+      gr.addColorStop(0, 'rgba(205,212,222,0)'); gr.addColorStop(0.2, 'rgba(205,212,222,1)'); gr.addColorStop(0.8, 'rgba(205,212,222,1)'); gr.addColorStop(1, 'rgba(205,212,222,0)');
+      ctx.fillStyle = gr; ctx.fillRect(x0, yTop, x1 - x0, yBot - yTop);
+      ctx.fillStyle = 'rgba(205,212,222,.5)'; ctx.fillRect(x0 + (x1 - x0) * 0.15, yBot, (x1 - x0) * 0.7, 14);
+    }
+  }
+  function drawBoom(g, dt) { // 爆炸：閃光＋火球＋碎片
+    const B = g.boom, cv = ctx.canvas; if (!B) return; B.t += dt;
+    cv.style.transform = B.t < 0.3 ? `translate(${((Math.random() - .5) * 10 * (1 - B.t / 0.3)).toFixed(1)}px, ${((Math.random() - .5) * 10 * (1 - B.t / 0.3)).toFixed(1)}px)` : ''; // 畫面震一下
+    if (B.t > 0.9) { g.boom = null; cv.style.transform = ''; return; }
+    const x = px(B.x), y = py(B.y), k = B.t / 0.9, R = 18 + 70 * Math.min(1, B.t / 0.25);
+    if (B.t < 0.12) { ctx.fillStyle = `rgba(255,255,230,${0.5 * (1 - B.t / 0.12)})`; ctx.fillRect(0, 0, W, H); }
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, R);
+    gr.addColorStop(0, `rgba(255,240,180,${1 - k})`); gr.addColorStop(0.45, `rgba(255,140,40,${0.85 * (1 - k)})`); gr.addColorStop(1, 'rgba(120,30,10,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, R, 0, 7); ctx.fill();
+    ctx.fillStyle = `rgba(60,50,50,${1 - k})`;
+    for (let i = 0; i < 10; i++) { const an = i * 0.63 + 0.3, d = 10 + 90 * k; ctx.fillRect(x + Math.cos(an) * d, y + Math.sin(an) * d * 0.8 + 40 * k * k, 4, 4); }
   }
 
   const menuP = { x: 4.6, y: 0, side: 'p', swingT: -1 }, menuA = { x: 8.8, y: 0, side: 'a', swingT: -1 };
@@ -4199,6 +4468,7 @@
       drawPlayer(menuA, LEVELS[0].color, t, dt);
       return;
     }
+    if (g.shrink) drawShrink(g, dt);
     // 殘影
     for (const tr of g.trail) tr.life -= 1 / 60;
     g.trail = g.trail.filter(tr => tr.life > 0);
@@ -4207,7 +4477,11 @@
     if (g.drill) drawDrill(t);
     drawPlayer(g.p, '#5ce1c6', t, dt);
     if (!g.drill) drawPlayer(g.a, LEVELS[g.level].color, t, dt);
-    if (g.b) drawShuttle(g.bOff ? Object.assign({}, g.b, { x: g.b.x + g.bOff.x * g.bOff.t / g.bOff.T, y: g.b.y + g.bOff.y * g.bOff.t / g.bOff.T }) : g.b);
+    if (g.boom) drawBoom(g, dt);
+    const hideGhost = g.b && g.b.ghost && g.b.last === 'a' && g.b.ft > 0.18 && g.b.ft < 0.8; // 🃏 對方的隱形球：飛到一半看不到
+    if (g.env && g.env.type !== 'fog') drawWeather(g, t);
+    if (g.b && !g.b.gone && !hideGhost) drawShuttle(g.bOff ? Object.assign({}, g.b, { x: g.b.x + g.bOff.x * g.bOff.t / g.bOff.T, y: g.b.y + g.bOff.y * g.bOff.t / g.bOff.T }) : g.b);
+    if (g.env && g.env.type === 'fog') drawWeather(g, t); // 霧蓋在球上面
     else if (g.state === 'serve') {
       const sv = g[g.server];
       drawShuttle({ x: sv.x + (g.server === 'p' ? 0.45 : -0.45), y: 1.0, vx: 0, vy: -1 });
