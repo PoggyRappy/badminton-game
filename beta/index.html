@@ -218,7 +218,17 @@
   #cardBar button.used:not(.on) { opacity: .35; } #cardBar button:disabled:not(.on):not(.used) { opacity: .7; }
   #cardBar small { font-size: 11px; color: #ffe066; max-width: 90px; line-height: 1.3; }
   .hList { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 10px; }
-  .hCard { border: 1px solid rgba(255,224,102,.45); background: rgba(255,224,102,.07); border-radius: 14px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+  .hCard { perspective: 700px; min-height: 168px; animation: hDeal .45s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: calc(var(--i) * .18s); }
+  @keyframes hDeal { from { opacity: 0; transform: translateY(-70px) rotate(-12deg) scale(.6); } to { opacity: 1; transform: none; } }
+  .hIn { position: relative; width: 100%; height: 100%; min-height: 168px; transition: transform .6s cubic-bezier(.3,.7,.3,1.15); transform-style: preserve-3d; }
+  .hCard.flip .hIn { transform: rotateY(180deg); }
+  .hFace { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center; }
+  .hBack { background: repeating-linear-gradient(45deg, #2b3a5c 0 8px, #24314e 8px 16px); border: 2px solid #ffe066; box-shadow: inset 0 0 0 4px rgba(255,224,102,.2); }
+  .hBack i { font-style: normal; font-size: 34px; filter: drop-shadow(0 0 8px rgba(255,224,102,.6)); }
+  .hFront { transform: rotateY(180deg); border: 1px solid rgba(255,224,102,.6); background: linear-gradient(160deg, rgba(255,224,102,.16), rgba(92,225,198,.08)); }
+  .hCard.flip .hFront { animation: hGlow .9s ease-out .35s; }
+  @keyframes hGlow { 0% { box-shadow: 0 0 0 rgba(255,224,102,0); } 40% { box-shadow: 0 0 26px rgba(255,224,102,.75); } 100% { box-shadow: 0 0 0 rgba(255,224,102,0); } }
+  #handOk.hide { visibility: hidden; }
   .hCard i { font-style: normal; font-size: 30px; } .hCard b { font-size: 15px; } .hCard span { font-size: 12px; opacity: .85; line-height: 1.4; }
   .hCard em { font-style: normal; font-size: 10.5px; padding: 1px 8px; border-radius: 99px; background: rgba(255,255,255,.12); opacity: .85; }
   #fxBtn small { font-weight: 700; font-size: 11px; opacity: .7; }
@@ -685,7 +695,7 @@
     <div class="setRow"><span data-t="setAccount"></span><span class="acctBox"><span id="acctName"></span><button class="toggle" id="acctBtn"></button></span></div>
     <div class="setRow"><span data-t="setData"></span><button class="toggle" id="consentTog"></button></div>
     <div class="setLinks"><button class="linkBtn" id="rateBtn" data-t="rateBtn"></button><a class="linkBtn" href="privacy.html" target="_blank" rel="noopener" data-t="privacyLink"></a><button class="linkBtn hidden" id="delBtn" data-t="delData"></button></div>
-    <p class="note">v3.27 · 2026/11/27 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
+    <p class="note">v3.28 · 2026/11/27 <button class="linkBtn" id="updBtn" data-t="updCheck"></button></p>
   </div>
 </div>
 
@@ -1089,7 +1099,7 @@
       dg: { url: 'poggyrappy.github.io', install: '安裝應用程式', addHome: '加入主畫面', a1: '新分頁', a2: '書籤', i1: '拷貝', i2: '加入書籤', tap1: '① 點這裡', tap2: '② 選這個' },
       gateAndroidSteps: '<b>1.</b> 按 Chrome 右上角的「<b>⋮</b>」選單<br><b>2.</b> 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br><b>3.</b> 之後從主畫面的「羽球PK」打開',
       wGuest: '以訪客身分玩', wConnecting: '連線中…', wGoogleOff: '目前無法登入（可以用訪客玩）',
-      namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`, chShort: '短', chDeep: '深',
+      namePGuest: '訪客的紀錄只存在這台裝置，之後也可以在主頁改用 Google 登入。', homeHi: n => `嗨，${n}！`,
       updCheck: '檢查更新', updNew: v => `🆕 有新版本 v${v}，點一下更新`, updLatest: v => `已經是最新版（v${v}）`, updFail: '暫時連不上，等一下再試',
       inappTip: '你正在 App 裡的小瀏覽器開啟，連線容易中斷。建議點右上角「⋯」→「用瀏覽器開啟」', inappCopy: '複製連結', inappCopied: '已複製 ✓',
       mChal: '🏆 闖關之路', pickStage: '選擇關卡 ›', stSub: '已經過的關卡隨時可以再挑戰', mFriend: '🤝 對戰房', mFriendS: '找朋友或電腦對打・6 種玩法', friendGo: '進入對戰房',
@@ -1103,16 +1113,17 @@
         pickQ: '選一個顏色（先選先贏）', red: '🔴 紅方', black: '⚫ 黑方', youAre: c => `你是 ${c}`, waitPick: '等對方選…',
         toss: '抽籤決定誰先發球…', serves: c => `${c}先發球！`, serveSay: c => `${c}發球`, go: '比賽即將開始', stage3: '對戰連線下一步開通，先回到房間',
         lagTip: '💡 連線小提醒：為了讓兩邊判定一致，你打出去的球在自己畫面上會稍微慢一點；對方打過來的球是真實速度，照常預判就好。', modes: { std: ['🤝', '標準', '原本的好友對戰'], weather: ['🌪️', '天氣', '每一分隨機天氣，雙方一起受影響'], bomb: ['💣', '炸彈', '球是倒數炸彈，結束在誰那邊誰失分'],
-          skill: ['🃏', '技能', '開局抽 3 張技能卡，發球前選時機用'], shrink: ['📏', '縮小', '失分的那邊場地縮比較多，網前也會縮'], prop: ['🔧', '道具', '不用球拍，開局選一個道具打整局'] },
+          skill: ['🃏', '技能', '開局抽 3 張技能卡，發球前選時機用'], shrink: ['📏', '縮小', '失分的那邊場地縮比較多，網前也會縮'], prop: ['🔧', '道具', '不用球拍，進場隨機發道具，整局用同一個'] },
         dev: '開發中', chal: '闖關', wx: { sun: ['☀️', '晴天', '沒有特別影響'], wind: ['🌬️', '強風', '球會被吹偏'], rain: ['🌧️', '下雨', '球變重、掉得比較快'], fog: ['🌫️', '起霧', '球飛到場中間會看不到'], snow: ['❄️', '寒流', '兩邊都跑得比較慢'] },
         windTo: '（往對面吹，高球容易出界）', windFrom: '（往你這邊吹，高球會變短）', shrunk: m => `📏 場地縮小了！現在每邊只剩 ${m} 公尺`, shrunk2: (m, mine) => mine ? `📏 你這邊縮了！剩 ${m} 公尺` : `📏 對手那邊縮了！剩 ${m} 公尺`, shrLbl: (a, b) => `你 ${a}m｜對手 ${b}m`,
         cards: { rocket: ['🚀', '火箭殺球', '這一分的殺球都超快，但連續殺會越來越累', '這一分'], ghost: ['👻', '隱形球', '這一分你打的每一拍，在對方畫面上都會消失一段', '這一分'],
-          clone: ['👥', '分身術', '這一分多一個分身幫你守（像雙打）：你在後場它守前場，你在前場它守後場', '這一分'], big: ['🏸', '球拍變大', '整局球拍變大，打得到更遠的球，但揮拍比較慢', '整局'],
+          clone: ['👥', '分身術', '這一分多一個分身陪你打雙打：你進攻它封網、你防守它補位', '這一分'], big: ['🏸', '球拍變大', '整局拿超大球拍，打得到很遠的球，但揮拍和跑動都變慢', '整局'],
           slow: ['🐢', '慢動作', '這一分讓對手跑比較慢', '這一分'] },
-        oppCard: c => `對手用了 ${c}！`, cardWhen: '發球前點卡片使用', handT: '🃏 這一局你的 3 張技能卡', handS: '每一分發球前，點左上角的卡片就能使用；每張只能用一次。', handOk: '知道了',
-        props: { pan: ['平底鍋', '力量大、範圍小、跑比較慢'], ping: ['桌球拍', '範圍很小、力量小、跑比較快'], tennis: ['網球拍', '範圍大、力量最大、跑稍慢'], hand: ['徒手', '範圍最小、力量最小、跑最快'], bread: ['法國麵包', '範圍最大、力量普通、速度普通'] },
+        oppCard: c => `對手用了 ${c}！`, cardWhen: '發球前點卡片使用', handT: '🃏 這一局你的 3 張技能卡', handS: '每一分發球前，點左上角的卡片就能使用；每張只能用一次。對手也抽了 3 張，會挑時機用。', handOk: '知道了',
+        props: { pan: ['平底鍋', '範圍小、力量大、跑稍慢'], ping: ['桌球拍', '範圍很小、力量小、跑比較快'], tennis: ['網球拍', '範圍跟球拍差不多、力量最大，殺球是網球的打法'], hand: ['徒手', '要真的用手碰到球，打久了手會痛'], cone: ['三角錐', '抓著尖端揮，範圍中等、力量偏小'] },
+        propGot: (a, b) => `🔧 你拿到 ${a}　對手拿到 ${b}`, handHurt: '✋ 手開始痛了…', handMiss: '😣 手好痛，沒打到！',
         myProp: '你的道具', propT: '🔄 換一個道具', propS: '剛輸一分可以換，整場最多 3 次', swapProp: n => `換道具（剩 ${n} 次）`, oppProp: p => `對手換成 ${p}`, nowProp: p => `換成 ${p}！`,
-        boomMe: '💥 炸彈在你這邊爆炸了！', boomOpp: '💥 炸彈在對方那邊爆炸！', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '⭐ 越多越難。跟電腦打不算闖關進度，也不上排行榜。',
+        slipMe: '🧊 滑了一下！', slipOpp: '🧊 對手滑了一下！', boomMe: '💥 炸彈在你這邊爆炸了！', boomOpp: '💥 炸彈在對方那邊爆炸！', modeL: '模式', pickMode: '選一個玩法（其他的陸續開放）', shareShort: '🔗 邀請', hostOnly: '只有房主能換模式', addAi: '🤖 沒有朋友？補一個電腦', rmAi: '移除電腦', aiT: '🤖 選一位電腦對手', aiS: '闖關打到哪一關，就能選到哪一關的電腦。跟電腦打不算闖關進度，也不上排行榜。',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `電腦（${st} ${n}）`,
         connP2P: ms => `⚡ 直連成功${ms ? `（來回 ${ms} ms）` : ''}`, connTry: '🔌 正在建立直連…', connRelay: '🌐 一般連線（你們的網路沒辦法直連，改由伺服器轉送）', copyCode: '📋 複製房號', codeCopied: '已複製 ✓', backRoom: '🤝 回到房間對戰', leave: '離開房間',
         pvLbl: '🤝 好友對戰', waitSv: '等對方發球…', oppOff: n => `對方連線中斷，等待中… ${n}`, aiOn: '對方離線，電腦代打中', selfOff: '你的網路中斷，重新連線中…', resync: '重新連線，從這一分重新開始',
@@ -1283,7 +1294,7 @@
       dg: { url: 'poggyrappy.github.io', install: 'Install app', addHome: 'Add to Home Screen', a1: 'New tab', a2: 'Bookmarks', i1: 'Copy', i2: 'Add Bookmark', tap1: '① Tap here', tap2: '② Choose this' },
       gateAndroidSteps: '<b>1.</b> Tap the “<b>⋮</b>” menu in Chrome<br><b>2.</b> Choose “<b>Install app</b>” or “<b>Add to Home screen</b>”<br><b>3.</b> Open “Badminton PK” from your home screen',
       wGuest: 'Play as a guest', wConnecting: 'Connecting…', wGoogleOff: 'Sign-in unavailable (play as a guest)',
-      namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`, chShort: 'S', chDeep: 'D',
+      namePGuest: 'Guest records stay on this device. You can sign in with Google from the home screen later.', homeHi: n => `Hi, ${n}!`,
       updCheck: 'Check for updates', updNew: v => `🆕 Version ${v} is out — tap to update`, updLatest: v => `You’re on the latest version (v${v})`, updFail: 'Can’t check right now — try again later',
       inappTip: 'You’re in an in-app browser, so the connection may drop. Tap “⋯” at the top right → “Open in browser”', inappCopy: 'Copy link', inappCopied: 'Copied ✓',
       mChal: '🏆 Challenge', pickStage: 'Pick a stage ›', stSub: 'Replay any stage you’ve already cleared', mFriend: '🤝 Battle Room', mFriendS: 'Play a friend or the computer · 6 modes', friendGo: 'Enter',
@@ -1297,16 +1308,17 @@
         pickQ: 'Pick a color (first come, first served)', red: '🔴 Red', black: '⚫ Black', youAre: c => `You are ${c}`, waitPick: 'Waiting for your friend…',
         toss: 'Drawing who serves first…', serves: c => `${c} serves first!`, serveSay: c => `${c} to serve`, go: 'Match about to start', stage3: 'Online matches are coming next — back to the room',
         lagTip: '💡 Heads-up: to keep both screens in agreement, your own shots fly a little slower on your screen. Your friend’s shots come at true speed, so read them as usual.', modes: { std: ['🤝', 'Standard', 'The original Friend Battle'], weather: ['🌪️', 'Weather', 'Random weather every point, for both sides'], bomb: ['💣', 'Bomb', 'The shuttle is a ticking bomb — whoever it ends on loses the point'],
-          skill: ['🃏', 'Skills', 'Draw 3 skill cards, pick when to use them'], shrink: ['📏', 'Shrink', 'The side that loses a point shrinks more, near the net too'], prop: ['🔧', 'Props', 'No racket — pick one prop for the whole game'] },
+          skill: ['🃏', 'Skills', 'Draw 3 skill cards, pick when to use them'], shrink: ['📏', 'Shrink', 'The side that loses a point shrinks more, near the net too'], prop: ['🔧', 'Props', 'No racket — get a random prop for the whole game'] },
         dev: 'In dev', chal: 'Challenge', wx: { sun: ['☀️', 'Sunny', 'nothing special'], wind: ['🌬️', 'Windy', 'the shuttle drifts'], rain: ['🌧️', 'Rain', 'the shuttle is heavier and drops faster'], fog: ['🌫️', 'Fog', 'the shuttle vanishes mid-court'], snow: ['❄️', 'Cold snap', 'everyone moves slower'] },
         windTo: ' (blowing away from you — clears may go long)', windFrom: ' (blowing toward you — clears fall short)', shrunk: m => `📏 The court shrank! ${m} m per side now`, shrunk2: (m, mine) => mine ? `📏 Your side shrank! ${m} m left` : `📏 Their side shrank! ${m} m left`, shrLbl: (a, b) => `You ${a}m｜Them ${b}m`,
         cards: { rocket: ['🚀', 'Rocket Smash', 'every smash this point is super fast — but smashing again and again wears you out', 'This point'], ghost: ['👻', 'Ghost Shot', 'every shot you hit this point vanishes for a while on their screen', 'This point'],
-          clone: ['👥', 'Shadow Clone', 'a clone joins you this point (like doubles): it covers the front when you’re at the back, and the back when you’re at the front', 'This point'], big: ['🏸', 'Big Racket', 'a bigger racket for the rest of the game — more reach, slower swing', 'Whole game'],
+          clone: ['👥', 'Shadow Clone', 'a clone plays doubles with you this point: it guards the net when you attack and covers the gaps when you defend', 'This point'], big: ['🏸', 'Big Racket', 'a giant racket for the rest of the game — huge reach, but slower swing and feet', 'Whole game'],
           slow: ['🐢', 'Slow-mo', 'your opponent moves slower this point', 'This point'] },
-        oppCard: c => `Opponent used ${c}!`, cardWhen: 'Tap a card before the serve', handT: '🃏 Your 3 skill cards this game', handS: 'Before each serve, tap a card at the top left to use it. Each card works once.', handOk: 'Got it',
-        props: { pan: ['Frying pan', 'powerful, short reach, slower feet'], ping: ['Ping-pong bat', 'tiny reach, weak, quick feet'], tennis: ['Tennis racket', 'big reach, most power, a bit slower'], hand: ['Bare hand', 'tiny reach, weakest, fastest feet'], bread: ['Baguette', 'longest reach, normal power and speed'] },
+        oppCard: c => `Opponent used ${c}!`, cardWhen: 'Tap a card before the serve', handT: '🃏 Your 3 skill cards this game', handS: 'Before each serve, tap a card at the top left to use it. Each card works once. Your opponent drew 3 too.', handOk: 'Got it',
+        props: { pan: ['Frying pan', 'short reach, powerful, a bit slower'], ping: ['Ping-pong bat', 'tiny reach, weak, quicker feet'], tennis: ['Tennis racket', 'normal reach, most power, tennis-style smash'], hand: ['Bare hand', 'you must really touch the shuttle — your hand will start to hurt'], cone: ['Traffic cone', 'held by the tip, medium reach, a bit weak'] },
+        propGot: (a, b) => `🔧 You got ${a} · Opponent got ${b}`, handHurt: '✋ Your hand starts to hurt…', handMiss: '😣 Ouch — missed!',
         myProp: 'Your prop', propT: '🔄 Switch prop', propS: 'You can switch after losing a point, up to 3 times', swapProp: n => `Switch prop (${n} left)`, oppProp: p => `Opponent switched to ${p}`, nowProp: p => `Now using ${p}!`,
-        boomMe: '💥 It blew up on your side!', boomOpp: '💥 It blew up on their side!', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: '⭐ More stars = harder. Doesn’t count toward Challenge or the leaderboard.',
+        slipMe: '🧊 You slipped!', slipOpp: '🧊 Opponent slipped!', boomMe: '💥 It blew up on your side!', boomOpp: '💥 It blew up on their side!', modeL: 'MODE', pickMode: 'Pick a mode (more coming soon)', shareShort: '🔗 Invite', hostOnly: 'Only the host can change the mode', addAi: '🤖 No friend around? Add a computer', rmAi: 'Remove computer', aiT: '🤖 Pick a computer opponent', aiS: 'Computers unlock as you progress in Challenge. Doesn’t count toward Challenge or the leaderboard.',
         aiName: (st, n) => `🤖 ${st} ${n}`, vsAi: (st, n) => `Computer (${st} ${n})`,
         connP2P: ms => `⚡ Direct connection${ms ? ` (round trip ${ms} ms)` : ''}`, connTry: '🔌 Setting up a direct connection…', connRelay: '🌐 Standard connection (your networks can’t connect directly, so the server relays)', copyCode: '📋 Copy code', codeCopied: 'Copied ✓', backRoom: '🤝 Back to the room', leave: 'Leave room',
         pvLbl: '🤝 Friend Battle', waitSv: 'Waiting for your friend to serve…', oppOff: n => `Friend disconnected — waiting… ${n}`, aiOn: 'Friend offline — the computer is filling in', selfOff: 'Your connection dropped — reconnecting…', resync: 'Reconnected — replaying this point',
@@ -1690,6 +1702,9 @@
 
   function hit(who, soft, opt = {}) {
     const g = G_, pl = g[who], b = g.b, L = LEVELS[g.level];
+    if (propOf(who) === 'hand' && !pl.isClone && Math.random() < handPain(who) * 0.45) { // 手太痛，揮空
+      pl.cool = 0.6; pl.swingT = -1; if (who === 'a') g.aiDelay += 0.6; if (who === 'p') showMsg(T().rm.handMiss, '#ff9a8a', 1000); return;
+    }
     const opp = who === 'p' ? g.a : g.p;
     const dec = who === 'a' ? (opt.decision || aiChoose(pl, b, L, opp)) : { kind: chooseKind(pl, b, soft, opt.fwd), fake: opt.feint ? (opt.fakeKind || 'clear') : null };
     const kind = dec.kind, feint = !!dec.fake;
@@ -1704,11 +1719,8 @@
       if (zoneOf(pl) === 'front' && kind !== 'push') t += 0.15; // 網前挑球稍微容易挑出界
     }
     // 蓄力：c=0 打到中場，c=1 打到底（輕點沒有蓄力＝原本的深度）
-    const cl = who === 'p' && g.chargeLvl != null ? g.chargeLvl : null; if (who === 'p') g.chargeLvl = null;
-    if (cl != null && ['clear', 'flatClear', 'defClear', 'lift', 'push'].includes(kind)) t = NET_X + (t - NET_X) * (0.55 + 0.45 * cl);
-    if (cl != null && kind === 'smash') t = NET_X + (t - NET_X) * (0.65 + 0.35 * cl);
     const prop = propOf(who); // 🔧 道具：力量大的容易打深（出界）
-    if (prop) { const P = PROPS[prop]; if (DEEP.includes(kind) && cl == null) t += (P.power - 1) * 1.4; } // 蓄力時照蓄力的深度
+    if (prop) { const P = PROPS[prop]; if (DEEP.includes(kind)) t += (P.power - 1) * 1.4; }
     if (who === 'a') { // 對手失誤：難的球路、或接你的快球時比較容易失誤
       const risk = (L.style === 'power' && kind === 'smash') ? 0.5 : (KIND_RISK[kind] || 1); // 重砲手殺球很穩
       // 殺得越快壓力越大；累了變慢的殺球就沒什麼威脅。被看穿的球幾乎不會失誤
@@ -1749,7 +1761,6 @@
       g.pFat = fat + (pl.y > 0.2 ? 1.4 : 1);
     } else if (who === 'p') g.pFat = Math.max(0, (g.pFat || 0) - 0.6);
     const fxw = g.fx && g.fx[who];
-    if (cl != null && kind === 'smash') { boost += (cl - 0.5) * 8; if (cl > 0.7) g.pFat = (g.pFat || 0) + 0.6; } // 輕殺慢、重殺快（重殺比較累）
     if (prop && (kind === 'smash' || kind === 'kill')) boost += (PROPS[prop].power - 1) * 6;
     if (fxw && fxw.rocket && (kind === 'smash' || kind === 'kill')) { boost += 6 - (who === 'p' ? (g.rocketN || 0) * 1.2 : 0); if (who === 'p') { g.rocketN = (g.rocketN || 0) + 1; g.pFat = (g.pFat || 0) + 0.8; } } // 🚀 火箭殺球：這一分的殺球都加速，連續殺會越來越累
     const v = shot(b.x, b.y, tx, kind, pl.y > 0.2, boost, (who === 'p' || (!!L.tight && Math.random() < L.tight)) && ['slice', 'dropUnder', 'block'].includes(kind)); // 你的切、吊、擋和高手一樣貼網
@@ -1771,7 +1782,7 @@
     }
     const readMsg = who === 'a' && g.aiRead ? T().readYou : '';
     if (who === 'a') g.aiRead = false;
-    pl.swingType = kind; pl.swingT = contactT(kind);
+    pl.swingType = kind; pl.swingT = contactT(swN(pl, kind)); handCount(who, kind);
     g.rally++;
     g.aiDelay = who === 'p' ? (g.aiRead ? 0 : L.react) : 0; g.aiPlan = null; // 被看穿：對手不用反應時間
     const mine = who === 'p';
@@ -1835,9 +1846,19 @@
   }
 
   // ---------- 主更新 ----------
+  function slipCheck(pl) {
+    const g = G_; if (!g || !g.env || g.env.type !== 'snow' || (pl.side === 'a' && pvpRemote()) || Math.random() > 0.4) return; // 對手在他自己的手機上滑，位置會同步過來
+    const d = Math.sign(pl.vx || 0) || (Math.random() < 0.5 ? 1 : -1);
+    pl.slipV = d * (2.2 + Math.random() * 1.2);
+    const t = T().rm; showMsg(pl.side === 'p' ? t.slipMe : t.slipOpp, '#bfe6ff', 1100);
+  }
   function updPlayer(pl, dt) {
-    if (pl.y > 0 || pl.vy > 0) { pl.vy -= 13 * dt; pl.y += pl.vy * dt; if (pl.y <= 0) { pl.y = 0; pl.vy = 0; } }
-    if (pl.swingT >= 0) { pl.swingT += dt; if (pl.swingT > ((SWINGS[pl.swingType] || SWINGS.clear).dur)) pl.swingT = -1; }
+    if (pl.y > 0 || pl.vy > 0) { pl.vy -= 13 * dt; pl.y += pl.vy * dt; if (pl.y <= 0) { pl.y = 0; pl.vy = 0; slipCheck(pl); } }
+    if (pl.slipV) { // 🧊 寒流：落地滑出去一小段
+      pl.x += pl.slipV * dt; pl.slipV *= Math.exp(-3.2 * dt); if (Math.abs(pl.slipV) < 0.15) pl.slipV = 0;
+      pl.x = pl.side === 'p' ? Math.max(0.2, Math.min(NET_X - 0.2, pl.x)) : Math.max(NET_X + 0.2, Math.min(COURT - 0.2, pl.x));
+    }
+    if (pl.swingT >= 0) { pl.swingT += dt; if (pl.swingT > ((SWINGS[swN(pl, pl.swingType)] || SWINGS.clear).dur)) pl.swingT = -1; }
     pl.cool = Math.max(0, pl.cool - dt);
   }
 
@@ -1860,23 +1881,6 @@
     }
     return null;
   }
-  // ---------- 蓄力：按住揮拍超過 0.3 秒開始蓄力，蓄力條從「短」往「深」跑，放開才出手 ----------
-  // 輕點跟原本一樣；蓄力影響高遠球、挑球、殺球、假放真推（推球）
-  const CHARGE_KINDS = ['clear', 'flatClear', 'defClear', 'lift', 'smash', 'push'];
-  let charge = null; // { t0, on, lvl }
-  function chargeStart() { charge = { t0: performance.now(), on: false, lvl: 0 }; }
-  function chargeRelease() {
-    const c = charge; charge = null; if (!c || !c.on || !G_) return;
-    G_.chargeLvl = c.lvl; pendingT = Math.max(pendingT, 0.35); // 放開：在這個深度出手（給 0.35 秒等球進來）
-    if (pendingSwing && G_.b && G_.state === 'rally' && inZone(G_.p, G_.b)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
-  }
-  function chargeTick() { // 回傳 true＝正在蓄力，先不要出手
-    if (!charge || !pendingSwing || !G_ || !G_.b) return false;
-    const el = (performance.now() - charge.t0) / 1000;
-    if (!charge.on && el > 0.3) { const k = chooseKind(G_.p, G_.b, pendingSwing === 'drop', pendingFwd || keys.right); if (CHARGE_KINDS.includes(k) || (pendingFeint && pendingSwing === 'swing')) charge.on = true; }
-    if (charge.on) { charge.lvl = Math.min(1, (el - 0.3) / 0.6); pendingT = Math.max(pendingT, 0.3); }
-    return charge.on;
-  }
   function playerSwing(type) {
     if (!G_ || G_.over || paused || readyT > 0) return;
     const g = G_, p = g.p;
@@ -1885,7 +1889,6 @@
     if (pendingSwing && pendingSwing !== type && !pendingFeint) {
       const fakeKind = p.swingType; // 剛剛做出來的動作
       pendingSwing = type; pendingFeint = true; pendingFake = fakeKind; pendingT = Math.max(pendingT, 0.25);
-      if (type === 'swing') chargeStart(); // 假放真推也可以蓄力
       if (g.b && inZone(p, g.b)) { const f = pendingFwd || keys.right; pendingSwing = null; pendingFeint = false; hit('p', type === 'drop', { fwd: f, feint: true, fakeKind }); }
       return;
     }
@@ -1899,7 +1902,6 @@
     swishSound(p.swingType === 'smash' || p.swingType === 'kill');
     const smashIntent = keys.right && g.b && g.b.y > 1.7 && !isFront(p); // 按住 ▶ 準備殺高球：可以更早按
     pendingSwing = type; pendingT = smashIntent ? 0.65 : 0.4; pendingFeint = false; pendingFwd = keys.right; // 早按一點也沒關係，球一進範圍就擊出
-    if (type === 'swing') chargeStart(); else charge = null;
   }
   function playerJump() { if (paused || readyT > 0) return; const p = G_ && G_.p; if (p && p.y === 0) { p.vy = 4.3; if (pvpRemote()) pvpEv({ k: 'jp' }); } }
 
@@ -2392,8 +2394,7 @@
     if (pendingSwing) {
       pendingT -= dt;
       // 提早按：等球到身體前方剛好的位置才擊出（力道最穩）；蓄力中先不出手
-      if (chargeTick()) { /* 蓄力中 */ }
-      else if (inZone(p, b) && bigWait(p, b, dt) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
+      if (inZone(p, b) && bigWait(p, b, dt) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
       else if (pendingT <= 0) { pendingSwing = null; pendingFeint = false; }
     }
     if (!pvpRemote()) aiThink(dt);
@@ -2565,8 +2566,7 @@
     const b = g.b;
     if (pendingSwing) {
       pendingT -= dt;
-      if (chargeTick()) { /* 蓄力中 */ }
-      else if (inZone(p, b) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
+      if (inZone(p, b) && ((b.x - p.x) <= 0.45 || pendingT <= 0.05 || b.y < 0.5)) { hit('p', pendingSwing === 'drop', { fwd: pendingFwd || keys.right, feint: pendingFeint, fakeKind: pendingFake }); pendingSwing = null; pendingFeint = false; }
       else if (pendingT <= 0) { pendingSwing = null; pendingFeint = false; }
     }
     const prevX = b.x;
@@ -2854,21 +2854,29 @@
   const WEATHERS = ['sun', 'wind', 'rain', 'fog', 'snow'];
   const CARDS = ['rocket', 'ghost', 'clone', 'big', 'slow'];
   // reach 擊球範圍、power 力量、err 落點誤差（公尺）、spd 移動速度
-  // 道具只差三件事：reach 擊球範圍、power 力量、spd 移動速度（整局固定，不能換）
-  const PROPS = { pan: { e: '🍳', reach: 0.9, power: 1.25, spd: 0.88 }, ping: { e: '🏓', reach: 0.72, power: 0.85, spd: 1.08 },
-    tennis: { e: '🎾', reach: 1.15, power: 1.3, spd: 0.94 }, hand: { e: '✋', reach: 0.6, power: 0.72, spd: 1.12 }, bread: { e: '🥖', reach: 1.3, power: 0.9, spd: 1.0 } };
+  // 道具只差三件事：reach 擊球範圍（照實際長度：手臂＋道具）、power 力量、spd 移動速度；技術都一樣能用
+  const PROPS = { pan: { e: '🍳', reach: 0.82, power: 1.15, spd: 0.92 }, ping: { e: '🏓', reach: 0.7, power: 0.8, spd: 1.05 },
+    tennis: { e: '🎾', reach: 1.0, power: 1.22, spd: 0.95 }, hand: { e: '✋', reach: 0.58, power: 0.7, spd: 1.08 }, cone: { e: '🔺', reach: 0.9, power: 0.88, spd: 1.0 } };
   const PROP_IDS = Object.keys(PROPS);
+  // ✋ 徒手：打越多下手越痛（越紅），痛了範圍變小、還可能打不到
+  function handPain(who) { const g = G_; const n = g && g.handN ? g.handN[who] || 0 : 0; return Math.max(0, Math.min(1, (n - 8) / 12)); }
+  function handCount(who, kind) {
+    const g = G_; if (propOf(who) !== 'hand') return; g.handN = g.handN || { p: 0, a: 0 };
+    const before = handPain(who); g.handN[who] += kind === 'smash' || kind === 'kill' ? 1.6 : 1;
+    if (who === 'p' && before === 0 && handPain('p') > 0) showMsg(T().rm.handHurt, '#ff9a8a', 1600);
+  }
   function propOf(who) { const g = G_; return g && g.pvp && g.pvp.mode === 'prop' && g[who] && PROPS[g[who].prop] ? g[who].prop : null; }
   function zoneMul(side) {
     const g = G_, r = { f: 1, b: 1, h: 0 }; if (!g || !g.pvp) return r;
-    const pr = propOf(side); if (pr) { const k = PROPS[pr].reach; r.f = k; r.b = k; r.h = (k - 1) * 0.6; }
-    if (g.big && g.big[side]) { r.f *= 1.35; r.b *= 1.3; r.h += 0.3; } // 🏸 球拍變大（整局）
+    const pr = propOf(side); if (pr) { const k = PROPS[pr].reach * (pr === 'hand' ? 1 - 0.4 * handPain(side) : 1); r.f = k; r.b = k; r.h = (k - 1) * 0.6; }
+    if (g.big && g.big[side]) { r.f *= 1.6; r.b *= 1.5; r.h += 0.55; } // 🏸 球拍變大（整局）
     return r;
   }
   function spdMul(who) {
     const g = G_; if (!g || !g.pvp) return 1;
     let m = g.env ? g.env.spd : 1;
     const fx = g.fx && g.fx[who]; if (fx && fx.slowed) m *= 0.7; // 🐢 被對手放慢動作（這一分）
+    if (g.big && g.big[who]) m *= 0.8; // 🏸 大球拍很重，跑比較慢
     const pr = propOf(who); if (pr) m *= PROPS[pr].spd;
     return m;
   }
@@ -2921,8 +2929,12 @@
         g.hand = { p: deal(v.myCol), a: deal(v.opCol) }; g.cardUsed = { p: {}, a: {} }; g.big = { p: false, a: false };
         setTimeout(() => { if (G_ === g) openHand(); }, 300);
       }
-      // 電腦：每一分開始前有機會用一張
-      if (!pvpRemote() && n > 0) { const left = g.hand.a.filter(c => !g.cardUsed.a[c]); if (left.length && Math.random() < 0.35) setTimeout(() => { if (G_ === g && g.state === 'serve') useCard('a', left[Math.floor(Math.random() * left.length)]); }, 700); }
+      // 電腦：開局就隨機決定每張卡在第幾分用（0～9 分之間），時間到了就在發球前用
+      if (!pvpRemote()) {
+        if (!g.aiCardPlan) { g.aiCardPlan = {}; g.hand.a.forEach(c => { g.aiCardPlan[c] = Math.floor(Math.random() * 10); }); }
+        const due = g.hand.a.filter(c => !g.cardUsed.a[c] && g.aiCardPlan[c] <= n);
+        if (due.length) { const c = due[0]; setTimeout(() => { if (G_ === g && g.state === 'serve' && !g.over) useCard('a', c); }, n === 0 ? 3500 : 500 + Math.random() * 900); }
+      }
     }
     fxUI();
   }
@@ -2941,7 +2953,7 @@
     const g = G_, fx = g.fx[who], other = who === 'p' ? 'a' : 'p';
     if (c === 'rocket') fx.rocket = true; else if (c === 'ghost') fx.ghost = true; else if (c === 'big') g.big[who] = true;
     else if (c === 'slow') g.fx[other].slowed = true;
-    else if (c === 'clone') { const pl = g[who]; g.clone = g.clone || {}; g.clone[who] = Object.assign({}, pl, { x: pl.x + (pl.side === 'p' ? 2.4 : -2.4), y: 0, vy: 0, cool: 0, swingT: 1, isClone: true }); }
+    else if (c === 'clone') { const pl = g[who]; g.clone = g.clone || {}; g.clone[who] = Object.assign({}, pl, { x: NET_X - (pl.side === 'p' ? 4.7 : -4.7), y: 0, vy: 0, vx: 0, cool: 0, swingT: -1, isClone: true, pose: null }); }
   }
   function useCard(who, c) {
     const g = G_; if (!g || !g.hand || g.state !== 'serve' || g.cardUsed[who][c] || !g.hand[who].includes(c)) return;
@@ -2956,29 +2968,52 @@
   function openHand() {
     const g = G_, t = T().rm; if (!g || !g.hand) return;
     $('handT').textContent = t.handT; $('handS').textContent = t.handS;
-    $('handList').innerHTML = g.hand.p.map(c => `<div class="hCard"><i>${t.cards[c][0]}</i><b>${t.cards[c][1]}</b><span>${t.cards[c][2]}</span><em>${t.cards[c][3]}</em></div>`).join('');
-    $('handOk').textContent = t.handOk; overlayOpen('handDlg'); setTimeout(() => overlayClose('handDlg'), 9000); // 對手可能已經準備好，9 秒自動關
+    // 抽卡動畫：牌背一張張發下來，再一張張翻開
+    $('handList').innerHTML = g.hand.p.map((c, i) => `<div class="hCard" style="--i:${i}"><div class="hIn"><div class="hFace hBack"><i>🏸</i></div><div class="hFace hFront"><i>${t.cards[c][0]}</i><b>${t.cards[c][1]}</b><span>${t.cards[c][2]}</span><em>${t.cards[c][3]}</em></div></div></div>`).join('');
+    $('handOk').textContent = t.handOk; $('handOk').classList.add('hide'); overlayOpen('handDlg');
+    [...$('handList').children].forEach((el, i) => setTimeout(() => { el.classList.add('flip'); try { tone('triangle', 520 + i * 160, 1040 + i * 160, 0.12, 0.12); } catch (e) {} }, 1000 + i * 550));
+    setTimeout(() => $('handOk').classList.remove('hide'), 2700);
+    setTimeout(() => overlayClose('handDlg'), 11000); // 對手可能已經準備好，11 秒自動關
   }
   $('handOk').addEventListener('click', () => overlayClose('handDlg'));
   function fxClick() { const g = G_; if (!g || !g.pvp || g.over || g.pvp.mode !== 'skill' || !g.hand) return; const c = g.hand.p.find(x => !g.cardUsed.p[x]); if (c) useCard('p', c); }
   // 🏸 大球拍：揮得比較慢，球要在範圍裡多停一下才打得到
   function bigWait(pl, b, dt) {
     const g = G_; if (!g || !g.big || !g.big.p) return true;
-    g.bigT = (g.bigT || 0) + dt; if (g.bigT < 0.07) return false; g.bigT = 0; return true;
+    g.bigT = (g.bigT || 0) + dt; if (g.bigT < 0.12) return false; g.bigT = 0; return true;
   }
-  // 👥 分身：這一分多一個隊友（像雙打），你在後場它守前場，你在前場它守後場
+  // 👥 分身：這一分多一個隊友，照雙打跑位
+  //  發球／接發：分身站後面準備進攻；我方進攻、人在後場 → 分身到網前舉拍封網（人在前場 → 分身守後場）
+  //  我方防守（剛挑高、打高球）→ 看人站哪，分身去相對的位置補空檔
+  const HIGH = ['clear', 'flatClear', 'lift', 'defClear'];
   function cloneTick(dt) {
     const g = G_; if (!g.clone) return;
     ['p', 'a'].forEach(who => {
       const c = g.clone[who]; if (!c || (who === 'a' && pvpRemote())) return;
-      const me = g[who], d = who === 'p' ? 1 : -1, myDepth = Math.abs(me.x - NET_X), b = g.b;
-      const home = NET_X - d * (myDepth > 3.3 ? 1.6 : 5.0); // 人在後場 → 分身守前場
-      let tx = home;
-      if (b && g.state === 'rally' && b.last !== who) { const ax = alignX(c, b); if (ax !== null && Math.abs(ax - NET_X) * 1 < 6.6 && (myDepth > 3.3 ? Math.abs(ax - NET_X) < 3.4 : Math.abs(ax - NET_X) >= 3.0)) tx = ax; }
-      c.x += Math.max(-5 * dt, Math.min(5 * dt, tx - c.x)); c.x = who === 'p' ? Math.min(NET_X - 0.3, Math.max(0.3, c.x)) : Math.max(NET_X + 0.3, Math.min(COURT - 0.3, c.x));
-      c.swingT = Math.min(1, (c.swingT || 0) + dt * 2.5); if (c.cool > 0) c.cool -= dt;
+      const me = g[who], sg = who === 'p' ? 1 : -1, b = g.b, dep = x => Math.abs(x - NET_X), at = d => NET_X - sg * d;
+      const myD = dep(me.x);
+      let attack, mode;
+      if (g.state !== 'rally' || !b) mode = 'serve';
+      else { attack = b.last === who ? !HIGH.includes(b.type) : HIGH.includes(b.type); mode = attack ? 'att' : 'def'; }
+      let tD;
+      if (mode === 'serve') tD = 4.7;
+      else if (mode === 'att') tD = myD > 3.0 ? 1.4 : 4.8;
+      else { tD = 6.6 - myD; if (Math.abs(tD - myD) < 2.0) tD = myD > 3.3 ? myD - 2.0 : myD + 2.0; }
+      tD = Math.max(1.0, Math.min(5.9, tD));
+      let tx = at(tD);
+      // 球朝我方飛、而且落點在分身負責的那一區 → 分身去接
+      if (b && g.state === 'rally' && b.last !== who) {
+        const sm = { x: b.x, y: b.y, vx: b.vx, vy: b.vy };
+        for (let k = 0; k < 160 && sm.y > 0.3; k++) { stepEnv(sm, 1 / 120); if ((sm.x - NET_X) * sg < 0 && sm.y < 2.3 && sm.vy < 0) {
+          const cd = dep(sm.x); if (Math.abs(cd - tD) < Math.abs(cd - myD)) tx = at(Math.max(0.6, cd - 0.3)); break; } }
+      }
+      const spd = 5 * spdMul(who);
+      c.vx = Math.max(-spd, Math.min(spd, (tx - c.x) * 6)); c.x += c.vx * dt;
+      c.x = who === 'p' ? Math.min(NET_X - 0.3, Math.max(0.3, c.x)) : Math.max(NET_X + 0.3, Math.min(COURT - 0.3, c.x));
+      c.raise = mode === 'att' && tD < 2; // 網前舉拍
+      updPlayer(c, dt);
       if (b && g.state === 'rally' && b.last !== who && c.cool <= 0 && inZone(c, b) && !inZone(me, b)) { // 分身幫忙打
-        const real = g[who]; g[who] = c; try { hit(who, Math.random() < 0.3, { fwd: Math.random() < 0.5 }); } finally { g[who] = real; } c.cool = 0.5;
+        const real = g[who]; g[who] = c; try { hit(who, Math.random() < 0.3, { fwd: c.raise || Math.random() < 0.5 }); } finally { g[who] = real; } c.cool = 0.5;
       }
     });
   }
@@ -3160,7 +3195,7 @@
   //   state：wait 大廳 → pick 選顏色 → toss 抽發球 → count 倒數 → play 比賽（第 3 階段）
   //   host／guest：{ uid, name, acct, on 在線, st: in／ready／tut }
   const RT_URL = 'https://badminton-game-1a6bb-default-rtdb.asia-southeast1.firebasedatabase.app';
-  const GAME_VER = '3.27';
+  const GAME_VER = '3.28';
   const RT = { m: null, db: null };
   const RT_ROOT = BETA ? 'beta/rooms/' : 'rooms/';
   let room = null, pendingRoom = '';
@@ -3274,7 +3309,10 @@
   function openAiPick() {
     const t = T();
     $('aiT').textContent = t.rm.aiT; $('aiS').textContent = t.rm.aiS;
-    $('aiGrid').innerHTML = LEVELS.map((L, i) => `<button data-lv="${i}"><small class="aiSt">${t.stage(i + 1)}</small><b>${escapeHtml(t.levels[i])}</b><span class="aiStars">${'★'.repeat(AI_STARS[i])}<span class="off">${'★'.repeat(5 - AI_STARS[i])}</span></span></button>`).join('');
+    // 跟闖關一樣：打過的關卡（和下一關）才能選
+    const r = getRec();
+    $('aiGrid').innerHTML = LEVELS.map((L, i) => { const open = i <= r.cleared, done = i < r.cleared;
+      return `<button data-lv="${i}" class="${done ? 'done' : ''}" ${open ? '' : 'disabled'}>${open ? (done ? '✓ ' : '') : '🔒 '}${t.stage(i + 1)}<small>${escapeHtml(t.levels[i])}</small></button>`; }).join('');
     $('aiGrid').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
       const lv = +b.dataset.lv; overlayClose('aiPick');
       if (!room || room.role !== 'host') return;
@@ -3373,7 +3411,7 @@
     // 模式膠囊：房主點開選單換模式；對方只看得到現在是哪個
     const mode = d.mode || 'std', isHost = me === 'host' && (d.state || 'wait') === 'wait';
     // 🔧 道具模式：大廳裡先選道具
-    const showProps = mode === 'prop' && (d.state || 'wait') === 'wait', myProp = (room.me().prop) || 'pan';
+    const showProps = false, myProp = 'pan'; // 道具改成進場隨機發，不用在房間選
     $('rmProps').classList.toggle('hidden', !showProps);
     if (showProps) {
       $('rmProps').innerHTML = `<span>${t.myProp}</span>` + PROP_IDS.map(id => `<button data-p="${id}" class="${id === myProp ? 'on' : ''}" title="${t.props[id][1]}"><i>${PROPS[id].e}</i>${t.props[id][0]}</button>`).join('');
@@ -3544,10 +3582,10 @@
       q: 0, lastQ: 0, rtT: 0, buf: [], offs: [], lags: [], pin: null, p2pT: 0, allT: 0, mode: d.mode || 'std', seed: d.seed || 1, vsAi, aiLv: vsAi ? oppP.lv : null,
       ai: false, hold: '', holdT: 0, aiPts: 0, maxLag: 0, lagSum: 0, lagN: 0, startedAt: Date.now() };
     if (vsAi) g.pvp.ai = true; else { g.a.lefty = false; g.a.scale = 1; } // 電腦保留那一關的外型（例如左手）
-    if (g.pvp.mode === 'prop') { // 🔧 道具：用房間裡選好的；電腦隨機
-      const me0 = d[room.role] || {}; g.p.prop = PROPS[me0.prop] ? me0.prop : 'pan';
-      g.a.prop = PROPS[oppP.prop] ? oppP.prop : PROP_IDS[Math.floor(seeded(g.pvp.seed + 31, 0) * PROP_IDS.length)];
-      g.propSw = 3; g.aSw = 3;
+    if (g.pvp.mode === 'prop') { // 🔧 道具：進場隨機發給雙方不同的道具（兩支手機用同一個種子）
+      const i1 = Math.floor(seeded(g.pvp.seed + 31, 0) * PROP_IDS.length), i2 = (i1 + 1 + Math.floor(seeded(g.pvp.seed + 37, 0) * (PROP_IDS.length - 1))) % PROP_IDS.length;
+      const byCol = { red: PROP_IDS[i1], black: PROP_IDS[i2] }; g.p.prop = byCol[myCol]; g.a.prop = byCol[opCol]; g.handN = { p: 0, a: 0 };
+      const tp = T().rm; setTimeout(() => { if (G_ === g) showMsg(tp.propGot(PROPS[g.p.prop].e + ' ' + tp.props[g.p.prop][0], PROPS[g.a.prop].e + ' ' + tp.props[g.a.prop][0]), '#ffd0b0', 3200); }, 600);
     }
     g.ps = sc[myCol] || 0; g.as = sc[opCol] || 0; g.server = sc.server === myCol ? 'p' : 'a';
     $('aName').textContent = (opCol === 'red' ? '🔴 ' : '⚫ ') + (vsAi ? aiLabel(oppP.lv) : (oppP.name || ''));
@@ -3655,7 +3693,7 @@
       if (typeof e.px === 'number') { a.x = mir(e.px); v.pin = { x: a.x, until: performance.now() + 150 }; } // 對方人物對齊擊球位置（0.15 秒）
       g.b = b; g.trail = []; g.state = 'rally'; g.rally++; $('hint').textContent = '';
       if (bombOn()) { if (kind === 'serve') { g.fz = 0; g.bombT = bombFuse(g); g.tickT = 0; } else if (typeof e.fz === 'number') g.fz = e.fz; } // 炸彈：跟對方的倒數對齊
-      a.swingType = kind; a.swingT = contactT(kind);
+      a.swingType = kind; a.swingT = contactT(swN(a, kind)); handCount('a', kind);
       const nm = kind === 'serve' ? t.shots.serve : t.shots[kind];
       const label = B.ft && e.fk ? t.opp('') + t.feintName(e.fk, kind) : t.opp(nm);
       showMsg(B.kmh ? `${label} ${B.kmh} km/h` : label, (kind === 'smash' || kind === 'kill') ? '#ff8a8a' : '#ffd0b0');
@@ -4151,7 +4189,6 @@
     if (c === 'KeyK' && !e.repeat) playerSwing('drop');
   });
   window.addEventListener('keyup', e => {
-    if (e.code === 'Space' || e.code === 'KeyJ') chargeRelease();
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
   });
@@ -4165,7 +4202,7 @@
       else if (k === 'swing') playerSwing('swing');
       else if (k === 'drop') playerSwing('drop');
     };
-    const up = e => { btn.classList.remove('on'); if (k === 'left' || k === 'right') keys[k] = false; if (k === 'swing' && e.type !== 'pointerleave') chargeRelease(); };
+    const up = e => { btn.classList.remove('on'); if (k === 'left' || k === 'right') keys[k] = false; };
     btn.addEventListener('pointerdown', down);
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, up));
     // ◀ ▶：手指不放開直接滑到另一顆也能換方向（手機預設會把手指「黏」在第一顆按鈕上）
@@ -4271,6 +4308,12 @@
       [.38, P('overPrep', { lean: .18, ua: -1.35, fa: -1.2, ra: -1.0, oa: .8 })],
       [1, P('ready', { drop: .15, lean: .45, ff: .4, bf: 0, ua: .6, fa: 1.3, ra: 1.95, oa: 1.1 })]
     ] },
+    tSmash: { dur: .5, hit: .44, k: [
+      [0, P('overPrep', { drop: .16, lean: -.25, ua: -2.1, fa: -2.6, ra: 2.2, oa: -2.7 })],
+      [.3, P('overPrep', { drop: .12, lean: -.3, ua: -2.4, fa: -3.1, ra: 2.9, oa: -2.3 })],
+      [.44, P('overPrep', { drop: -.04, lean: .12, ua: -2.5, fa: -2.3, ra: -2.0, oa: .4 })],
+      [1, P('ready', { drop: .22, lean: .55, ff: .5, bf: .05, ua: .95, fa: 1.7, ra: 2.4, oa: 1.0 })]
+    ] },
     kill: { dur: .26, hit: .35, k: [
       [0, P('overPrep', { ua: -2.2, fa: -1.6, ra: -1.6 })],
       [.35, P('overPrep', { lean: .25, ua: -1.0, fa: -.8, ra: -.5, oa: .8 })],
@@ -4319,6 +4362,8 @@
     ] }
   };
   const KEYS = Object.keys(POSE.ready);
+  // 🎾 網球拍殺球：學網球的高壓（獎盃姿勢 → 拍子掉到背後 → 往上延伸擊球 → 大幅度收拍到另一側）
+  function swN(pl, type) { return (type === 'smash' || type === 'kill') && pl && pl.prop === 'tennis' && G_ && G_.pvp && G_.pvp.mode === 'prop' ? 'tSmash' : type; }
   function contactT(type) { const sw = SWINGS[type] || SWINGS.clear; return sw.dur * (sw.hit || .4); }
   function lerpPose(a, b, k) { const o = {}; for (const n of KEYS) o[n] = a[n] + (b[n] - a[n]) * k; return o; }
   function swingPose(type, t) {
@@ -4344,8 +4389,8 @@
     return POSE.ready;
   }
   function targetPose(pl, t) {
-    if (pl.swingT >= 0 && pl.swingType) return { p: swingPose(pl.swingType, pl.swingT), snap: true };
-    let p = prepPose(pl);
+    if (pl.swingT >= 0 && pl.swingType) return { p: swingPose(swN(pl, pl.swingType), pl.swingT), snap: true };
+    let p = pl.isClone && pl.raise ? POSE.overPrep : prepPose(pl); // 分身在網前舉拍
     if (pl.side === 'a' && G_) {
       const st = STANCE[LEVELS[G_.level].style];
       if (p === POSE.ready && st.ready) p = Object.assign({}, p, st.ready);
@@ -4394,7 +4439,8 @@
     dt = dt || .016;
     if (pl._lx !== undefined) pl.vx = Math.max(-7, Math.min(7, (pl.vx || 0) * .7 + ((pl.x - pl._lx) / dt) * .3));
     pl._lx = pl.x; pl.phase = (pl.phase || 0) + Math.abs(pl.vx || 0) * dt * 7.5;
-    if (pl._ly > 0.05 && pl.y <= 0.05) pl.land = .2;
+    if (pl._ly > 0.05 && pl.y <= 0.05) { pl.land = .2; if (G_ && G_.env && G_.env.type === 'rain') splash(pl.x, 1); }
+    if (pl._ly !== undefined && pl._ly <= 0.05 && pl.y > 0.05 && G_ && G_.env && G_.env.type === 'rain') splash(pl.x, 0.6);
     pl._ly = pl.y; pl.land = Math.max(0, (pl.land || 0) - dt);
     const tp = targetPose(pl, t);
     // 彈簧式過渡：平常柔順跟上，揮拍時很硬、幾乎即時，換姿勢不會瞬間跳
@@ -4431,19 +4477,21 @@
       const [ex, ey] = at(sx, sy, q.ua, UA), [wx, wy] = at(ex, ey, q.fa, FA);
       ctx.strokeStyle = pl.lefty ? '#e8bc93' : '#f2c9a0'; ctx.lineWidth = Math.max(3, m * 0.09);
       ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(wx, wy); ctx.stroke();
-      const [nx, ny] = at(wx, wy, q.ra, 0.36 * m); [cx, cy] = at(wx, wy, q.ra, 0.55 * m);
+      const BK = G_ && G_.big && G_.big[pl.side] && !pl.isClone ? 3.0 : 1, SK = BK > 1 ? 1.9 : 1; // 🏸 大球拍：拍面放大 3 倍、拍桿 1.9 倍
+      const [nx, ny] = at(wx, wy, q.ra, 0.36 * m * SK); [cx, cy] = at(wx, wy, q.ra, (0.36 * SK + 0.17 * BK) * m);
       if (pl.prop && PROPS[pl.prop] && G_ && G_.pvp && G_.pvp.mode === 'prop') { // 🔧 道具：握在手上取代球拍
         const ang = Math.atan2(ny - wy, nx - wx);
-        ctx.save(); ctx.translate(wx, wy); ctx.rotate(ang); drawProp(pl.prop, m, pl.lefty ? '#e8bc93' : '#f2c9a0'); ctx.restore(); return;
+        ctx.save(); ctx.translate(wx, wy); ctx.rotate(ang); drawProp(pl.prop, m, pl.lefty ? '#e8bc93' : '#f2c9a0', handPain(pl.side)); ctx.restore(); return;
       }
-      ctx.strokeStyle = '#ddd'; ctx.lineWidth = Math.max(1.5, m * 0.035);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = Math.max(1.5, m * 0.035 * (BK > 1 ? 1.8 : 1));
       ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(nx, ny); ctx.stroke();
       ctx.save(); ctx.translate(cx, cy); ctx.rotate(dir > 0 ? q.ra : Math.PI - q.ra);
-      if (G_ && G_.big && G_.big[pl.side] && !pl.isClone) ctx.scale(1.55, 1.55); // 🏸 大球拍
+      if (BK > 1) ctx.scale(BK, BK);
       ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, m * 0.05);
       ctx.beginPath(); ctx.ellipse(0, 0, 0.17 * m, 0.11 * m, 0, 0, 7); ctx.stroke();
       ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 0.8;
       for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 0.055 * m, -0.1 * m); ctx.lineTo(i * 0.055 * m, 0.1 * m); ctx.stroke(); }
+      if (BK > 1) for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(-0.16 * m, i * 0.045 * m); ctx.lineTo(0.16 * m, i * 0.045 * m); ctx.stroke(); }
       ctx.restore();
     };
     // 右手持拍：拍子在身體前面；左手持拍：拍子在身體後面那一側
@@ -4458,7 +4506,7 @@
     if (pl.lefty) drawOff(); else drawRacketArm();
     // 揮拍殘影
     pl.trail = pl.trail || [];
-    if (pl.swingT >= 0) pl.trail.push({ x: cx, y: cy, a: .45 }); 
+    if (pl.swingT >= 0 && !(pl.prop === 'hand' && G_ && G_.pvp && G_.pvp.mode === 'prop')) pl.trail.push({ x: cx, y: cy, a: .45 }); // 徒手沒有揮拍軌跡
     for (const tr of pl.trail) tr.a -= (dt || .016) * 2.5;
     pl.trail = pl.trail.filter(tr => tr.a > 0);
     if (pl.trail.length > 1) {
@@ -4523,42 +4571,47 @@
     }
   }
   // 道具的畫法（手在原點，+x 是道具伸出去的方向；最後畫拳頭握住握把）
-  function drawProp(id, m, skin) {
+  // 🔧 道具照真實比例畫（m ≈ 1 公尺）：羽球拍全長約 0.67m
+  function drawProp(id, m, skin, pain) {
     const R = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); };
-    if (id === 'pan') {
-      ctx.fillStyle = '#4a3222'; R(-0.06 * m, -0.025 * m, 0.42 * m, 0.05 * m, 0.02 * m); ctx.fill();
-      ctx.fillStyle = '#23262c'; ctx.beginPath(); ctx.arc(0.55 * m, 0, 0.2 * m, 0, 7); ctx.fill();
-      ctx.fillStyle = '#3c424c'; ctx.beginPath(); ctx.arc(0.55 * m, 0, 0.15 * m, 0, 7); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = Math.max(1, m * 0.015); ctx.beginPath(); ctx.arc(0.55 * m, 0, 0.12 * m, -2.4, -1.2); ctx.stroke();
-    } else if (id === 'ping') {
-      ctx.fillStyle = '#c79a62'; R(-0.05 * m, -0.028 * m, 0.2 * m, 0.056 * m, 0.02 * m); ctx.fill();
-      ctx.fillStyle = '#d23a35'; ctx.beginPath(); ctx.ellipse(0.27 * m, 0, 0.13 * m, 0.12 * m, 0, 0, 7); ctx.fill();
-      ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = Math.max(1.2, m * 0.018); ctx.stroke();
-    } else if (id === 'tennis') {
-      ctx.strokeStyle = '#2b2b2b'; ctx.lineWidth = Math.max(2, m * 0.045); ctx.beginPath(); ctx.moveTo(-0.06 * m, 0); ctx.lineTo(0.42 * m, 0); ctx.stroke();
-      ctx.strokeStyle = '#c6e04a'; ctx.lineWidth = Math.max(2, m * 0.04); ctx.beginPath(); ctx.ellipse(0.68 * m, 0, 0.26 * m, 0.18 * m, 0, 0, 7); ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 0.8;
-      for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.moveTo(0.68 * m + k * 0.07 * m, -0.16 * m); ctx.lineTo(0.68 * m + k * 0.07 * m, 0.16 * m); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0.44 * m, k * 0.045 * m); ctx.lineTo(0.92 * m, k * 0.045 * m); ctx.stroke(); }
-    } else if (id === 'bread') {
-      const gr = ctx.createLinearGradient(0, -0.06 * m, 0, 0.06 * m); gr.addColorStop(0, '#e8b46a'); gr.addColorStop(1, '#a8682c');
-      ctx.fillStyle = gr; R(-0.1 * m, -0.055 * m, 1.0 * m, 0.11 * m, 0.055 * m); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,240,210,.75)'; ctx.lineWidth = Math.max(1.2, m * 0.016);
-      for (let k = 0; k < 5; k++) { const x0 = (0.12 + k * 0.16) * m; ctx.beginPath(); ctx.moveTo(x0, 0.035 * m); ctx.lineTo(x0 + 0.08 * m, -0.035 * m); ctx.stroke(); }
+    if (id === 'pan') { // 平底鍋：全長約 0.45m，鍋面直徑 0.24m（側面看是扁的鍋）
+      ctx.fillStyle = '#3a2a1e'; R(-0.04 * m, -0.018 * m, 0.25 * m, 0.036 * m, 0.016 * m); ctx.fill();
+      ctx.fillStyle = '#9aa0a8'; ctx.fillRect(0.19 * m, -0.012 * m, 0.04 * m, 0.024 * m);
+      ctx.fillStyle = '#2a2d33'; ctx.beginPath(); ctx.ellipse(0.35 * m, 0, 0.12 * m, 0.11 * m, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#4b525d'; ctx.lineWidth = Math.max(1.5, m * 0.018); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(1, m * 0.01); ctx.beginPath(); ctx.arc(0.35 * m, 0, 0.08 * m, -2.5, -1.4); ctx.stroke();
+    } else if (id === 'ping') { // 桌球拍：全長約 0.26m，拍面 0.15m
+      ctx.fillStyle = '#c79a62'; R(-0.03 * m, -0.016 * m, 0.12 * m, 0.032 * m, 0.012 * m); ctx.fill();
+      ctx.fillStyle = '#d23a35'; ctx.beginPath(); ctx.ellipse(0.165 * m, 0, 0.078 * m, 0.072 * m, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = Math.max(1, m * 0.01); ctx.stroke();
+    } else if (id === 'tennis') { // 網球拍：全長約 0.69m，拍面約 0.32 × 0.25m，框比羽球拍粗
+      ctx.strokeStyle = '#2b2b2b'; ctx.lineWidth = Math.max(2.5, m * 0.034); ctx.beginPath(); ctx.moveTo(-0.08 * m, 0); ctx.lineTo(0.2 * m, 0); ctx.stroke();
+      ctx.strokeStyle = '#3d3d3d'; ctx.lineWidth = Math.max(1.5, m * 0.018); // 拍喉的 V 形
+      ctx.beginPath(); ctx.moveTo(0.2 * m, 0); ctx.lineTo(0.37 * m, -0.07 * m); ctx.moveTo(0.2 * m, 0); ctx.lineTo(0.37 * m, 0.07 * m); ctx.stroke();
+      ctx.save(); ctx.beginPath(); ctx.ellipse(0.53 * m, 0, 0.165 * m, 0.125 * m, 0, 0, 7); ctx.clip();
+      ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 0.8;
+      for (let k = -5; k <= 5; k++) { ctx.beginPath(); ctx.moveTo(0.53 * m + k * 0.03 * m, -0.13 * m); ctx.lineTo(0.53 * m + k * 0.03 * m, 0.13 * m); ctx.stroke(); }
+      for (let k = -4; k <= 4; k++) { ctx.beginPath(); ctx.moveTo(0.36 * m, k * 0.028 * m); ctx.lineTo(0.7 * m, k * 0.028 * m); ctx.stroke(); }
+      ctx.restore();
+      ctx.strokeStyle = '#c6e04a'; ctx.lineWidth = Math.max(2.5, m * 0.03); ctx.beginPath(); ctx.ellipse(0.53 * m, 0, 0.165 * m, 0.125 * m, 0, 0, 7); ctx.stroke();
+    } else if (id === 'cone') { // 三角錐：手抓尖端，高約 0.45m，底座 0.28m 見方
+      ctx.fillStyle = '#ff6a1a'; ctx.beginPath(); ctx.moveTo(0.02 * m, -0.018 * m); ctx.lineTo(0.43 * m, -0.11 * m); ctx.lineTo(0.43 * m, 0.11 * m); ctx.lineTo(0.02 * m, 0.018 * m); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.92)'; // 反光條
+      ctx.beginPath(); ctx.moveTo(0.16 * m, -0.05 * m); ctx.lineTo(0.24 * m, -0.069 * m); ctx.lineTo(0.24 * m, 0.069 * m); ctx.lineTo(0.16 * m, 0.05 * m); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0.3 * m, -0.082 * m); ctx.lineTo(0.36 * m, -0.095 * m); ctx.lineTo(0.36 * m, 0.095 * m); ctx.lineTo(0.3 * m, 0.082 * m); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0.43 * m, -0.14 * m, 0.03 * m, 0.28 * m); // 黑色底座
     }
-    // 拳頭（握住）；徒手就只有這隻手
-    ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(0.01 * m, 0, (id === 'hand' ? 0.07 : 0.055) * m, 0, 7); ctx.fill();
-    if (id === 'hand') { ctx.strokeStyle = 'rgba(120,70,40,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0.03 * m, -0.04 * m); ctx.lineTo(0.03 * m, 0.04 * m); ctx.stroke(); }
+    // 手：拿道具時是握拳；徒手是張開的手掌，越痛越紅
+    if (id === 'hand') {
+      const k = pain || 0, mix = (a, b) => Math.round(a + (b - a) * k);
+      ctx.fillStyle = k > 0 ? `rgb(${mix(242, 235)},${mix(201, 70)},${mix(160, 60)})` : skin;
+      R(-0.01 * m, -0.045 * m, 0.11 * m, 0.09 * m, 0.03 * m); ctx.fill(); // 手掌
+      for (let f = 0; f < 4; f++) { R(0.09 * m, (-0.04 + f * 0.022) * m, 0.07 * m, 0.017 * m, 0.008 * m); ctx.fill(); } // 手指
+      if (k > 0.3) { ctx.strokeStyle = `rgba(255,255,255,${(0.6 * k).toFixed(2)})`; ctx.lineWidth = 1.2; // 痛的抖動線
+        for (let f = 0; f < 3; f++) { ctx.beginPath(); ctx.arc(0.08 * m, 0, (0.11 + f * 0.035) * m, -0.7, 0.7); ctx.stroke(); } }
+    } else { ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(0.01 * m, 0, 0.05 * m, 0, 7); ctx.fill(); }
   }
   // 📏 縮小：界外區用警示斜紋，新邊界是發光的線；縮的時候邊界慢慢滑進來，上面飄一個「−45cm」
-  // 蓄力條：頭上一條，左短右深
-  function drawCharge(g) {
-    const x = px(g.p.x), y = py(g.p.y + 2.35), w = Math.max(56, S_ * 1.3), h = 9, l = charge.lvl;
-    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2 - 3, y - h / 2 - 3, w + 6, h + 6, 7) : ctx.rect(x - w / 2 - 3, y - h / 2 - 3, w + 6, h + 6); ctx.fill();
-    const gr = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0); gr.addColorStop(0, '#5ce1c6'); gr.addColorStop(0.6, '#ffe066'); gr.addColorStop(1, '#ff8a3d');
-    ctx.fillStyle = gr; ctx.fillRect(x - w / 2, y - h / 2, w * l, h);
-    ctx.fillStyle = '#fff'; ctx.font = `700 ${Math.max(10, Math.round(S_ * 0.22))}px "Noto Sans TC", sans-serif`; ctx.textAlign = 'center';
-    ctx.fillText(T().chShort, x - w / 2 - 12, y + 4); ctx.fillText(T().chDeep, x + w / 2 + 12, y + 4);
-  }
   function drawShrink(g, dt) {
     const T0 = g.sh, D = g.shrD; if (!T0 || !D) return;
     let moving = false;
@@ -4584,6 +4637,22 @@
   }
 
   // 🌪️ 天氣畫面（球的物理在 stepEnv）。under：畫在人和球後面；over：蓋在最上面
+  // 下雨天：人跳起來、落地濺起水花
+  let splashes = [];
+  function splash(x, k) {
+    for (let i = 0; i < 12 * k; i++) { const a = Math.PI * (0.15 + Math.random() * 0.7); const v = 1.2 + Math.random() * 2.2 * k;
+      splashes.push({ x, y: 0.02, vx: Math.cos(a) * v * (Math.random() < 0.5 ? -1 : 1), vy: Math.sin(a) * v, life: 0.45 + Math.random() * 0.25 }); }
+    splashes.push({ ring: true, x, t: 0, life: 0.5 });
+  }
+  function drawSplash() {
+    const dt = 1 / 60; splashes = splashes.filter(d => (d.life -= dt) > 0);
+    for (const d of splashes) {
+      if (d.ring) { d.t += dt; const q = d.t / 0.5; ctx.strokeStyle = `rgba(220,235,255,${(0.7 * (1 - q)).toFixed(2)})`; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.ellipse(px(d.x), GY + 3, (0.15 + q * 0.6) * S_, (0.04 + q * 0.12) * S_, 0, 0, 7); ctx.stroke(); continue; }
+      d.vy -= 9.8 * dt; d.x += d.vx * dt; d.y = Math.max(0, d.y + d.vy * dt);
+      ctx.fillStyle = 'rgba(215,232,255,.8)'; ctx.beginPath(); ctx.arc(px(d.x), py(d.y), Math.max(1.2, S_ * 0.025), 0, 7); ctx.fill();
+    }
+  }
   function drawWeather(g, t, layer) {
     const e = g.env, ty = e.type, cv = ctx.canvas;
     if (ty === 'wind') {
@@ -4611,25 +4680,32 @@
       ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.font = `900 ${Math.round(S_ * 0.42)}px "Noto Sans TC", sans-serif`; ctx.textAlign = 'center';
       ctx.fillText(dir > 0 ? '🌬️ ➜➜' : '⬅⬅ 🌬️', px(NET_X), py(NET_H) - S_ * 1.8);
     } else if (ty === 'rain') {
+      const hs = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
       if (layer === 'under') {
-        const sky = ctx.createLinearGradient(0, 0, 0, GY); sky.addColorStop(0, 'rgba(20,28,45,.55)'); sky.addColorStop(1, 'rgba(30,40,60,.2)');
-        ctx.fillStyle = sky; ctx.fillRect(0, 0, W, GY);
-        // 濕地板反光
-        ctx.fillStyle = 'rgba(160,190,230,.16)'; ctx.fillRect(0, GY + 1, W, H - GY);
-        ctx.strokeStyle = 'rgba(220,235,255,.18)'; ctx.lineWidth = 2;
-        for (let i = 0; i < 8; i++) { const x = (i * 131 + t * 20) % W; ctx.beginPath(); ctx.moveTo(x, GY + 18); ctx.lineTo(x + 40, GY + 18); ctx.stroke(); }
+        ctx.fillStyle = 'rgba(25,35,55,.22)'; ctx.fillRect(0, 0, W, GY); // 天色稍微暗一點
+        const fl = ctx.createLinearGradient(0, GY, 0, H); fl.addColorStop(0, 'rgba(170,200,240,.20)'); fl.addColorStop(1, 'rgba(170,200,240,.06)');
+        ctx.fillStyle = fl; ctx.fillRect(0, GY + 1, W, H - GY); // 濕地板
+        // 雨滴打在地上的漣漪：一圈一圈擴散、慢慢淡掉
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 26; i++) {
+          const per = 0.9 + hs(i, 1) * 0.8, tt = t + hs(i, 2) * per, cyc = Math.floor(tt / per), ph = tt / per - cyc;
+          const x = hs(i, cyc) * W, y = GY + 4 + hs(cyc, i + 9) * Math.max(4, H - GY - 8), sc = 0.6 + (y - GY) / Math.max(1, H - GY) * 0.8;
+          for (let k = 0; k < 2; k++) { const q = ph - k * 0.22; if (q <= 0) continue;
+            ctx.strokeStyle = `rgba(215,230,255,${(0.5 * (1 - q)).toFixed(3)})`; ctx.beginPath(); ctx.ellipse(x, y, (2 + q * 13) * sc, (0.7 + q * 3.6) * sc, 0, 0, 7); ctx.stroke(); }
+        }
         return;
       }
-      for (let L = 0; L < 2; L++) { // 遠處細雨＋近處粗雨
-        ctx.strokeStyle = L ? 'rgba(200,220,255,.55)' : 'rgba(170,195,235,.3)'; ctx.lineWidth = L ? 1.8 : 1;
-        const n = L ? 55 : 90, sp = L ? 1100 : 800, len = L ? 26 : 14;
-        for (let i = 0; i < n; i++) { const x = (i * 97.31 % W + L * 41 + t * 120) % W, y = ((i * 41.7 * (L + 1) % (GY + 40)) + t * sp) % (GY + 40) - 30;
-          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len * 0.25, y + len); ctx.stroke(); }
+      // 不間斷的細雨絲：每一滴有自己的速度和起點，往下掉、碰到地就從上面重來
+      const wx = (e.wind || 0) * 6, hgt = GY + 20;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 140; i++) {
+        const near = i % 4 === 0, v = (near ? 900 : 650) + hs(i, 3) * 250, len = near ? 18 : 11;
+        const y = ((hs(i, 4) * hgt + t * v) % hgt) - 20, x = ((hs(i, 5) * (W + 80) + (y + 20) / v * wx * 40) % (W + 80)) - 40;
+        ctx.strokeStyle = near ? 'rgba(210,225,250,.42)' : 'rgba(190,210,240,.24)'; ctx.lineWidth = near ? 1.3 : 0.9;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len * 0.12 + wx * 0.3, y + len); ctx.stroke();
       }
-      ctx.strokeStyle = 'rgba(210,225,255,.6)'; ctx.lineWidth = 1.2; // 地上濺起的水花
-      for (let i = 0; i < 16; i++) { const ph = (t * 2.2 + i * 0.37) % 1, x = (i * 173.7) % W, r = 2 + ph * 9;
-        ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.ellipse(x, GY + 4, r, r * 0.3, 0, Math.PI, 0); ctx.stroke(); }
-      ctx.globalAlpha = 1;
+      ctx.lineCap = 'butt';
+      drawSplash();
     } else if (ty === 'snow') {
       if (layer === 'under') {
         ctx.fillStyle = 'rgba(190,215,255,.16)'; ctx.fillRect(0, 0, W, H);
@@ -4685,7 +4761,6 @@
     g.p.serving = g.state === 'serve' && g.server === 'p'; g.a.serving = g.state === 'serve' && g.server === 'a';
     if (g.drill) drawDrill(t);
     if (g.env) drawWeather(g, t, 'under');
-    if (charge && charge.on) drawCharge(g);
     const shiver = g.env && g.env.type === 'snow'; // ❄️ 寒流：兩個人一直發抖
     if (shiver) { ctx.save(); ctx.translate(Math.sin(t * 55) * 1.6, Math.sin(t * 41) * 0.6); }
     drawPlayer(g.p, '#5ce1c6', t, dt);
